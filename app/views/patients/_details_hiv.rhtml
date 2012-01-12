@@ -1,0 +1,15 @@
+<div id="project_name">IPD</div>
+<div id="patient_name"><%= @patient.person.name %></div>
+<div id="patient_id"> <%= @patient.national_id_with_dashes rescue '' %></div>
+
+<div id="patient_card">
+  <div id="birthdate" value="<%= @patient.person.birthdate_formatted rescue '' %>"> Birth Date </div>
+  <div id="gender" value="<%= @patient.person.formatted_gender rescue '' %>"> Gender </div>
+  <div id="village" value="<%= @patient.person.addresses.first.city_village rescue 'Unknown' %>"> Village </div>
+
+  <div id="hivstatus" value="<%= @status.humanize rescue '' %>"> HIV Status </div>
+  
+  <%if @status.upcase != 'UNKNOWN'%>
+    <div id="hivtestdate" value="<%= @hiv_test_date rescue '' %>"> HIV test date: </div>
+  <%end%>
+</div>

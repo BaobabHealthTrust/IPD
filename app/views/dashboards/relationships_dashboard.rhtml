@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <title>Patient Guardians Dashboard</title>
+    <script type="text/javascript" language="javascript"
+    src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      //tt_cancel_destination = '/patients/show/<%= @patient.id %>';
+      tt_cancel_show = '/patients/show/<%= @patient.id %>';
+    </script>
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='/clinic'>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Patient Guardians Dashboard</th>
+            </tr>
+            <tr>
+              <td>
+                <h1 id='project_name'>
+                  BART
+                </h1>
+            <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+            <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+            <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+            <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+            <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+            <div id="patient_card">
+              <% if (@reason_for_art_eligibility rescue nil) != nil && (@reason_for_art_eligibility) != "" %>
+
+                 <span value="<%= @reason_for_art_eligibility rescue "" %>">Reason for Starting</span>
+               <% end %>
+
+               <% if (@arv_number rescue nil) != nil && (@arv_number) != " " %>
+
+                  <span value="<%= @arv_number rescue "" %>">ARV Number</span>
+
+               <% end %>
+               <% if (@patient_bean.filing_number rescue nil) != nil && (@patient_bean.filing_number) != " " %>
+
+                <span value="<%= @patient_bean.filing_number rescue "" %>">Filing Number</span>
+
+               <% end %>
+               <% if (@patient_bean.eid_number rescue nil) != nil && (@patient_bean.eid_number) != " " %>
+
+                 <span value="<%= @patient_bean.eid_number rescue "" %>">EID Number</span>
+
+               <% end %>
+               <% if (@patient_bean.pre_art_number rescue nil) != nil && (@patient_bean.pre_art_number) != " " %>
+
+                <span value="<%= @patient_bean.pre_art_number rescue "" %>">Pre-ART Number</span>
+
+               <% end %>
+                </div>
+                <select id="tabs">
+                  <option value='/patients/guardians?patient_id=<%= @patient.id %>'>Guardians</option>
+                </select>
+                <select id="links">
+                  <option value='/relationships/search?patient_id=<%= @patient.id -%>'>New Guardian</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+  </body>
+</html>

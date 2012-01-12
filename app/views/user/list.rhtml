@@ -1,0 +1,13 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/people?active_tab=tab2"; 
+</script>
+
+  <%= render :partial => 'list' %>
+
+<div id="navigationLinksInline">
+    <%= link_to 'User Menu', :action => 'user_menu', :id => @user %>
+      <%= link_to 'Voided Users', :action => 'voided_list', :id => @user %>
+    <%=link_to 'Previous page', { :page => @user_pages.current.previous } if @user_pages.current.previous %>
+    <%= link_to 'Next page', { :page => @user_pages.current.next } if @user_pages.current.next %> 
+</div>
+

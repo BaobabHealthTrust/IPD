@@ -1,0 +1,57 @@
+<style>
+  .touchscreenTextInput, 
+  .tt_controls_time_until_next_appointment #keyboard, 
+  .tt_controls_next_appointment_date #num,
+  .tt_controls_next_appointment_date #Unknown {
+    display:none;
+  }
+  .tt_controls_next_appointment_date #keyboard{
+    top:80px;
+  }
+</style>
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  
+  function calculate_dates() {
+    ds.date = new Date(); 
+    ds.date.setDate(ds.date.getDate() + (7 * parseInt($('time_until_next_visit').value)));
+    $('dateselector_year').value = ds.date.getFullYear();
+    $('dateselector_month').value = DateUtil.months[ds.date.getMonth()];
+    $('dateselector_day').value = ds.date.getDate(); 
+    ds.init();  
+  }
+  
+</script>
+<form id='appointment' action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "APPOINTMENT" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <label for='time_until_next_visit'>Time Until Next Appointment</label>
+  <%= select_tag("time_until_next_visit", options_for_select([["1 week", 1],
+                                                              ["2 weeks", 2],
+                                                              ["3 weeks", 3],
+                                                              ["1 month", 4],
+                                                              ["2 months", 8],
+                                                              ["3 months", 12],
+                                                              ["4 months", 16],
+                                                              ["5 months", 20],
+                                                              ["6 months", 24]]), {:helpText => 'Time Until Next Appointment'}) %>
+
+
+  <label for='next_appointment_date'>Next Appointment Date</label>
+  <%= hidden_field_tag("observations[][concept_name]", "RETURN VISIT DATE") %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+  <%= text_field_tag("observations[][value_datetime]", (Time.now + 1.month).year, {:helpText => 'Next Appointment Date', 
+                                                                                   :field_type => 'date', 
+                                                                                   :absoluteMin => Date.today.year, 
+                                                                                   :absoluteMax => Date.today.year + 1, 
+                                                                                   :tt_pageStyleClass => "Date DatesOnly", 
+                                                                                   :tt_onLoad => "calculate_dates();", 
+                                                                                   :id => 'next_appointment_date'}) %>
+
+
+  <%= submit_tag "Finish" %>    
+</form>

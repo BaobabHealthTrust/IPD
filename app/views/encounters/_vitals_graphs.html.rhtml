@@ -1,0 +1,86 @@
+<style type="text/css">
+    #summary {
+      padding:10px;
+      font-size:1.8em;
+    }
+    #weightHistory {
+      margin-top:20px;
+      padding-top:10px;
+      margin-bottom:15px;
+      border-top:1px solid black;
+      font-size:1.2em;
+    }
+    .gridLabel {
+      text-align:center;
+      min-width:33px;
+      font-size:10pt;
+      margin-top:17px;
+    }
+    .xLabel {
+      margin-top:-17px;
+    }
+    .lowWeightForHeight{color:black;background:red;}
+    .medWeightForHeight {color:black;background:yellow;}
+    .lowBMI {color:black;background:red;}
+    .lowWeightForAge {color:black;background:red;}
+    .medWeightForAge {color:black;background:yellow;}
+    .goodWeightForAge {color:black;}
+    .lowHeightForAge {color:black;background:red;}
+    .medHeightForAge {color:black;background:yellow;}
+    .goodHeightForAge {color:black;}
+  </style>
+   
+  <script id="source" language="javascript" type="text/javascript">
+    var displayText;
+    <%    a = []
+          @min = Time.now
+          @max = Time.now
+    %>
+function growthIndicators() {
+    displayText += '<div id="placeholder" style="width:300px;height:250px;"></div><div id="overview" style="width:500px;height:140px;"></div>';
+     $('tt_page_summary_').innerHTML = '<div id="summary">' + displayText + '</div>' ;
+    
+    <%@patient.person.observations.find_by_concept_name("WEIGHT (KG)").sort_by{|obs| obs.obs_datetime}.each{|x| a << [x.obs_datetime, x.value_numeric]}%>
+    var patient_weight = [];
+    
+    patient_weight = <%= a.to_json%>;
+    
+          var patient_ticks = [
+      <%
+         @first = Time.mktime(@min.year, @min.month, 1) # move to the start of the month
+         @last = Time.mktime(@max.year + (@max.month == 12 ? 1 : 0), @max.month + (@max.month < 12 ? 1 : -11), 1)
+         while (@first <= @last) do
+       %>
+        [<%= @first.to_f -%>, "<div class='xLabel'><%= @first.strftime(" ") -%><br/><b><%= @first.strftime("%Y") if @first.month == 1 -%></b></div>"],
+       <% @first = Time.mktime(@first.year + (@first.month == 12 ? 1 : 0), @first.month + (@first.month < 12 ? 1 : -11), 1) %>
+       <% end %>
+    ];
+
+    var range = <%= 1.year.to_f -%>;
+    var min = <%= @min.to_f -%>;
+    var max = <%= @max.to_f -%>;
+    var max_tick = "<%= @max.strftime("%d-%b") -%>";
+
+    function get_data(x1, x2) {
+      return [{
+        label: "Weight",
+        color: "green",
+       data: patient_weight,
+        points: { show: true},
+        lines: { show: true},
+       /* bars: { show: true }*/
+      }]
+    }
+    var min = <%= @min.to_f -%>;
+    var max = <%= @max.to_f -%>;
+    var max_tick = "<%= @max.strftime("%d-%b") -%>";
+    
+    var plot_options = {
+      grid: { clickable: true },
+      yaxis: {min: 20, max:80},
+      xaxis: { min: max-range, max: max, ticks: patient_ticks}
+    }
+
+    var plot = jQuery.plot(jQuery("#placeholder"), get_data(null, null), plot_options);
+}
+</script>

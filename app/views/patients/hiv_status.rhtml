@@ -1,0 +1,21 @@
+<script>
+  tt_cancel_destination = '/patients/show/<%= @patient.id %>?auto_load_forms=false&admitted=false';
+  tt_cancel_show = '/patients/show/<%= @patient.id %>?auto_load_forms=false&admitted=false';
+  //alert("<%= @patient.person.id rescue '00' %>");
+</script>
+
+<div id="dashboard">
+  <%= render :partial => "details_hiv" %>
+
+<%if @status.upcase == 'REACTIVE' %>
+  <select id="tabs">
+        <option value="/patients/hiv_status_reactive?patient_id=<%=@patient.patient_id%>">HIV Reactive</option>
+  </select>
+<%end%>
+
+  <select id="links">
+    <option value='/encounters/new/update_hiv_status?patient_id=<%= @patient.id -%>&new_hiv_status=REACTIVE'">Reactive</option>
+    <option value='/encounters/new/update_hiv_status?patient_id=<%= @patient.id -%>&new_hiv_status=NON-REACTIVE'">Non-Reactive</option>
+    <option value='/encounters/new/update_hiv_status?patient_id=<%= @patient.id -%>&new_hiv_status=UNKNOWN'">Unknown</option>
+  </select>
+</div>

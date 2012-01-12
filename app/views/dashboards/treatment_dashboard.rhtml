@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>Patient Treatment Dashboard</title>
+    <script type="text/javascript" language="javascript"
+    src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      //tt_cancel_destination = '/patients/show/<%= @patient.id %>';
+      tt_cancel_show = "<%= ((@amounts_required != @amount_needed) && (@amount_needed.to_i > 0) ?
+                              "javascript:confirmAction()" : "/patients/show/#{@patient.id}") %>";
+
+      function confirmAction(){
+
+        confirmOperation("An amount of <%= @amount_needed %> units is still outstanding. Do you still want to ignore it?",
+        "/patients/show/<%= @patient.id %>")
+
+        return;
+
+        var response = confirm("An amount of <%= @amount_needed %> units is still outstanding. Do you still want to ignore it?");
+
+        if(response) {
+          alert(response);
+          window.location = "/patients/show/<%= @patient.id %>";
+        } 
+        
+      }
+
+    </script>
+
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='/clinic'>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Patient Treatment Dashboard</th>
+            </tr>
+            <h1 id='project_name'>
+              BART
+            </h1>
+            <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+            <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+            <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+            <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+            <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+            <div id="patient_card">
+              <% if (@reason_for_art_eligibility rescue nil) != nil && (@reason_for_art_eligibility) != "" %>
+
+                 <span value="<%= @reason_for_art_eligibility rescue "" %>">Reason for Starting</span>
+               <% end %>
+
+               <% if (@arv_number rescue nil) != nil && (@arv_number) != " " %>
+
+                  <span value="<%= @arv_number rescue "" %>">ARV Number</span>
+
+               <% end %>
+               <% if (@patient_bean.filing_number rescue nil) != nil && (@patient_bean.filing_number) != " " %>
+
+                <span value="<%= @patient_bean.filing_number rescue "" %>">Filing Number</span>
+
+               <% end %>
+               <% if (@patient_bean.eid_number rescue nil) != nil && (@patient_bean.eid_number) != " " %>
+
+                 <span value="<%= @patient_bean.eid_number rescue "" %>">EID Number</span>
+
+               <% end %>
+               <% if (@patient_bean.pre_art_number rescue nil) != nil && (@patient_bean.pre_art_number) != " " %>
+
+                <span value="<%= @patient_bean.pre_art_number rescue "" %>">Pre-ART Number</span>
+
+               <% end %>
+            </div>
+            <select id="tabs">
+              <option value='/patients/treatment?patient_id=<%= @patient.id %>&dispensed_order_id=<%=@dispensed_order_id%>'>Dispensation</option>
+              <option value='/patients/history_treatment?patient_id=<%= @patient.id %>'>Treatment history</option>
+            </select>
+            <select id="links">
+              <!-- option value='/regimens/new?patient_id=<%= @patient.id -%>'>Regimen</option -->
+							<option value='/prescriptions/generic_advanced_prescription?patient_id=<%= @patient.id -%>'>Treatment</option>
+							<option value='/prescriptions/advanced_prescription?patient_id=<%= @patient.id -%>'>Advanced prescription</option>
+              <option value='/prescriptions/auto?patient_id=<%= @patient.id -%>'>Prescribe</option>
+              <option value='/dispensations/new?patient_id=<%= @patient.id -%>'>Dispense</option>
+              <%if User.current_user.activities.include?('Manage Lab Orders') or User.current_user.activities.include?('Manage Lab Results') or
+       User.current_user.activities.include?('Manage Sputum Submissions') or User.current_user.activities.include?('Manage TB Clinic Visits') or
+       User.current_user.activities.include?('Manage TB Reception Visits') or User.current_user.activities.include?('Manage TB Registration Visits') or
+       User.current_user.activities.include?('Manage HIV Status Visits') %>
+                <option value='/patients/tb_treatment_card?patient_id=<%= @patient.id -%>'>TB Treatment Card</option>
+              <%end%>
+            </select>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+  </body>
+</html>

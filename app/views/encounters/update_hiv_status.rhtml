@@ -1,0 +1,106 @@
+<style>
+  .inputFrameClass{
+    display: block;
+  }
+</style>
+<script>
+  var tt_cancel_destination = "/patients/hiv_status?patient_id=<%= @patient.id %>"
+  var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+  function seen(page) {
+    for (var i = page; i >= 0; i--) {
+      skipped[i] = 1;
+    }
+  }
+</script>
+
+<form id='hiv_status' action="/encounters/create" method='post'>
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "UPDATE HIV STATUS" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <%= hidden_field_tag ("observations[][value_coded_or_text]", @new_hiv_status)%>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "HIV STATUS", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+
+  <%= text_field_tag("observations[][value_coded_or_text]", nil, {:field_type => 'date', :id => "hiv_test_date", :condition => @new_hiv_status != 'UNKNOWN', :helpText => 'Hiv test date', :tt_onUnload => "setHivVisit()"}) %>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", 'HIV TEST DATE', {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <%= hidden_field_tag("observations[][value_coded_or_text]", nil, {:id => 'hiv_test_visit', :condition => @new_hiv_status != 'UNKNOWN'})%>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "HIV TEST VISIT", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <%= select_tag("observations[][value_coded_or_text]", options_for_select(["", "YES","NO", "UNKNOWN"]), {:id => 'bactrim_started', :condition => @new_hiv_status== 'REACTIVE', :helpText => 'CPT Started', :tt_requireNextClick => 'false'})%>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "CPT STARTED", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  
+  <%#= text_field_tag("bactrim_start_date", nil, {:field_type => 'date', :id => "bactrim_start_date", :helpText => 'Bactrim start date', :condition => '$("bactrim_started").value == "YES"' }) %>
+  <%#= hidden_field_tag("observations[][value_datetime]", DateTime.now(), {:id => "bactrim_start_date_value_datetime"}) %>
+
+  <%= select_tag("observations[][value_coded_or_text]", options_for_select(["", "YES","NO", "DEFAULTER", "UNKNOWN"]), {:id => 'art_started', :condition => @new_hiv_status== 'REACTIVE', :helpText => 'ART Started', :tt_requireNextClick => 'false'})%>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "ON ART", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <%= text_field_tag("observations[][value_coded_or_text]", nil, {:field_type => 'date', :id => "art_start_date", :helpText => 'ART start date', :condition => '$("art_started").value == "YES"' }) %>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", 'ART START DATE', {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <%= text_field_tag("observations[][value_coded_or_text]", nil, {:field_type => 'date', :id => "art_default_date", :helpText => 'ART default date', :condition => '$("art_started").value == "DEFAULTER"' }) %>
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", 'ART DEFAULT DATE', {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  <%= text_field_tag("observations[][value_coded_or_text]", nil, {:field_type => 'alpha', :id => "art_clinic_location", :helpText => 'ART Clinic Location', :condition => '$("art_started").value == "DEFAULTER" || $("art_started").value == "YES"', :ajaxURL => '/search/health_facilities?search_string='}) %>  
+  <%= hidden_field_tag("observations[][value_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "ART CLINIC LOCATION", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  
+  <%= select_tag("observations[][value_coded_or_text]", options_for_select(["", "YES","NO", "UNKNOWN"]), {:id => 'advised_to_visit_art',:condition => @new_hiv_status== 'REACTIVE' && '$("art_started").value != "YES"', :helpText => 'Advised to visit ART'})%>
+   <%= hidden_field_tag("observations[][value_text]", nil) %>
+   <%= hidden_field_tag("observations[][concept_name]", "ADVISED TO VISIT ART", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+  
+  <%= submit_tag "Finish" %>
+</form>
+
+<script type="text/javascript">
+  function setHivVisit(){
+
+    try{
+      var admissionDate = new Date('<%=@admission_date%>');
+      var testDate = new Date($('hiv_test_date').value.replace(/-/g, '/'));
+      if (testDate >= admissionDate){
+        $('hiv_test_visit').value = 'CURRENT VISIT';
+      }else{
+        $('hiv_test_visit').value = 'PREVIOUS VISIT';
+      }
+    }catch(e){
+      $('hiv_test_visit').value = 'PREVIOUS VISIT';
+    }
+  }
+
+  </script>
+
+

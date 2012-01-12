@@ -1,0 +1,42 @@
+<script type="text/javascript">
+     tt_cancel_destination = "/people?active_tab=tab2";
+     tt_cancel_show = "/people?active_tab=tab2";
+</script>
+<style type="text/css">
+      #menu {
+        float:right;
+        position:relative;
+        height:478px;
+        width:257px;;
+      }
+</style>
+
+<div style="margin:10px;">
+  <div id="details" style="float:left">
+    <%= render :partial => "details" %>
+  </div>
+  <div id="menu">
+    <button class="button blue" style="width:100%"
+            onclick="window.location = '/user/barcode_label?id=<%= @user.id -%>'"
+      <span>Print Barcode</span>
+    </button><br />
+<!--
+    <button class="button green" style="width:100%"
+            onclick="window.location = '/user/add_role?id=<%= @user.id -%>'">
+      <span>Add Role</span>
+    </button><br />
+    <button class="button green" style="width:100%"
+            onclick="window.location ='/user/delete_role?id=<%= @user.id -%>'">
+      <span>Delete Role</span>
+    </button><br />
+-->
+    <button class="button blue" style="width:100%"
+      onclick="window.location ='/user/edit?id=<%= @user.id -%>'">
+      <span>Edit Names</span>
+    </button><br />
+    <button class="button blue" style="width:100%"
+            onclick="window.location ='/user/change_password?user_id=<%= @user.id -%>'">
+      <span>Change Password</span>
+    </button>
+  </div>
+</div>

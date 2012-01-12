@@ -1,0 +1,8 @@
+<script>
+  var tt_cancel_destination = "/people"
+</script>
+
+<% form_tag :action => "set_datetime" do %>
+  <%= text_field_tag("past_visit_date", nil, {:field_type => 'date', :helpText => 'Past visit date'}) %>
+  <%= submit_tag "Set visit date" %>
+<% end %>

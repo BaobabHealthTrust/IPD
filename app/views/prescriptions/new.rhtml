@@ -1,0 +1,50 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/prescriptions/?patient_id=<%= @patient.id %>"
+</script>
+<script language="javascript" type="text/javascript" src="/javascripts/prescription.js"></script>
+<style type="text/css">
+  #space { display:inline; font-size:1.2em; }
+  #helpText0 { width:680px}
+</style>
+<%= stylesheet_link_tag "drug-style" %>
+<form id='inpatient_prescriptions' action="/prescriptions/create" method='post'>
+  <%= hidden_field_tag "patient_id", @patient.id %>
+
+
+   <input type='text' name='drug_prescribed_ctrl' tt_onUnLoad="removeDrugsPrescribed()" tt_onLoad='createDrugsPrescribed();updateDrugList();$("drug-inputbox").focus()' tt_pageStyleClass='NoControls' optional />
+   
+   <!--input type='text' name='drugs_given_ctrl' tt_onLoad='createDrugsGiven();' tt_pageStyleClass='NoControls' optional /-->
+
+
+  <%= submit_tag "Finish" %>
+
+</form>
+<div id='subDiagnosisPopUpDiv' class='diagnosisBarDiv'>
+
+<div id='subDiagnosisPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp();'><span>Cancel</span></button>
+  </div>
+</div>
+
+<div id='subSubDiagnosisPopUpDiv' class='diagnosisBarDiv'>
+<div id='subSubDiagnosisPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp();'><span>Cancel</span></button>
+  </div>
+</div>
+
+<script type='text/javascript'>
+var finalAnswers = [<%= DiagnosisTree.diagnosis_data.to_json %>];
+var finalTests = [<%= DiagnosisTree.confirmatory_evidence.to_json %>];  
+var mainDataArray = [];
+var tempDataArray = [];
+var confirmatoryEvidenceData = {};
+var currentDiagnoses = <%=@diagnoses.to_json %>;
+var activeDiagnosis = "<%=@first_diagnosis%>";
+var commonPrescriptions = <%=@common_prescriptions.to_json%>;
+var showAllDrugs = false;
+</script>
+

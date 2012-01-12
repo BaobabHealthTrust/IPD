@@ -1,0 +1,138 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/encounters/diagnoses_index?patient_id=<%= @patient.id %>"
+</script>
+<script language="javascript" type="text/javascript" src="/javascripts/diagnosis.js"></script>
+<style type="text/css">
+  #space { display:inline; font-size:1.2em; }
+  #helpText0 { width:680px}
+  #savingPopUpBox{
+ position: absolute;
+ top: 100px;
+ left: 345px;
+ border: solid 1px #000000;
+ background-color: #FFFF99;
+ /*visibility: hidden; */
+ display:none;
+ font-size: 2.4em;
+ z-index: 1003;
+}
+
+</style>
+ <%= stylesheet_link_tag "diagnosis-style" %>
+<form id='inpatient_diagnosis' action="/encounters/create" method='post'>
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "DIAGNOSIS" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+   <input type='text' name='diagnosis_ctrl' tt_onLoad='removeHiddenFormElements("diagnoses");setNextAttribute();createElements();updateInfoBar();updateMainDiagnosis();$("diagnosis-inputbox").focus()' tt_onUnLoad='hideDiagnosisContainer();createHiddenDiagnosis();' tt_pageStyleClass='NoControls' optional /> 
+   
+   <input type='text' name='confirmatory_evidence_ctrl' tt_onLoad='removeHiddenFormElements("tests");createConfirmatoryEvidence();' tt_onUnLoad='hideConfirmatoryContainer();createHiddenConfirmatoryEvidence();' tt_pageStyleClass='NoControls' optional /> 
+
+   <%= select_tag("observations[][value_coded_or_text]", options_for_select(["", "LIKELY","UNLIKELY"]), {:id => 'iris_condition',:condition => 'irisConditionAvailable == true', :helpText => 'Are these IRIS conditions', :tt_onUnLoad => "$('savingPopUpBox').style.display='block';"})%>
+   <%= hidden_field_tag("observations[][value_text]", nil) %>
+   <%= hidden_field_tag("observations[][concept_name]", "IRIS CONDITIONS", {}) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+
+
+  <%= submit_tag "Finish" %>
+
+</form>
+<div id='subDiagnosisPopUpDiv' class='diagnosisBarDiv'>
+<div id='subDiagnosisPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp("diagnosis");'><span>Cancel</span></button>
+  </div>
+</div>
+
+<div id='subSubDiagnosisPopUpDiv' class='diagnosisBarDiv'>
+<div id='subSubDiagnosisPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp("diagnosis");'><span>Cancel</span></button>
+  </div>
+</div>
+
+<div id='synonymsPopUpDiv' class='diagnosisBarDiv'>
+<div id='synonymsPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp("synonyms");'><span>Cancel</span></button>
+  </div>
+</div>
+
+<div id='multiSelectPopUpDiv' class='diagnosisBarDiv' style='background-color: Yellow'>
+<div id='multiSelectPopUp' class='diagnosisBar' style='background-color: Yellow'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp("multiSelect");'><span>Done</span></button>
+  </div>
+</div>
+
+<div id='otherDiagnosisPopUpDiv' class='diagnosisBarDiv'>
+  <div id='otherDiagnosisPopUp' class='diagnosisBar'>
+   <input type='text' name='other-diagnosis-inputbox' class='diagnosis-inputbox' id='other-diagnosis-inputbox' value="OTHER" /> 
+  </div> 
+<div>
+  <button onmousedown='hidePopUp("otherDiagnosis");activeInputBox="diagnosis-inputbox";'><span>Done</span></button><span style='display:inline-block;width:180px;'> </span>
+  <button onmousedown='$("other-diagnosis-inputbox").value="";'><span>Clear</span></button><span style='display:inline-block;width:180px;'> </span>
+  <button onmousedown='$("otherDiagnosisPopUpDiv").style.display = "none";activeInputBox="diagnosis-inputbox";'><span>Cancel</span></button>
+  </div>
+</div>
+
+<div id='testResultPopUpDiv' class='diagnosisBarDiv'>
+<div id='testResultPopUp' class='diagnosisBar'>
+</div> 
+<div>
+  <button onmousedown='hidePopUp("testResult");'><span>Cancel</span></button>
+  </div>
+</div>
+
+
+
+<div id="savingPopUpBox"  align="center">
+  <p id="p1">Saving to database</p>
+  <p id="p2"><blink>Please wait......</blink></p>
+</div>
+
+<div id='duplicateWarning' class='messageBar' style='display:none'>
+  A similar entry has already been made <br />
+  <button onmousedown="$('duplicateWarning').style.display='none'"><span>OK</span></button>
+</div> 
+
+<div id='invalidDiagnosis' class='messageBar' style='display:none'>
+  This action could create an ambiguous diagnosis<br />
+  <button onmousedown="$('invalidDiagnosis').style.display='none'"><span>OK</span></button>
+</div> 
+
+<script type='text/javascript'>
+var finalAnswers = [<%= DiagnosisTree.diagnosis_data.to_json %>];
+var finalTests = [<%= DiagnosisTree.confirmatory_evidence.to_json %>];  
+var mainDataArray = [];
+var tempDataArray = [];
+var confirmatoryEvidenceData = {};
+var allDiagnoses = [];
+var patientIdValue = '<%=@patient.id%>';
+var obsDatetimeValue = '<%=Time.now()%>';
+var subDiagnosisPopupData = "";
+var subSubDiagnosisPopupData = "";
+var allTests = {};
+var irisConditions = <%= DiagnosisTree.iris_conditions.to_json %>;  
+var irisConditionAvailable = false;
+var synonyms = <%=DiagnosisTree.synonyms.to_json %>
+var stringfiedArray = "";
+var diagnosesHash = <%= DiagnosisTree.diagnosis_data.to_json %>;
+var multiSelectDiagnoses = <%=DiagnosisTree.multi_select_diagnosis.to_json %>
+var multiSelectSession = false;
+var activeInputBox = 'diagnosis-inputbox';
+var synonymString = '';
+var allTestResults = [];
+var finalTestResults = <%=DiagnosisTree.test_results.to_json%>;
+var inpatientDiagnoses = <%= DiagnosisTree.inpatient_diagnoses.to_json %>;  
+var back = false;
+</script>
+

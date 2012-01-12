@@ -1,0 +1,37 @@
+<style type="text/css" >
+.mytableborder {
+border-top:1px dotted ;
+border-right:1px dotted ;
+border-bottom:1px dotted ;
+border-left:1px dotted ;
+font-size:9pt;
+/*background-color: #660000;*/
+}
+</style>
+ 
+  <div id ="patient_history" style="position: absolute; left: 355px; top: 200px;">
+
+<h3> Medical History</h3>
+ </div>
+ 
+ <div style="font-size: 1.2em;">
+   <ul class="list" style="bottom:65px; height: 360px; width: 640px; left: 355px; position: absolute;">
+    <table cellpadding="2" cellspacing="0" border ="1" width="100%">
+      <tr>
+        <th valign="top" class="mytableborder"> DATE</th>
+        <th class="mytableborder"> DIAGNOSIS</th>
+        <th class="mytableborder">TREATMENT</th>
+      </tr>
+      <%counter = 0
+      @past_diagnosis.keys.sort.reverse.each{|visit_id|
+        counter +=1    
+    %>
+      <tr class ="data" style="background-color: <%=counter % 2 == 0 ? 'white' : 'lightgrey'%>" >
+        <td valign="top" class="mytableborder"> <%= Visit.find(visit_id).end_date.strftime("%d-%b-%Y")%></td>
+      <td class="mytableborder"> <% @past_diagnosis[visit_id].each{|observation| %> <%= observation.to_s %> <br/><%}%></td>
+        <td class="mytableborder"> <% @past_treatments[visit_id].each{|observation|%> <%= observation.to_s %> <br/> <%}%></td>
+      </tr>
+    <%}%>
+  </table>
+  </ul>
+  </div>
