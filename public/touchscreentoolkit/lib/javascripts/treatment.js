@@ -18,7 +18,7 @@ var current_generic = null;
 var selectedGenerics = {};
 var current_diagnosis = null;
 
-var search_path = (typeof(search_path) != "undefined" ? search_path : "/search/load_frequencies_and_dosages");
+var search_path = (typeof(search_path) != "undefined" ? search_path : "/prescriptions/load_frequencies_and_dosages");
 
 // This function exists in the TouchScreenToolkit but repeated here in case it's
 // not referenced

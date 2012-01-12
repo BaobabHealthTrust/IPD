@@ -2,16 +2,62 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
   
   def show
-    session[:mastercard_ids] = []
-    session_date = session[:datetime].to_date rescue Date.today
-	@patient_bean = PatientService.get_patient(@patient.person)
-	@encounters = @patient.encounters.find_by_date(session_date)
-	@diabetes_number = DiabetesService.diabetes_number(@patient)
-    @prescriptions = @patient.orders.unfinished.prescriptions.all
-    @programs = @patient.patient_programs.all
-    @alerts = alerts(@patient, session_date) rescue nil
-    @restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
-    @restricted.each do |restriction|    
+			session[:mastercard_ids] = []
+			session_date = session[:datetime].to_date rescue Date.today
+			@patient_bean = PatientService.get_patient(@patient.person)
+			@encounters = @patient.encounters.find_by_date(session_date)
+			@diabetes_number = DiabetesService.diabetes_number(@patient)
+			@prescriptions = @patient.orders.unfinished.prescriptions.all
+			@programs = @patient.patient_programs.all
+			@alerts = alerts(@patient, session_date) rescue nil
+			
+			if !session[:location].blank?
+				session["category"] = (session[:location] == "Paeds A and E" ? "paeds" : "adults")
+			end
+ 			
+			#find the user priviledges
+			@super_user = false
+			@clinician  = false
+			@doctor     = false
+			@regstration_clerk  = false
+
+			@category = session["category"] rescue ""
+
+			#@ili = Observation.find(:all, :joins => [:concept => :name], :conditions =>
+			#		["self.concept.fullname = ? AND value_coded IN (?) AND obs.voided = 0", "ILI",
+			#		ConceptName.find(:all, :conditions => ["voided = 0 AND name = ?", "YES"]).collect{|o|
+			#			o.concept_id}]).length
+
+			#@sari = Observation.find(:all, :joins => [:concept => :name], :conditions =>
+			#		["name = ? AND value_coded IN (?) AND obs.voided = 0", "SARI",
+			#		ConceptName.find(:all, :conditions => ["voided = 0 AND name = ?", "YES"]).collect{|o|
+			#			o.concept_id}]).length
+
+			@user = User.find(session[:user_id])
+			@user_privilege = @user.user_roles.collect{|x|x.role.downcase}
+
+			if @user_privilege.include?("superuser")
+				@super_user = true
+			elsif @user_privilege.include?("clinician")
+				@clinician  = true
+			elsif @user_privilege.include?("doctor")
+				@doctor     = true
+			elsif @user_privilege.include?("regstration_clerk")
+				@regstration_clerk  = true
+			elsif @user_privilege.include?("adults")
+				@adults  = true
+			elsif @user_privilege.include?("paediatrics")
+				@paediatrics  = true
+			elsif @user_privilege.include?("hmis lab order")
+				@hmis_lab_order  = true
+			elsif @user_privilege.include?("spine clinician")
+				@spine_clinician  = true
+			elsif @user_privilege.include?("lab")
+				@lab  = true
+			end
+		
+			@restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
+			@restricted.each do |restriction|
       @encounters = restriction.filter_encounters(@encounters)
       @prescriptions = restriction.filter_orders(@prescriptions)
       @programs = restriction.filter_programs(@programs)
@@ -1901,7 +1947,7 @@ class PatientsController < ApplicationController
     excluded_encounters = ["Registration", "Diabetes history","Complications", #"Diabetes test",
       "General health", "Diabetes treatments", "Diabetes admissions","Hospital admissions",
       "Hypertension management", "Past diabetes medical history"]
-    @encounter_names = @patient.encounters.active.map{|encounter| encounter.name}.uniq.delete_if{ |encounter| excluded_encounters.include? encounter.humanize } rescue []
+    @encounter_names = @patient.encounters.map{|encounter| encounter.name}.uniq.delete_if{ |encounter| excluded_encounters.include? encounter.humanize } rescue []
     ignored_concept_id = Concept.find_by_name("NO").id;
 
     @observations = Observation.find(:all, :order => 'obs_datetime DESC', 
@@ -2429,6 +2475,210 @@ class PatientsController < ApplicationController
     return
   end
   
-  private
+  def past_diagnoses
+    @patient_ID = params[:patient_id]  #--removedas I am only passing the patient_id  || params[:id] || session[:patient_id]
+    @patient = Patient.find(@patient_ID) rescue nil 
+    #@remote_visit_diagnoses = @patient.remote_visit_diagnoses rescue nil
+    #@remote_visit_treatments = @patient.remote_visit_treatments rescue nil
+   # @local_diagnoses = PatientService.visit_diagnoses(@patient.id)
+   # @local_treatments = @patient.visit_treatments
 
+		
+   
+    @past_local_cases = {}    
+    @patient.encounters.each{|e| 
+      @past_local_cases[e.encounter_datetime.strftime("%Y-%m-%d")] = {} if e.encounter_datetime.to_date < (session[:datetime].to_date rescue Date.today.to_date)   
+      }
+    
+    @patient.encounters.each{|e| 
+      @past_local_cases[e.encounter_datetime.strftime("%Y-%m-%d")][e.name] = encounter_summary(e)  if e.encounter_datetime.to_date < (session[:datetime].to_date rescue Date.today.to_date)   
+      }
+    
+    @past_local_cases = @past_local_cases.sort.reverse!
+    render :layout => false
+    
+  end
+  
+	def diagnosis_summary(encounter)
+      diagnosis_array = []
+      encounter.observations.each{|observation|
+        next if observation.obs_group_id != nil || observation.concept.fullname.upcase != 'DIAGNOSIS'
+        observation_string =  observation.answer_string
+        child_ob = child_observation(observation)
+        while child_ob != nil
+          observation_string += " #{child_ob.answer_string}"
+          child_ob = child_observation(child_ob)
+        end
+        diagnosis_array << observation_string
+        diagnosis_array << " : "
+      }
+      
+      my_hash = []
+      encounter.observations.each{|observation|
+        my_hash << observation.concept.fullname 
+      }
+ 			#raise my_hash.to_yaml           
+      diagnosis_array.compact.to_s.gsub(/ : $/, "")
+	end
+	
+	def encounter_summary(encounter)
+		name = encounter.type.name
+    if name == 'TREATMENT'
+      o = encounter.orders.collect{|order| order.to_s}.join("\n")
+      o = "TREATMENT NOT DONE" if encounter.type.name == 'X'
+      o = "No prescriptions have been made" if o.blank?
+      o
+    elsif name.upcase.include?('DIAGNOSIS')
+      diagnosis_array = []
+      encounter.observations.each{|observation|
+        next if observation.obs_group_id != nil || !observation.concept.fullname.upcase.include?('DIAGNOSIS')
+        observation_string =  observation.answer_string
+        child_ob = child_observation(observation)
+        while child_ob != nil
+          observation_string += " #{child_ob.answer_string}"
+          child_ob = child_observation(child_ob)
+        end
+        diagnosis_array << observation_string
+        diagnosis_array << " : "
+      }
+      
+         
+      diagnosis_array.compact.to_s.gsub(/ : $/, "")
+
+    elsif name == 'LAB RESULTS'
+
+      encounter.observations.collect{|observation|
+       lab_obs_lab_results_string(observation).gsub("LAB TEST SERIAL NUMBER: ", "LAB ID: ") rescue nil
+      }.compact.join(",<br /> ")
+		end
+	end		
+
+  def child_observation(obs)
+    Observation.find(:first, :conditions => ["obs_group_id =?", obs.id])
+  end
+  
+  # Added to filter Chronic Conditions and Influenza Data
+  def lab_obs_lab_results_string(observation)
+    if observation.answer_concept
+      if !observation.answer_concept.name.name.include?("NO")
+        "#{(observation.concept.name.name == "LAB TEST RESULT" ? "<b>#{observation.answer_concept.name.name rescue nil}</b>" : 
+        "#{observation.concept.name.name}: #{observation.answer_concept.name.name rescue nil}#{observation.value_text rescue nil}#{observation.value_numeric rescue nil}") rescue nil}"
+      end
+    else
+      "#{observation.concept.name.name rescue nil}: #{observation.value_text rescue nil}#{observation.value_numeric rescue nil}"
+    end
+  end
+  
+  def modify_demographics
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @field = params[:field]
+    render :partial => "edit_demographics", :field =>@field, :layout => true and return
+  end
+  
+  def update_demographics
+   update_demo_graphics(params)
+   redirect_to :action => 'edit_demographics', :patient_id => params['person_id'] and return
+  end
+  
+  def update_demo_graphics(params)
+    person = Person.find(params['person_id'])
+    
+    if params.has_key?('person')
+      params = params['person']
+    end
+    
+    address_params = params["addresses"]
+    names_params = params["names"]
+    patient_params = params["patient"]
+    person_attribute_params = params["attributes"]
+
+    params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|attributes/) }
+    birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
+
+    person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate/) }
+   
+    if !birthday_params.empty?
+    
+      if birthday_params["birth_year"] == "Unknown"
+        PatientService.set_birthdate_by_age(person, birthday_params["age_estimate"])
+      else
+        PatientService.set_birthdate(person, birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+      end
+      
+      person.birthdate_estimated = 1 if params["birthdate_estimated"] == 'true'
+      person.save
+    end
+    
+    person.update_attributes(person_params) if !person_params.empty?
+    person.names.first.update_attributes(names_params) if names_params
+    person.addresses.first.update_attributes(address_params) if address_params
+
+    #update or add new person attribute
+    person_attribute_params.each{|attribute_type_name, attribute|
+        attribute_type = PersonAttributeType.find_by_name(attribute_type_name.humanize.titleize) || PersonAttributeType.find_by_name("Unknown id")
+        #find if attribute already exists
+        exists_person_attribute = PersonAttribute.find(:first, :conditions => ["person_id = ? AND person_attribute_type_id = ?", person.id, attribute_type.person_attribute_type_id]) rescue nil 
+        if exists_person_attribute
+          exists_person_attribute.update_attributes({'value' => attribute})
+        else
+          person.person_attributes.create("value" => attribute, "person_attribute_type_id" => attribute_type.person_attribute_type_id)
+        end
+      } if person_attribute_params
+
+  end
+  
+  # Influenza method for accessing the influenza view
+  def influenza
+    
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @person = Person.find(@patient.patient_id)
+		
+		@patient_bean = PatientService.get_patient(@person)
+    @gender = @patient_bean.sex
+    
+    if @patient_bean.age > 15
+    	session["category"] = 'adults'
+    else
+    	session["category"] = 'peads'    
+    end
+    render :layout => "multi_touch"
+    
+  end
+
+  def influenza_recruitment
+
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @influenza_data = Array.new()
+    @influenza_concepts = Array.new()
+
+    excluded_concepts = ["INFLUENZA VACCINE IN THE LAST 1 YEAR",
+                         "CURRENTLY (OR IN THE LAST WEEK) TAKING ANTIBIOTICS",
+                         "CURRENT SMOKER","WERE YOU A SMOKER 3 MONTHS AGO",
+                         "PREGNANT?","RDT OR BLOOD SMEAR POSITIVE FOR MALARIA",
+                         "PNEUMOCOCCAL VACCINE","MEASLES VACCINE",
+                         "MUAC LESS THAN 11.5 (CM)","WEIGHT",
+                         "PATIENT CURRENTLY SMOKES","IS PATIENT PREGNANT?"]
+        
+    influenza_data = @patient.encounters.current.all(
+                                        :conditions => ["encounter.encounter_type = ?",EncounterType.find_by_name('INFLUENZA DATA').encounter_type_id],
+                                        :include => [:observations]
+                                      ).map{|encounter| encounter.observations.all}.flatten.compact.map{|obs|
+                                        @influenza_data.push("#{obs.concept.fullname}: #{obs.answer_string}") if !excluded_concepts.include?(obs.to_s.split(':')[0])
+                                      }
+
+    if @influenza_data.length == 0
+     redirect_to :action => 'show', :patient_id => @patient.id and return
+    end
+    render :layout => "multi_touch"
+  end
+  
+  # Influenza method for accessing the influenza view
+  def chronic_conditions
+
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @person = Person.find(@patient.patient_id)
+
+    @gender = @person.gender
+
+  end
 end

@@ -7,9 +7,9 @@ production:
 
 development:
   adapter: mysql
-  database: openmrs17
-  username: root
-  password: yammyuk
+  database: openmrs_bart2
+  username: chawa
+  password: baobab
   host: localhost
 
 test: &TEST

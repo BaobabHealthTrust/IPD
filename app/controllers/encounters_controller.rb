@@ -127,14 +127,13 @@ class EncountersController < ApplicationController
       encounter.encounter_datetime = params['encounter']['encounter_datetime']
     end
 
-    if params[:filter] and !params[:filter][:provider].blank?
-      user_person_id = User.find_by_username(params[:filter][:provider]).person_id
-    elsif params[:location] # Migration
-      user_person_id = encounter[:provider_id]
+    if !params[:filter][:provider].blank?
+     user_person_id = User.find_by_username(params[:filter][:provider]).person_id
+     encounter.provider_id = user_person_id
     else
-      user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
+     user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
+     encounter.provider_id = user_person_id
     end
-    encounter.provider_id = user_person_id
 
     encounter.save    
 
@@ -318,7 +317,51 @@ class EncountersController < ApplicationController
 		else
 			@retrospective = false
 		end
+		
+    @procedures = []
+    @proc =  GlobalProperty.find_by_property("facility.procedures").property_value.split(",") rescue []
+    
+    @proc.each{|proc|
+      proc_concept = ConceptName.find_by_name(proc, :conditions => ["voided = 0"]).concept_id rescue nil
+      @procedures << [proc, proc_concept] if !proc_concept.nil?
+    }
 
+    @diagnosis_type = params[:diagnosis_type]
+        
+		@diagnoses_requiring_specification = [
+				'OTHER',
+				'ABSCESS',
+				'ALL OTHER COMMUNICABLE DISEASES',
+				'ALL OTHER NON-COMMUNICABLE DISEASES',
+				'ALL OTHER SURGICAL CONDITIONS',
+				'GYNAECOLOGICAL DISORDERS',
+				'OPPORTUNISTIC INFECTIONS',
+				'OTHER HEART DISEASES',
+				'OTHER SKIN CONDITION'].join(';')
+
+		  @diagnoses_requiring_details = [
+		    "ABORTION COMPLICATIONS",
+		    "CANCER",
+		    "CANDIDA",
+		    "CHRONIC PSYCHIATRIC DISORDER",
+		    "DIARRHOEA DISEASES",
+		    "FRACTURE",
+		    "GASTROINTESTINAL BLEED",
+		    "MALARIA",
+		    "MENINGITIS",
+		    "MUSCULOSKELETAL PAINS",
+		    "PNEUMONIA",
+		    "POISONING",
+		    "RENAL FAILURE",
+		    "ROAD TRAFFIC ACCIDENT",
+		    "SEXUALLY TRANSMITTED INFECTION",
+		    "SOFT TISSUE INJURY",
+		    "TRAUMATIC CONDITIONS",
+		    "TUBERCULOSIS",
+		    "ULCERS"].join(';')
+		    
+#		    raise @diagnoses_requiring_details.to_yaml
+    
 		@current_height = PatientService.get_patient_attribute_value(@patient, "current_height")
 		@min_weight = PatientService.get_patient_attribute_value(@patient, "min_weight")
         @max_weight = PatientService.get_patient_attribute_value(@patient, "max_weight")
@@ -596,31 +639,22 @@ class EncountersController < ApplicationController
 	def diagnoses
 		search_string = (params[:search_string] || '').upcase
 		filter_list = params[:filter_list].split(/, */) rescue []
-
-		diagnosis_concept = CoreService.get_global_property_value("application_diagnosis_concept")
-
-		if diagnosis_concept.blank?
-			diagnosis_concepts = ConceptClass.find_by_name("Diagnosis").concepts rescue []
-		else
-			diagnosis_concepts = ConceptName.find_by_name(diagnosis_concept).concept.concept_answers.collect {|answer|
-			  Concept.find(answer.answer_concept) rescue nil
-			}.compact rescue []
-		end
-
-		# raise diagnosis_concepts.to_yaml    
-
+		outpatient_diagnosis = ConceptName.find_by_name("DIAGNOSIS").concept
+		diagnosis_concepts = ConceptClass.find_by_name("Diagnosis", :include => {:concepts => :name}).concepts rescue []    
 		# TODO Need to check a global property for which concept set to limit things to
-		#if (false)
-		#  diagnosis_concept_set = ConceptName.find_by_name('MALAWI NATIONAL DIAGNOSIS').concept
-		#  diagnosis_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', concept_set.id], :include => [:name])
-		#end  
+
+		#diagnosis_concept_set = ConceptName.find_by_name('MALAWI NATIONAL DIAGNOSIS').concept This should be used when the concept becames available
+		diagnosis_concept_set = ConceptName.find_by_name('MALAWI ART SYMPTOM SET').concept
+		diagnosis_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', diagnosis_concept_set.id])
 
 		valid_answers = diagnosis_concepts.map{|concept| 
 			name = concept.fullname rescue nil
-			(!name.to_s.upcase.match(search_string.to_s.upcase).nil?) ? name : nil rescue ''
+			name.match(search_string) ? name : nil rescue nil
 		}.compact
-
-		@suggested_answers = valid_answers.sort.uniq.reject{|answer| filter_list.include?(answer) }.uniq[0..10]
+		previous_answers = []
+		# TODO Need to check global property to find out if we want previous answers or not (right now we)
+		previous_answers = Observation.find_most_common(outpatient_diagnosis, search_string)
+		@suggested_answers = (previous_answers + valid_answers).reject{|answer| filter_list.include?(answer) }.uniq[0..10] 
 		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
 		render :text => "<li>" + @suggested_answers.join("</li><li>") + "</li>"
 	end
@@ -1266,4 +1300,115 @@ class EncountersController < ApplicationController
 
   end
 
+	def diagnoses
+		search_string = (params[:search_string] || '').upcase
+		filter_list = params[:filter_list].split(/, */) rescue []
+
+		diagnosis_concept = CoreService.get_global_property_value("application_diagnosis_concept")
+
+		if diagnosis_concept.blank?
+			diagnosis_concepts = ConceptClass.find_by_name("Diagnosis").concepts rescue []
+		else
+			diagnosis_concepts = ConceptName.find_by_name(diagnosis_concept).concept.concept_answers.collect {|answer|
+			  Concept.find(answer.answer_concept) rescue nil
+			}.compact rescue []
+		end
+
+		# raise diagnosis_concepts.to_yaml    
+
+		# TODO Need to check a global property for which concept set to limit things to
+		#if (false)
+		#  diagnosis_concept_set = ConceptName.find_by_name('MALAWI NATIONAL DIAGNOSIS').concept
+		#  diagnosis_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', concept_set.id], :include => [:name])
+		#end  
+
+		valid_answers = diagnosis_concepts.map{|concept| 
+			name = concept.fullname rescue nil
+			(!name.to_s.upcase.match(search_string.to_s.upcase).nil?) ? name : nil rescue ''
+		}.compact
+
+		@suggested_answers = valid_answers.sort.uniq.reject{|answer| filter_list.include?(answer) }.uniq[0..10]
+		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
+		render :text => "<li>" + @suggested_answers.join("</li><li>") + "</li>"
+	end
+
+  def daignosis_details
+				diagnosis = params[:diagnosis_string]
+		   
+		    @diagnoses_detail = ConceptName.find(:all, :joins => :concept, 
+		      :conditions => ["concept_name.concept_id IN (?) AND voided = 0",
+		      ConceptSet.find(:all, :conditions => ["concept_set IN (?)", ConceptName.find(:all, :joins => :concept, 
+		              :conditions => ["voided = 0 AND name = ?", diagnosis]).collect{|nom| nom.concept_id}]).collect{|set| 
+		          set.concept_id}]).collect{|term| term.name}.uniq 
+		  
+		    render :text => "<li></li><li>" + @diagnoses_detail.join("</li><li>") + "</li>"
+  end
+  
+  def create_adult_influenza_entry
+    create_influenza_data
+  end
+  
+  def create_influenza_data
+    # raise params.to_yaml
+    
+    encounter = Encounter.new(params[:encounter])
+    encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank? or encounter.name == 'DIABETES TEST'
+    encounter.save
+
+    (params[:observations] || []).each{|observation|
+      # Check to see if any values are part of this observation
+      # This keeps us from saving empty observations
+      values = "coded_or_text group_id boolean coded drug datetime numeric modifier text".split(" ").map{|value_name|
+        observation["value_#{value_name}"] unless observation["value_#{value_name}"].blank? rescue nil
+      }.compact
+
+      next if values.length == 0
+      observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
+      observation[:encounter_id] = encounter.id
+      observation[:obs_datetime] = encounter.encounter_datetime ||= (session[:datetime] ||= Time.now())
+      observation[:person_id] ||= encounter.patient_id
+      observation[:concept_name] ||= "OUTPATIENT DIAGNOSIS" if encounter.type.name == "OUTPATIENT DIAGNOSIS"
+
+      if(observation[:measurement_unit])
+        observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
+        observation.delete(:measurement_unit)
+      end
+
+      if(observation[:parent_concept_name])
+        concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
+        observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+        observation.delete(:parent_concept_name)
+      end
+
+      extracted_value_numerics = observation[:value_numeric]
+      if (extracted_value_numerics.class == Array)
+
+        extracted_value_numerics.each do |value_numeric|
+          observation[:value_numeric] = value_numeric
+          Observation.create(observation)
+        end
+      else
+        Observation.create(observation)
+      end
+    }
+    @patient = Patient.find(params[:encounter][:patient_id])
+
+    # redirect to a custom destination page 'next_url'
+    if(params[:next_url])
+      redirect_to params[:next_url] and return
+    else
+      redirect_to next_task(@patient)
+    end
+    
+  end
+  
+  def create_influenza_recruitment
+    create_influenza_data
+  end
+
+  # create_chronics is a method to save the results of an influenza
+  # Chronic Conditions question set
+  def create_chronics
+    create_influenza_data
+  end
 end
