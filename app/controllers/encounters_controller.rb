@@ -899,6 +899,13 @@ class EncountersController < ApplicationController
           ['Positive','POSITIVE'],
           ['Unknown','UNKNOWN']
       ],
+        'art_started_answers' => [
+          ['',''],
+          ['Yes','YES'],
+          ['No','NO'],
+          ['Defaulter','DEFAULTER'],
+          ['Unknown','UNKNOWN']
+      ],
       'who_stage1' => [
         ['',''],
         ['Asymptomatic','ASYMPTOMATIC'],
@@ -1024,6 +1031,22 @@ class EncountersController < ApplicationController
         ['',''],
         ['Pulmonary tuberculosis (PTB)', 'Pulmonary tuberculosis'],
         ['Extrapulmonary tuberculosis (EPTB)', 'Extrapulmonary tuberculosis (EPTB)']
+      ],
+      'admission_wards' => [
+        ['',''],
+        ['Ward 2A', 'Ward 2A'],
+        ['Ward 3A', 'Ward 3A'],
+        ['Ward 3B', 'Ward 3B'],
+        ['Ward 4A', 'Ward 4A'],
+        ['Other', 'Other']
+      ],
+      'discharge_outcomes' => [
+        ['',''],
+        ['Alive (Discharged home)', 'Alive'],
+        ['Dead', 'Dead'],
+        ['Referred (Within Queens)', 'Referred'],
+        ['Transferred (Another health facility)', 'Transferred'],
+        ['Absconded', 'Absconded']
       ]
     }
   end
@@ -1047,7 +1070,7 @@ class EncountersController < ApplicationController
 		return false
 	end
 
-    def any_previous_tb_programs(patient_id)
+  def any_previous_tb_programs(patient_id)
         @tb_programs = ''
         patient_programs = PatientProgram.find_all_by_patient_id(patient_id)
 
@@ -1395,6 +1418,69 @@ class EncountersController < ApplicationController
 
     # redirect to a custom destination page 'next_url'
     if(params[:next_url])
+      redirect_to params[:next_url] and return
+    else
+      redirect_to next_task(@patient)
+    end
+    
+  end
+
+  # create_lab_entry is a method to save requested lab tests grouped by accession number
+  def create_lab_entry
+
+    encounter = Encounter.new(params[:encounter])
+    
+    # We need the time as well here which was not captured by session[:datetime]
+    # encounter.encounter_datetime = (session[:datetime] ||= Time.now)   #session[:datetime] unless session[:datetime].blank?
+    encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+    encounter.save
+
+    identifier = PatientIdentifier.new(params[:patient_identifier])
+    identifier.save
+
+    (params[:observations] || []).each{|observation|
+      # Check to see if any values are part of this observation
+      # This keeps us from saving empty observations
+      values = "coded_or_text group_id boolean coded drug datetime numeric modifier text".split(" ").map{|value_name|
+        observation["value_#{value_name}"] unless observation["value_#{value_name}"].blank? rescue nil
+      }.compact
+
+      next if values.length == 0
+      observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
+      observation[:encounter_id] = encounter.id
+      observation[:obs_datetime] = encounter.encounter_datetime ||= (session[:datetime] ||= Time.now())
+      observation[:person_id] ||= encounter.patient_id
+
+      observation[:concept_name] = "LAB TEST SERIAL NUMBER"
+
+      value_coded_or_text = observation[:value_coded_or_text]
+      observation[:value_coded_or_text] = identifier.identifier
+          
+      #observation[:value_text] = identifier.identifier
+
+      o = Observation.create(observation)
+
+      value_coded_or_text.each{|obs|
+
+        observation[:concept_name] = "REQUESTED LAB TEST SET"
+        observation[:obs_group_id] = o.obs_id
+        observation[:encounter_id] = encounter.id
+        observation[:obs_datetime] = encounter.encounter_datetime ||= (session[:datetime] ||= Time.now())
+        observation[:person_id] ||= encounter.patient_id
+        observation[:value_text] = nil
+        observation[:value_coded_or_text] = obs
+        Observation.create(observation)
+
+      }
+    }
+
+    @patient = Patient.find(params[:encounter][:patient_id])
+    
+    # redirect to a custom destination page 'next_url'
+    if encounter.type.name == "LAB ORDERS"
+      print_and_redirect("/encounters/label/?encounter_id=#{encounter.id}", next_task(@patient))  if encounter.type.name == "LAB ORDERS"
+      return
+    elsif(params[:next_url])
       redirect_to params[:next_url] and return
     else
       redirect_to next_task(@patient)

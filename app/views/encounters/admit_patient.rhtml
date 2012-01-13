@@ -9,18 +9,25 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
 <form id='outcome' action="/encounters/create" method='post'>
  <% options = {} %>
 
-    
   <%= hidden_field_tag "encounter[encounter_type_name]", "ADMIT PATIENT" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-  <%= select_tag("observations[][value_coded_or_text]", options_for_select(@admission_wards), {:helpText => 'Admit to ward', :tt_requireNextClick => 'false'})%>
+  <%= select_tag("observations[][value_coded_or_text]", options_for_select(@select_options['admission_wards']), {:helpText => 'Admit to ward', :tt_requireNextClick => 'false'})%>
   <%= hidden_field_tag("observations[][value_text]", nil) %>
   <%= hidden_field_tag("observations[][concept_name]", "ADMIT TO WARD", options) %>
   <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
 
+<% session_date = session[:datetime].to_date rescue nil                       
+    if session_date %>
+
+    <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    <% else %>
+      <%= hidden_field_tag "filter[provider]", nil %>
+    <%end%> 
   <%= submit_tag "Finish" %>    
  </form>
 

@@ -555,7 +555,8 @@ class PatientsController < ApplicationController
   
   def demographics
 	  @patient_bean = PatientService.get_patient(@patient.person)
-    render :layout => false
+
+    render :layout => 'menu'
   end
    
   def index
@@ -2002,8 +2003,8 @@ class PatientsController < ApplicationController
   end
   
   def recent_screen_complications
-	get_recent_screen_complications
-	render :layout => false   
+	  get_recent_screen_complications
+	  render :layout => false   
   end
   
   def get_recent_screen_complications
@@ -2072,13 +2073,13 @@ class PatientsController < ApplicationController
     @significant_medical_history = []
     @observations.each { |obs| @significant_medical_history << obs if @medical_history_ids.include? obs.concept_id}
 
-	patient_bean = PatientService.get_patient(@patient.person)
+	  patient_bean = PatientService.get_patient(@patient.person)
 
     @arv_number = patient_bean.arv_number
     @status     = PatientService.patient_hiv_status(@patient)
     
     #@status =Concept.find(Observation.find(:first,  :conditions => ["voided = 0 AND person_id= ? AND concept_id = ?",@patient.person.id, Concept.find_by_name('HIV STATUS').id], :order => 'obs_datetime DESC').value_coded).name.name rescue 'UNKNOWN'
-    @hiv_test_date    = PatientService.hiv_test_date(@patient.id).strftime("%d/%b/%Y") rescue "UNKNOWN"
+    @hiv_test_date    = PatientService.hiv_test_date(@patient.id).strftime("%d/%b/%Y") rescue "Unknown"
     @hiv_test_date = "Unkown" if @hiv_test_date.blank?
     @remote_art_info  = Patient.remote_art_info(@patient.national_id) rescue nil
 
@@ -2125,8 +2126,8 @@ class PatientsController < ApplicationController
     @patient_bean = PatientService.get_patient(@person)
     @address = @person.addresses.last
     
-	@phone = PatientService.phone_numbers(@person)['Cell phone number']
-	@phone = 'Unknown' if @phone.blank?
+	  @phone = PatientService.phone_numbers(@person)['Cell phone number']
+	  @phone = 'Unknown' if @phone.blank?
     render :layout => 'edit_demographics'
   end
   
@@ -2680,5 +2681,69 @@ class PatientsController < ApplicationController
 
     @gender = @person.gender
 
+  end
+
+  def influenza_info
+    @patient_id = params[:patient_id]  #--removed as I am only passing the patient_id  || params[:id] || session[:patient_id]
+    @patient = Patient.find(@patient_id) rescue nil
+    @influenza_data = Array.new()
+    excluded_concepts = Array.new()
+    @ipd_influenza_data = Array.new()
+
+    excluded_concepts = ["INFLUENZA VACCINE IN THE LAST 1 YEAR",
+                         "CURRENTLY (OR IN THE LAST WEEK) TAKING ANTIBIOTICS",
+                         "CURRENT SMOKER","WERE YOU A SMOKER 3 MONTHS AGO",
+                         "PREGNANT?","RDT OR BLOOD SMEAR POSITIVE FOR MALARIA",
+                         "PNEUMOCOCCAL VACCINE","MEASLES VACCINE",
+                         "MUAC LESS THAN 11.5 (CM)","WEIGHT",
+                         "PATIENT CURRENTLY SMOKES","IS PATIENT PREGNANT?"]
+
+   @influenza_data = @patient.encounters.all(:conditions => ["encounter.encounter_type = ?",EncounterType.find_by_name('INFLUENZA DATA').encounter_type_id],:include => [:observations]).map{|encounter| encounter.observations.all}.flatten.compact.map{|obs| @influenza_data.push("#{obs.to_s} ") if !excluded_concepts.include?(obs.to_s.split(':')[0])}
+    if @influenza_data.length == 0
+      @ipd_influenza_data << "None"
+    else
+      @ipd_influenza_data = @influenza_data.last
+    end
+
+    @opd_influenza_data = @patient.remote_influenza_info rescue nil
+
+    render :layout => false
+  end
+
+  def local_chronic_conditions(patient_id)
+
+    @patient = Patient.find(patient_id) rescue nil
+    @chronic_conditions = @patient.encounters.all(
+      :conditions => ["encounter.encounter_type = ?",EncounterType.find_by_name('CHRONIC CONDITIONS').encounter_type_id],:include => [:observations]) rescue []
+
+    chronic_conditions_array = Array.new
+
+    if @chronic_conditions.length == 0
+      chronic_conditions_array << "None"
+    else
+      @chronic_conditions.each do |encounter|
+          chronic_conditions_array << encounter.to_s
+      end
+    end
+    return chronic_conditions_array
+
+  end
+
+  def chronic_conditions_info
+    @patient_id = params[:patient_id]
+    @patient = Patient.find(@patient_id) rescue nil
+    @opd_chronic_conditions = Array.new()
+
+    opd_chronic_conditions = @patient.get_remote_chronic_conditions rescue []
+    #Add None element if no conditions are returned from remote
+    if @opd_chronic_conditions.length == 0
+      @opd_chronic_conditions << "None"
+    end
+
+    @ipd_chronic_conditions = local_chronic_conditions(@patient_id)
+    if @ipd_chronic_conditions.length == 0
+      @ipd_chronic_conditions << "None"
+    end
+    render :layout => false
   end
 end
