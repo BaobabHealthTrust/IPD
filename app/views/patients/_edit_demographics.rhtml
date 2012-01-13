@@ -17,7 +17,7 @@
   .tt_controls_home_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
 </style>
 <script>
-  var tt_cancel_destination = '/patients/demographics?patient_id=<%= @patient.id%>'
+  var tt_cancel_destination = '/patients/edit_demographics?patient_id=<%= @patient.id%>'
   var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   
   function seen(page) {

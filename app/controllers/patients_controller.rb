@@ -2586,7 +2586,7 @@ class PatientsController < ApplicationController
     if params.has_key?('person')
       params = params['person']
     end
-    
+
     address_params = params["addresses"]
     names_params = params["names"]
     patient_params = params["patient"]
