@@ -616,7 +616,16 @@ class EncountersController < ApplicationController
 			#raise @not_explicitly_asked.to_yaml
 			#raise concept_set('PRESUMED SEVERE HIV CRITERIA IN INFANTS').to_yaml
 		end
-
+    
+		if (params[:encounter_type].upcase rescue '') == "ADMIT_PATIENT"
+		  ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
+      @ipd_wards = []
+		  @ipd_wards = LocationTagMap.all.collect {| ltm |
+		    [ltm.location.name, ltm.location.name]if ltm.location_tag.name == ipd_wards_tag
+		  }
+    	@ipd_wards = @ipd_wards.compact		  
+		end
+		
 		redirect_to "/" and return unless @patient
 
 		redirect_to next_task(@patient) and return unless params[:encounter_type]
@@ -634,29 +643,6 @@ class EncountersController < ApplicationController
 	def current_user_role
 		@role = User.current_user.user_roles.map{|r|r.role}
 		return @role
-	end
-
-	def diagnoses
-		search_string = (params[:search_string] || '').upcase
-		filter_list = params[:filter_list].split(/, */) rescue []
-		outpatient_diagnosis = ConceptName.find_by_name("DIAGNOSIS").concept
-		diagnosis_concepts = ConceptClass.find_by_name("Diagnosis", :include => {:concepts => :name}).concepts rescue []    
-		# TODO Need to check a global property for which concept set to limit things to
-
-		#diagnosis_concept_set = ConceptName.find_by_name('MALAWI NATIONAL DIAGNOSIS').concept This should be used when the concept becames available
-		diagnosis_concept_set = ConceptName.find_by_name('MALAWI ART SYMPTOM SET').concept
-		diagnosis_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', diagnosis_concept_set.id])
-
-		valid_answers = diagnosis_concepts.map{|concept| 
-			name = concept.fullname rescue nil
-			name.match(search_string) ? name : nil rescue nil
-		}.compact
-		previous_answers = []
-		# TODO Need to check global property to find out if we want previous answers or not (right now we)
-		previous_answers = Observation.find_most_common(outpatient_diagnosis, search_string)
-		@suggested_answers = (previous_answers + valid_answers).reject{|answer| filter_list.include?(answer) }.uniq[0..10] 
-		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
-		render :text => "<li>" + @suggested_answers.join("</li><li>") + "</li>"
 	end
 
 	def treatment

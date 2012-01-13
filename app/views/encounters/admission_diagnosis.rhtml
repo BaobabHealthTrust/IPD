@@ -1,0 +1,83 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+
+	function updateNextFinish(){
+		if (tstInputTarget.value == '')
+			$('nextButton').innerHTML = '<span>Finish</span>';
+		else
+			$('nextButton').innerHTML = '<span>Next</span>';
+		setTimeout(updateNextFinish, 500)
+	}
+	
+  function set_ajaxURL_for_suggestions(value) {
+  	url = "/encounters/daignosis_details?diagnosis_string=" + value + "&search_string=",
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url + "&search_string=");
+    listSuggestions(tstCurrentPage);
+  }
+
+	diagnoses_requiring_details = '<%= "#{@diagnoses_requiring_details}" %>';
+	diagnoses_requiring_specification = '<%= "#{@diagnoses_requiring_specification}"%>';
+
+</script>
+
+<form id='outpatient_diagnosis' action="/encounters/create" method='post'>
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "ADMISSION DIAGNOSIS" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+	<%= touch_select_tag "Primary diagnosis", @patient, nil,
+		{	:id => "primary_diagnosis",
+			:ajaxURL => "/encounters/diagnoses?search_string=",
+		 	:helpText => "Primary Diagnosis" } %>
+
+	<%= touch_select_tag "Detailed primary diagnosis", @patient, nil,
+		{	:id => "primary_diagnosis_details",	 	
+		 	:condition => 'diagnoses_requiring_details.contains($("primary_diagnosis").value.toUpperCase())',
+			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("primary_diagnosis").value)',
+		 	:helpText => "Detailed primary diagnosis" } %>
+
+	<%= touch_text_field_tag "Specific primary diagnosis", @patient, nil,
+		{	:id => "specific_diagnosis",
+		 	:condition => 'diagnoses_requiring_specification.contains($("primary_diagnosis").value.toUpperCase())',
+		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
+			:allowFreeText => 'true',
+			:textCase => "upper",
+		 	:helpText => "Specific primary diagnosis" } %>
+		 	 	
+	<%= touch_select_tag "Secondary Diagnosis", @patient, nil,
+		{	:id => "secondary_diagnosis",
+		  :optional => true,
+	 		:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
+			:ajaxURL => "/encounters/diagnoses?search_string=",
+		 	:helpText => "Secondary Diagnosis" } %>
+
+	<%= touch_select_tag "Detailed secondary diagnosis", @patient, nil,
+		{	:id => "secondary_diagnosis_details",
+		 	:condition => 'diagnoses_requiring_details.contains($("secondary_diagnosis").value.toUpperCase())',
+			:ajaxURL => "/encounters/daignosis_details?search_string=",
+		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
+			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("secondary_diagnosis").value)',
+		 	:helpText => "Detailed secondary diagnosis" } %>
+
+	<%= touch_text_field_tag "Specific secondary diagnosis", @patient, nil,
+		{	:id => "sec_specific_diagnosis",
+		 	:condition => 'diagnoses_requiring_specification.contains($("secondary_diagnosis").value.toUpperCase())',
+			:allowFreeText => 'true',
+			:textCase => "upper",
+		 	:helpText => "Specific secondary diagnosis" } %>
+
+
+	<% if @retrospective %>
+		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+	<% else %>
+		<%= hidden_field_tag "filter[provider]", nil %>
+	<% end %>
+
+  <%= submit_tag "Finish" %>
+</form>

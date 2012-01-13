@@ -11,7 +11,7 @@
       tt_cancel_show = '/clinic';
     </script>
     <style>
-      #tab7 {
+      #tab8 {
         background-color: white;
         border: 0 none;
         color: black;
@@ -40,7 +40,10 @@
                 <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
               <% end %>
             </div>
-
+            <%
+                 task = @task
+                 task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
+              %>
             <select id="tabs">
 							<option value='/patients/overview?patient_id=<%= @patient.id %>'>Overview</option>
 							<option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
@@ -51,6 +54,9 @@
 								<option value="/patients/chronic_conditions_info?patient_id=<%=@patient.patient_id%>"> Chronic Diseases</option>
 							<% end %>
 							<option value='/patients/personal/<%= @patient.id -%>'>Printouts/Other</option>
+							<option value='/patients/next_task_description?task_id=<%= task.id -%>'>
+                NEXT TASK: <%= task_name.gsub('_',' ') %>
+              </option>
 
 						</select>
 						

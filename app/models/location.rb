@@ -2,7 +2,7 @@ class Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key "location_id"
   include Openmrs
-
+  has_many :location_tag_map
   cattr_accessor :current_location
 
   def site_id

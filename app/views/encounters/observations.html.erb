@@ -1,0 +1,29 @@
+
+<% for obs in @encounter.observations do %>
+  <li class="data <%= cycle('even', 'odd') %>" encounter="<%= @encounter.id %>" observation="<%= obs.id %>">
+    <% if obs.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id %>
+      <div class="encounter"><%=(h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}").gsub('hiv','HIV').gsub('Hiv','HIV')%></div>
+
+    <% elsif obs.concept_id == ConceptName.find_by_name("Transfer to").concept_id %>
+      <div class="encounter"><%=(h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}").gsub('hiv','HIV').gsub('Hiv','HIV')%></div>
+
+
+    <% elsif obs.concept_id == ConceptName.find_by_name("HTC serial number").concept_id %>
+      <div class="encounter"><%=(h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{obs.to_s(["short", "order"]).to_s.split(":")[1].to_i}").gsub('hiv','HIV').gsub('Hiv','HIV') %></div>
+
+    <% elsif "#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}" == '-'%>
+      <%concept_name_id  = ConceptName.find_by_name("#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id%>
+      <div class="encounter"><%=(h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Concept.find(concept_name_id).fullname}").gsub('hiv','HIV').gsub('Hiv','HIV') %></div>
+      
+    <% elsif "#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}" == "Bloody"%>
+      <%concept_name_id  = ConceptName.find_by_name("#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id%>
+      <div class="encounter"><%=(h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: Blood-stained").gsub('hiv','HIV').gsub('Hiv','HIV')%></div>
+
+    <% elsif obs.concept_id == ConceptName.find_by_name("TB status").concept_id %>
+      <div class="encounter"><%=(h obs.to_s(["FULLY_SPECIFIED", "order"])).gsub('hiv','HIV').gsub('Hiv','HIV')%></div>
+
+    <% else %>
+      <div class="encounter"><%=(h obs.to_s(["short", "order"])).gsub('hiv','HIV').gsub('Hiv','HIV')%></div>
+    <% end %>
+  </li>
+<% end %>
