@@ -2125,9 +2125,8 @@ class PatientsController < ApplicationController
     @ds_number = DiabetesService.ds_number(@patient)
     @patient_bean = PatientService.get_patient(@person)
     @address = @person.addresses.last
-    
-	  @phone = PatientService.phone_numbers(@person)['Cell phone number']
-	  @phone = 'Unknown' if @phone.blank?
+	  @phones = PatientService.phone_numbers(@person)
+
     render :layout => 'edit_demographics'
   end
   

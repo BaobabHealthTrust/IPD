@@ -69,23 +69,20 @@
     <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_village"> Current Residence</a></td>
     <td class='data'> <%=@patient_bean.current_residence%></td>
   </tr>
-  <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_ta">Current Traditional Authority</a></td>
-    <td class='data'><%=@patient_bean.traditional_authority%></td>
-  </tr>
-  <tr> 
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_district"> Current District</a> </td> 
-    <td class='data'> <%=@patient_bean.current_district%></td>
-  </tr>
   <tr> 
     <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=home_district"> Home District</a></td> 
     <td class='data'><%=@patient_bean.home_district%></td>
   </tr>
-  <tr> 
-    <td class='title'> <a href="modify_demographics?patient_id=<%=@patient.id%>&field=primary_phone">Primary Phone</a></td> 
-    <td class='data'><%= @phone %></td>
+  <tr>
+    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_ta"> Traditional Authority</a></td>
+    <td class='data'><%=@patient_bean.traditional_authority%></td>
   </tr>
-   <tr> <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=secondary_phone">Secondary Phone</a></td> <td class='data'><%#=@patient_bean.home_phone_number%></td></tr>
+  
+  <tr> 
+    <td class='title'> <a href="modify_demographics?patient_id=<%=@patient.id%>&field=primary_phone">Cell phone number</a></td> 
+    <td class='data'><%= @phones['Cell phone number'] %></td>
+  </tr>
+   <tr> <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=secondary_phone">Ground Phone Number</a></td> <td class='data'><%= @phones['Home phone number']%></td></tr>
   <tr>
     <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=occupation">Occupation</a></td>
     <td class='data'><%=@patient_bean.occupation%><br/> </td>
