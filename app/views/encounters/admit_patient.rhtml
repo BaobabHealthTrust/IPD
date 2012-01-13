@@ -20,7 +20,16 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
   <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
 
-<% session_date = session[:datetime].to_date rescue nil                       
+  <% if !@patient.patient_programs.current.local.map(&:program).map(&:name).include?('IPD PROGRAM') %>
+      <%= hidden_field_tag("programs[][patient_program_id]", nil) %>
+      <%= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
+      <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+
+      <%= hidden_field_tag("programs[][states][][state]", "Admitted") %>
+  <%end%>
+
+  <% session_date = session[:datetime].to_date rescue nil                       
     if session_date %>
 
     <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
@@ -30,5 +39,3 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
     <%end%> 
   <%= submit_tag "Finish" %>    
  </form>
-
-
