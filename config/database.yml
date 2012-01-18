@@ -1,9 +1,9 @@
-production:
-   adapter: mysql
-   database: openmrs17
-   username: root
-   password: yammyuk
-   host: localhost
+# production:
+#   adapter: mysql
+#   database: openmrs
+#   username: root
+#   password:
+#   host: localhost
 
 development:
   adapter: mysql
@@ -14,10 +14,18 @@ development:
 
 test: &TEST
   adapter: mysql
-  database: openmrs15
-  username: yamiko
-  password: bart
+  database: bart2_test
+  username: root
+  password: password
   host: localhost
 
 cucumber:
   <<: *TEST
+
+migration:
+  adapter: mysql
+  database: test
+  username: root
+  password: password
+  host: localhost
+

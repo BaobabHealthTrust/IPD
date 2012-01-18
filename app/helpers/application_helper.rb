@@ -96,6 +96,10 @@ module ApplicationHelper
     get_global_property_value("dc.number.prefix") rescue ""
   end
 
+	def advanced_prescription_interface
+		get_global_property_value("advanced.prescription.interface")  
+	end
+
 	def get_global_property_value(global_property)
 		property_value = Settings[global_property] 
 		if property_value.nil?

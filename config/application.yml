@@ -4,10 +4,10 @@ production:
 
 development:
  create_from_remote: no
- use.user.selected.activities: yes
+ use.user.selected.activities: no
  ipd.wards.tag: MPC Inpatient Wards
  application_diagnosis_concept: QECH Emergency Diagnosis List
-
+ advanced.prescription.interface: true
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes
