@@ -70,7 +70,15 @@
 			:allowFreeText => 'true',
 			:textCase => "upper",
 		 	:helpText => "Specific secondary diagnosis" } %>
+  
+   <% if !@patient.patient_programs.current.local.map(&:program).map(&:name).include?('IPD PROGRAM') %>
+      <%= hidden_field_tag("programs[][patient_program_id]", nil) %>
+      <%= hidden_field_tag("programs[][program_id]", Program.find_by_name('OPD PROGRAM').id)%>
+      <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
 
+      <%= hidden_field_tag("programs[][states][][state]", "Dicharged") %>
+  <%end%>
 
 	<% if @retrospective %>
 		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>

@@ -64,10 +64,9 @@
 							<!-- option value='/encounters/new/outpatient_diagnosis?diagnosis_type=PRIMARY DIAGNOSIS&patient_id=<%= @patient.id -%>&diagnosis=true'>
 							<%= (@category.downcase == "adults" ? "Emergency" : "OPD" rescue 'Emergency') %> Diagnosis</option -->
 							<option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
-							<option value='/encounters/new/admit_patient?patient_id=<%= @patient.id -%>'>Update Outcome</option>
-
-								<option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
-								<option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option> 
+							<option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
+							<option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
+							<option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option> 
 
          </select>
 
