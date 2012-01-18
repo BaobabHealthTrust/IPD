@@ -56,19 +56,19 @@
 <%# Show Find / Register Patient button on HIV Reception and Find by Name button
 on the rest of the stations %>
 
-              <%# if @location =~ /HIV Reception/ %>
                 <option value='/people/search' link='/people/search' ttSize="295px">Find or Register Patient</option>
-              <%# else %>
-                <!--<option value='/people/search' link='/people/search' ttSize="200px">Find By Name</option>-->
-              <%# end %>
 
-<%# Hide Find by ARV Number button on non-HIV workstations %>
+            <%# Hide Find by ARV Number button on non-HIV workstations %>
               <% if @location =~ /HIV/ %>
                 <option value="/people/find_by_arv_number" ttSize="265px">Find By ARV Number</option>
               <% end %>
               <% if development_environment? %>
                 <option value='/location?from=clinic' ttSize="100px">Swap Desk</option>
               <% end %>
+              
+              <% if @super_user || @spine_clinician %>
+                <option value = '/encounters/lab_results_entry' ttSize="210px">Find Lab Test</option>
+              <%end%>
 
               <option value='<%= ((session[:datetime].to_date rescue '') != '' ?
                           "/people/reset_datetime" : "/people/set_datetime") %>'  ttSize="100px">

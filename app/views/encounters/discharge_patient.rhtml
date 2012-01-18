@@ -6,7 +6,7 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
 </style>
 <form id='outcome' action="/encounters/create" method='post'>
     
-  <%= hidden_field_tag "encounter[encounter_type_name]", "UPDATE OUTCOME" %>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "DISCHARGE PATIENT" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
@@ -34,6 +34,15 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
     <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
   
+  <%# if !@patient.patient_programs.current.local.map(&:program).map(&:name).include?('IPD PROGRAM') %>
+      <%#= hidden_field_tag("programs[][patient_program_id]", nil) %>
+      <%#= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
+      <%#= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%#= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+
+      <%= hidden_field_tag("programs[][states][][state]", "Dicharged") %>
+  <%#end%>
+
   <% session_date = session[:datetime].to_date rescue nil                       
     if session_date %>
 
