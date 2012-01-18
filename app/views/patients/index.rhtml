@@ -84,7 +84,7 @@
 
 				<select id="links">
 					<option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
-					<option value='/encounters/new/admit_patient?patient_id=<%= @patient.id -%>'>Update Outcome</option>
+          <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
 					<%  if @spine_clinician  %>
 						<option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
 						<option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option> 
