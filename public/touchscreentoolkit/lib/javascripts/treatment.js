@@ -179,7 +179,7 @@ function generateGenerics(){
     drugsDiv.appendChild(drugsListDiv);
 
     var doseDiv = document.createElement("div");
-    doseDiv.style.width = "33%";
+    doseDiv.style.width = "42%";
     doseDiv.style.height = "49%";
     doseDiv.style.backgroundColor = "#fff";
     doseDiv.style.borderRight = "1px solid #ccc";
@@ -209,7 +209,7 @@ function generateGenerics(){
     doseDiv.appendChild(doseListDiv);
 
     var freqDiv = document.createElement("div");
-    freqDiv.style.width = "33%";
+    freqDiv.style.width = "24%";
     freqDiv.style.height = "49%";
     freqDiv.style.backgroundColor = "#ff0";
     freqDiv.style.borderRight = "1px solid #ccc";
