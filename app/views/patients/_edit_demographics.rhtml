@@ -54,13 +54,13 @@
   <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/search/village?search_string=', :allowFreeText => true }%>
 
 <%when 'current_ta'%>
-  <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {:field_type => 'alpha', :helpText => 'Current Traditional Authority (TA)', :ajaxURL => '/search/ta?search_string=', :allowFreeText => true }%>
+  <%= select_tag "person[addresses][county_district]", options_for_select(@traditional_authorities, params[:county_district]), {:helpText => 'Traditional Authority'}%>
 
 <%when 'current_district'%>
   <%= text_field_tag "person[addresses][state_province]",  params[:state_province], {:field_type => 'alpha', :helpText => 'District', :ajaxURL => '/search/district?search_string=', :allowFreeText => true }%>
 
 <%when 'home_district'%>
-  <%= text_field_tag "person[addresses][address2]",  params[:address2], {:field_type => 'alpha', :helpText => 'Home district', :ajaxURL => '/search/place_of_birth?search_string=', :allowFreeText => true }%>
+  <%= select_tag "person[addresses][address2]", options_for_select(@districts, params[:address2]), {:helpText => 'Home district'}%>
 
 <%when 'primary_phone'%>
   <%= text_field_tag "person[attributes][cell_phone_number]",  nil, :field_type => 'number', :helpText => 'Cell Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{9}$|Unknown|Not Available", :validationMessage => "Not a valid phone number"%>
