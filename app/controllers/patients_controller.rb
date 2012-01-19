@@ -65,16 +65,15 @@ class PatientsController < ApplicationController
 
     @date = (session[:datetime].to_date rescue Date.today).strftime("%Y-%m-%d")
 
-     @location = Location.find(session[:location_id]).name rescue ""
-     if @location.downcase == "outpatient" || params[:source]== 'opd'
-        render :template => 'dashboards/opdtreatment_dashboard', :layout => false
-     else
-        @task = main_next_task(Location.current_location,@patient,session_date)
-        @hiv_status = PatientService.patient_hiv_status(@patient)
-        @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-        @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
-        render :template => 'patients/index', :layout => false
-     end
+    @location = Location.find(session[:location_id]).name rescue ""
+    
+    if @location.downcase == "outpatient" || params[:source]== 'opd'
+      render :template => 'dashboards/opdtreatment_dashboard', :layout => false
+    else
+      @task = main_next_task(Location.current_location,@patient,session_date)
+       
+      render :template => 'patients/index', :layout => false
+    end
   end
 
   def opdcard
@@ -139,9 +138,7 @@ class PatientsController < ApplicationController
        @transfer_out_site = obs.to_s if obs.to_s.include?('Transfer out to')
      end
     end
-    @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-    @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
-
+    
     render :template => 'dashboards/dispension_tab', :layout => false
   end
 
@@ -359,9 +356,7 @@ class PatientsController < ApplicationController
     @show_mastercard_counter = false
 
     if params[:patient_id].blank?
-
       @patient_id = session[:mastercard_ids][session[:mastercard_counter]]
-       
     elsif session[:mastercard_ids].length.to_i != 0
       @patient_id = params[:patient_id]
     else
@@ -379,7 +374,8 @@ class PatientsController < ApplicationController
   end
 
   def mastercard_printable
-    #the parameter are used to re-construct the url when the mastercard is called from a Data cleaning report
+    #the parameter are used to re-construct the url when the mastercard
+    #is called from a Data cleaning report
     @quarter = params[:quarter]
     @arv_start_number = params[:arv_start_number]
     @arv_end_number = params[:arv_end_number]
@@ -433,19 +429,6 @@ class PatientsController < ApplicationController
     render :layout => "menu"
   end
 
-  def next_available_arv_number
-    next_available_arv_number = PatientIdentifier.next_available_arv_number
-    render :text => next_available_arv_number.gsub(PatientIdentifier.site_prefix,'').strip rescue nil
-  end
-  
-  def assigned_arv_number
-    assigned_arv_number = PatientIdentifier.find(:all,:conditions => ["voided = 0 AND identifier_type = ?",
-        PatientIdentifierType.find_by_name("ARV Number").id]).collect{|i|
-      i.identifier.gsub(PatientIdentifier.site_prefix,'').strip.to_i
-    } rescue nil
-    render :text => assigned_arv_number.sort.to_json rescue nil 
-  end
-
   def mastercard_modify
     if request.method == :get
       @patient_id = params[:id]
@@ -475,32 +458,6 @@ class PatientsController < ApplicationController
     @encounter_type = params[:skipped]
     @patient_id = params[:patient_id]
     render :layout => "menu"
-  end
-
-  def set_filing_number
-    patient = Patient.find(params[:id])
-   PatientService.set_patient_filing_number(patient)
-
-    archived_patient = PatientService.patient_to_be_archived(patient)
-    message = PatientService.patient_printing_message(patient,archived_patient,true)
-    unless message.blank?
-      print_and_redirect("/patients/filing_number_label/#{patient.id}" , "/patients/show/#{patient.id}",message,true,patient.id)
-    else
-      print_and_redirect("/patients/filing_number_label/#{patient.id}", "/patients/show/#{patient.id}")
-    end
-  end
-
-  def set_new_filing_number
-    patient = Patient.find(params[:id])
-    set_new_patient_filing_number(patient)
-
-    archived_patient = PatientService.patient_to_be_archived(patient)
-    message = PatientService.patient_printing_message(patient, archived_patient)
-    unless message.blank?
-      print_and_redirect("/patients/filing_number_label/#{patient.id}" , "/people/confirm?found_person_id=#{patient.id}",message,true,patient.id)
-    else
-      print_and_redirect("/patients/filing_number_label/#{patient.id}", "/people/confirm?found_person_id=#{patient.id}")
-    end
   end
 
   def export_to_csv
@@ -577,10 +534,6 @@ class PatientsController < ApplicationController
 
     @date = (session[:datetime].to_date rescue Date.today).strftime("%Y-%m-%d")
     @task = main_next_task(Location.current_location,@patient,session_date)
-    
-    @hiv_status = PatientService.patient_hiv_status(@patient)
-    @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-    @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
 
     render :template => 'patients/index', :layout => false
   end
@@ -663,9 +616,6 @@ class PatientsController < ApplicationController
     }
 
     @dispensed_order_id = params[:dispensed_order_id]
-    @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-    @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
-
     render :template => 'dashboards/treatment_dashboard', :layout => false
   end
 
@@ -679,8 +629,7 @@ class PatientsController < ApplicationController
 
   def programs_dashboard
 	  @patient_bean = PatientService.get_patient(@patient.person)
-    @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-    @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
+
     render :template => 'dashboards/programs_dashboard', :layout => false
   end
 
@@ -2572,6 +2521,8 @@ class PatientsController < ApplicationController
   
   def modify_demographics
     @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @districts = all_districts
+    @traditional_authorities = all_traditional_authorities
     @field = params[:field]
     render :partial => "edit_demographics", :field =>@field, :layout => true and return
   end
@@ -2745,5 +2696,34 @@ class PatientsController < ApplicationController
       @ipd_chronic_conditions << "None"
     end
     render :layout => false
+  end
+
+  #used when editing home district on 'Edit Demographics'
+  def all_districts
+   districts = []
+
+   all_districts = District.find(:all, :order => 'name')
+   all_districts.map do |district|
+    districts << district.name
+   end
+   return districts
+  end
+
+  #used when editing t/a on 'Edit Demographics' and allows filtering according to
+  #the home_district chosen.
+  def all_traditional_authorities
+    patient_bean = PatientService.get_patient(@patient.person)
+    
+    traditional_authorities = []
+    district_id = District.find_by_name("#{patient_bean.home_district}").id
+    traditional_authority_conditions = ["district_id = ?}%", district_id]
+
+    all_traditional_authorities = TraditionalAuthority.find(:all, :conditions => ["district_id = ?", District.find_by_name("#{patient_bean.home_district}").id], :order => 'name')
+   
+    all_traditional_authorities.map do |ta|
+      traditional_authorities << ta.name
+    end
+
+    return traditional_authorities
   end
 end

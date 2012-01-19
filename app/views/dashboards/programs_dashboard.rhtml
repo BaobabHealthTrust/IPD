@@ -7,13 +7,10 @@
     <script language="javascript">
       tstUsername = "";
       tstCurrentDate = "<%= @date %>";
-      //tt_cancel_destination = '/patients/show/<%= @patient.id %>';
       tt_cancel_show = '/patients/show/<%= @patient.id %>';
 
       var message = '<%= params[:error] rescue "" %>';
-
-      //setTimeout("confirmOperation('" + message + "', null, true)", 300);
-      
+  
     </script>
   </head>
   <body><div id='content'>
@@ -32,14 +29,7 @@
               <th colspan=2>Patient Programs Dashboard</th>
             </tr>
             <h1 id='project_name'>
-              <%if User.current_user.activities.include?('Manage Lab Orders') or User.current_user.activities.include?('Manage Lab Results') or
-       User.current_user.activities.include?('Manage Sputum Submissions') or User.current_user.activities.include?('Manage TB Clinic Visits') or
-       User.current_user.activities.include?('Manage TB Reception Visits') or User.current_user.activities.include?('Manage TB Registration Visits') or
-       User.current_user.activities.include?('Manage HIV Status Visits') %>     
-                 <span style="font-size: 55px;">TB-ART</span>                   
-               <%else%>                                                         
-                 BART                                                           
-               <%end%>
+              IPD
             </h1>
 
             <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
@@ -49,31 +39,9 @@
             <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
 
             <div id="patient_card">
-              <% if (@reason_for_art_eligibility rescue nil) != nil && (@reason_for_art_eligibility) != "" %>
-
-                 <span value="<%= @reason_for_art_eligibility rescue "" %>">Reason for Starting</span>
-               <% end %>
-
-               <% if (@arv_number rescue nil) != nil && (@arv_number) != " " %>
-
-                  <span value="<%= @arv_number rescue "" %>">ARV Number</span>
-
-               <% end %>
-               <% if (@patient_bean.filing_number rescue nil) != nil && (@patient_bean.filing_number) != " " %>
-
-                <span value="<%= @patient_bean.filing_number rescue "" %>">Filing Number</span>
-
-               <% end %>
-               <% if (@patient_bean.eid_number rescue nil) != nil && (@patient_bean.eid_number) != " " %>
-
-                 <span value="<%= @patient_bean.eid_number rescue "" %>">EID Number</span>
-
-               <% end %>
-               <% if (@patient_bean.pre_art_number rescue nil) != nil && (@patient_bean.pre_art_number) != " " %>
-
-                <span value="<%= @patient_bean.pre_art_number rescue "" %>">Pre-ART Number</span>
-
-               <% end %>
+              <% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
+						    <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
+					    <% end %>
             </div>
             <select id="tabs">
               <option value='/patients/programs?patient_id=<%= @patient.id %>'>Outcomes</option>

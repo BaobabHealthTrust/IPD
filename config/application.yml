@@ -3,6 +3,7 @@ production:
  use.user.selected.activities: yes
 
 development:
+ encounter_privilege_map: Admit patient:Manage Patient Admissions,Admission diagnosis:Manage admission  diagnoses,Discharge patient:Manage Patient Discharges,Discharge diagnosis:Manage Discharge Diagnoses,Lab orders:Manage Lab Orders,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs
  create_from_remote: no
  use.user.selected.activities: no
  ipd.wards.tag: MPC Inpatient Wards
