@@ -45,7 +45,7 @@ class EncounterTypesController < ApplicationController
 		@available_encounter_types -= @available_encounter_types - @encounter_types
 
 		
-        #@available_encounter_types = ((@available_encounter_types) - ((@available_encounter_types - roles_for_the_user) + (roles_for_the_user - @available_encounter_types)))
+        @available_encounter_types = ((@available_encounter_types) - ((@available_encounter_types - roles_for_the_user) + (roles_for_the_user - @available_encounter_types)))
         @available_encounter_types = @available_encounter_types.sort
         
         #@available_encounter_types = @available_encounter_types.sort << "IPT contact person"

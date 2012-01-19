@@ -1,0 +1,355 @@
+<script type="text/javascript" language="javascript" src="/javascripts/utils.js"></script>
+
+
+<script type="text/javascript">
+  tt_cancel_destination = "/patients/treatment_dashboard?patient_id=<%= @patient.patient_id %>";
+  tt_cancel_show = '/patients/show/<%= @patient.id %>?auto_load_forms=false';
+
+  var global_ignore_click = false;
+
+  function $(id){
+    return document.getElementById(id);
+  }
+
+  function create_fields(id, val1, val2, val3, val4){
+    var prefix = id.match(/\d+$/g);
+    
+    prefix = prefix[0];
+
+    var btn = document.createElement("button");
+    btn.id = "btn" + prefix;
+    btn.className = "button green";
+    btn.innerHTML = "<span>Modify Duration <b style='color:green; background-color:white; text-align:center'>(" + val4 + ")</b></span>";
+    btn.style.cssFloat = "right";
+    btn.onclick = function(){
+      global_ignore_click = true;
+
+      var p = this.offsetParent.id.match(/\d+$/g);
+
+      p = p[0];
+
+      if($("sel"+p)){
+        return;
+      }
+      
+      var sel = document.createElement("select");
+      sel.id = "sel"+p;
+      sel.size = 8;
+      $("prescription").appendChild(sel);
+
+      sel.style.position = "absolute";
+      sel.style.top = ($("content").offsetHeight - $("sel"+p).offsetHeight - 150) + "px";
+      sel.style.width = ($("btn"+p).offsetWidth) + "px";
+      sel.style.left = (15) + "px";
+      sel.style.fontSize = "1.2em";
+      sel.style.backgroundColor = "rgb(192,0,0)";
+      sel.style.color = "white";
+      sel.style.paddingLeft = "20px";
+      sel.style.paddingTop = "10px";
+      
+      var days = {7:"1 Week", 14:"2 Weeks", 30:"1 Month", 60:"2 Months", 90:"3 Months", 120:"4 Months", 150:"5 Months", 180:"6 Months"};
+
+      for(var d in days){
+        var opt = document.createElement("option");
+        opt.value = d;
+        opt.style.margin = "10px";
+        opt.innerHTML = days[d];
+        opt.onclick = function(){
+          $("duration_"+p).value = this.value;
+          $("btn"+p).innerHTML = "<span>Modify Duration <b style='color:green; background-color:white; text-align:center'>(" +
+            this.value + ")</b></span>";
+          $("prescription").removeChild($("sel"+p));
+        }
+
+        sel.appendChild(opt);
+      }
+    }
+    $("cell"+prefix).appendChild(btn);
+
+    var txtGeneric = document.createElement("input");
+    txtGeneric.type = "hidden";
+    txtGeneric.id = "generic_"+prefix;
+    txtGeneric.name = "prescriptions[][generic]";
+    txtGeneric.value = val1;
+    
+    $("prescription").appendChild(txtGeneric);
+
+    var txtDuration = document.createElement("input");
+    txtDuration.type = "hidden";
+    txtDuration.id = "duration_"+prefix;
+    txtDuration.name = "prescriptions[][duration]";
+    txtDuration.value = val4;
+
+    $("prescription").appendChild(txtDuration);
+
+    var txtDiagnosis = document.createElement("input");
+    txtDiagnosis.type = "hidden";
+    txtDiagnosis.id = "diagnosis_"+prefix;
+    txtDiagnosis.name = "prescriptions[][diagnosis]";
+    txtDiagnosis.value = "DIABETES MEDICATION";
+
+    $("prescription").appendChild(txtDiagnosis);
+
+    var txtPatienID = document.createElement("input");
+    txtPatienID.type = "hidden";
+    txtPatienID.id = "patient_id_"+prefix;
+    txtPatienID.name = "prescriptions[][patient_id]";
+    txtPatienID.value = "<%= @patient.id %> ";
+
+    $("prescription").appendChild(txtPatienID);
+
+    var txtSuggestion = document.createElement("input");
+    txtSuggestion.type = "hidden";
+    txtSuggestion.id = "suggestion_"+prefix;
+    txtSuggestion.name = "prescriptions[][suggestion]";
+    txtSuggestion.value = "0";
+
+    $("prescription").appendChild(txtSuggestion);
+
+    var txtConceptName = document.createElement("input");
+    txtConceptName.type = "hidden";
+    txtConceptName.id = "concept_name_"+prefix;
+    txtConceptName.name = "prescriptions[][concept_name]";
+    txtConceptName.value = "DIAGNOSIS";
+
+    $("prescription").appendChild(txtConceptName);
+
+    var txtValueCodedOrText = document.createElement("input");
+    txtValueCodedOrText.type = "hidden";
+    txtValueCodedOrText.id = "value_coded_or_text_"+prefix;
+    txtValueCodedOrText.name = "prescriptions[][value_coded_or_text]";
+    txtValueCodedOrText.value = "DIABETES MEDICATION";
+
+    $("prescription").appendChild(txtValueCodedOrText);
+
+    switch(val3.toUpperCase()){
+      case "MORNING":
+        
+        var txtTypeOfPrescription = document.createElement("input");
+        txtTypeOfPrescription.type = "hidden";
+        txtTypeOfPrescription.id = "type_of_prescription_"+prefix;
+        txtTypeOfPrescription.name = "prescriptions[][type_of_prescription]";
+        txtTypeOfPrescription.value = "variable";
+
+        var txtMorningDose = document.createElement("input");
+        txtMorningDose.type = "hidden";
+        txtMorningDose.id = "morning_dose_"+prefix;
+        txtMorningDose.name = "prescriptions[][morning_dose]";
+        txtMorningDose.value = val2;
+
+        $("prescription").appendChild(txtMorningDose);
+
+        break;
+      case "AFTERNOON":
+
+        var txtTypeOfPrescription = document.createElement("input");
+        txtTypeOfPrescription.type = "hidden";
+        txtTypeOfPrescription.id = "type_of_prescription_"+prefix;
+        txtTypeOfPrescription.name = "prescriptions[][type_of_prescription]";
+        txtTypeOfPrescription.value = "variable";
+
+        var txtAfternoonDose = document.createElement("input");
+        txtAfternoonDose.type = "hidden";
+        txtAfternoonDose.id = "afternoon_dose_"+prefix;
+        txtAfternoonDose.name = "prescriptions[][afternoon_dose]";
+        txtAfternoonDose.value = val2;
+
+        $("prescription").appendChild(txtAfternoonDose);
+
+        break;
+      case "EVENING":
+
+        var txtTypeOfPrescription = document.createElement("input");
+        txtTypeOfPrescription.type = "hidden";
+        txtTypeOfPrescription.id = "type_of_prescription_"+prefix;
+        txtTypeOfPrescription.name = "prescriptions[][type_of_prescription]";
+        txtTypeOfPrescription.value = "variable";
+
+        var txtEveningDose = document.createElement("input");
+        txtEveningDose.type = "hidden";
+        txtEveningDose.id = "evening_dose_"+prefix;
+        txtEveningDose.name = "prescriptions[][evening_dose]";
+        txtEveningDose.value = val2;
+
+        $("prescription").appendChild(txtEveningDose);
+
+        break;
+      default:
+
+        var txtTypeOfPrescription = document.createElement("input");
+        txtTypeOfPrescription.type = "hidden";
+        txtTypeOfPrescription.id = "type_of_prescription_"+prefix;
+        txtTypeOfPrescription.name = "prescriptions[][type_of_prescription]";
+        txtTypeOfPrescription.value = "standard";
+
+        var txtDrugStrength = document.createElement("input");
+        txtDrugStrength.type = "hidden";
+        txtDrugStrength.id = "type_of_prescription_"+prefix;
+        txtDrugStrength.name = "prescriptions[][drug_strength]";
+        txtDrugStrength.value = val2;
+
+        $("prescription").appendChild(txtDrugStrength);
+
+        var txtFrequency = document.createElement("input");
+        txtFrequency.type = "hidden";
+        txtFrequency.id = "frequency_"+prefix;
+        txtFrequency.name = "prescriptions[][frequency]";
+        txtFrequency.value = val3;
+
+        $("prescription").appendChild(txtFrequency);
+
+        break;
+    }
+    $("prescription").appendChild(txtTypeOfPrescription);
+
+  }
+
+  function remove_fields(id){
+    var prefix = id.match(/\d+$/g);
+
+    prefix = prefix[0];
+
+    if($("btn"+prefix)){
+      $("cell"+prefix).removeChild($("btn"+prefix));
+    }
+
+    if($("generic_"+prefix)){
+      $("prescription").removeChild($("generic_"+prefix));
+    }
+    
+    if($("drug_strength_"+prefix)){
+      $("prescription").removeChild($("drug_strength_"+prefix));
+    }
+
+    if($("frequency_"+prefix)){
+      $("prescription").removeChild($("frequency_"+prefix));
+    }
+
+    if($("duration_"+prefix)){
+      $("prescription").removeChild($("duration_"+prefix));
+    }
+
+    if($("morning_dose_"+prefix)){
+      $("prescription").removeChild($("morning_dose_"+prefix));
+    }
+
+    if($("afternoon_dose_"+prefix)){
+      $("prescription").removeChild($("afternoon_dose_"+prefix));
+    }
+
+    if($("evening_dose_"+prefix)){
+      $("prescription").removeChild($("evening_dose_"+prefix));
+    }
+
+    if($("diagnosis_"+prefix)){
+      $("prescription").removeChild($("diagnosis_"+prefix));
+    }
+
+    if($("patient_id_"+prefix)){
+      $("prescription").removeChild($("patient_id_"+prefix));
+    }
+
+    if($("suggestion_"+prefix)){
+      $("prescription").removeChild($("suggestion_"+prefix));
+    }
+
+    if($("concept_name_"+prefix)){
+      $("prescription").removeChild($("concept_name_"+prefix));
+    }
+
+    if($("value_coded_or_text_"+prefix)){
+      $("prescription").removeChild($("value_coded_or_text_"+prefix));
+    }
+
+    if($("type_of_prescription_"+prefix)){
+      $("prescription").removeChild($("type_of_prescription_"+prefix));
+    }
+            
+  }
+</script>
+
+<div id="general_dashboard" style="padding: 15px;">
+  <h2>Patient Prescriptions</h2>
+  <form id='prescription' action="/prescriptions/advanced_create" method='post'></form>
+
+  <div style="font-size: 15pt;">
+    <ul class="list" style="height:490px;width:965px;">
+      <%
+      # raise @patient_diabetes_treatements.to_yaml
+      
+      i = 0;
+      for order in @patient_diabetes_treatements do
+        i += 1
+      %>
+        <li <%= ((order.days_so_far.to_i == 0)?"style='background-color:#DDFBDD; border:#CCCCCC'":"")  %> class="data <%= cycle('even', 'odd') %>">
+          <table width="100%" border="0" cellpadding="2" class="summary">
+            <tr>
+              <td id="td_<%= order.order_id %>" onclick="if(global_ignore_click==false){
+                      var r = this.id.match(/\d+$/g); $('chk_'+r[0]).click()} else {global_ignore_click = false}">
+                <table width="100%">
+                  <tr>
+                    <td width="40px" align="center" id="<%= i %>">
+                      <input id="chk_<%= order.order_id %>" type="checkbox"
+                             onclick="global_ignore_click = true; if(this.checked){
+                             var o = ['<%= "#{order.drug_name}" %>', '<%=  "#{order.dose}"%>', '<%=  "#{order.frequency}"%>', '<%= "#{order.days}"%>  '];
+                             create_fields(this.id, o[0], o[1], o[2], o[3])}else{remove_fields(this.id)}"/>
+
+                    </td>
+                    <td id="parentcell<%= order.order_id %>">
+                      <%= order.to_s.gsub(/\n/, '<br/>') -%>:
+                    </td>
+                    <td id="cell<%= order.order_id %>">
+                      
+                    </td>
+                    <td align="left" width="110px">
+                      <b><%= "#{((order.days_so_far.to_i == 0)?"Today":((order.days_so_far.to_i == 1)?"Yesterday":(order.days_so_far.to_s + " days ago")))}" -%></b>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+
+              <td width="30px" align="center">
+                <div style="float:right;padding:7px;">
+                  <%= img_button_submit_to_with_confirm "/prescriptions/void", "/images/cancel_flat_small_red.png",
+                    {:confirm => "Are you sure you want to void this prescription?", :form_id => "frm_"+i.to_s},
+                    {:patient_id => @patient.patient_id, :order_id => order.order_id, :source => 'advanced'} -%>
+                </div>
+              </td>
+            </tr>
+          </table>
+            </span>
+        </li>
+      <% end %>
+      <% if @patient_diabetes_treatements.blank? %>
+        <li>No prescriptions are available for this patient today</li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div style="float:right;padding-right:5px;margin-top:-2px;">
+    <button class="button green" onclick="window.location = '/prescriptions/advanced_new?patient_id=<%= @patient.id -%>'"><span>New Prescription</span></button><br/>
+  </div>
+  <div style="float:right;padding-right:5px;margin-top:-2px;">
+    <button class="button green"
+           onclick="var checked = false; var c = document.body.getElementsByTagName('input');
+         for(var i=0; i<c.length; i++){
+           if(c[i].type=='checkbox'){
+             if(c[i].checked==true){
+               checked = true;
+               break;
+             }
+           }
+         }
+         if(checked==true){
+           $('prescription').submit()
+         }else{
+           var warning = document.createElement('div');
+           warning.id = 'messageBar';
+           warning.innerHTML = 'Please select at least one prescription to prescribe.<br />\n\
+                  <button onclick=\'this.offsetParent.offsetParent.removeChild(this.offsetParent)\'><span>OK</span></button>';
+           warning.className = 'messageBar';
+           $('content').appendChild(warning);
+           
+    }"><span>Prescribe Selected</span></button><br/>
+  </div>
+</div>
