@@ -137,8 +137,20 @@ class ApplicationController < ActionController::Base
   # Try to find the next task for the patient at the given location
   def main_next_task(location, patient, session_date = Date.today)
 		task = Task.first rescue Task.new()
-		task.encounter_type = 'NONE'
-		task.url = "/patients/show/#{patient.id}"
+		
+		if task.encounter_type == 'ADMIT PATIENT'
+			task.encounter_type = 'NONE'
+			task.url = "/encounters/new/admission_diagnosis?patient_id=#{patient.id}"
+					
+		elsif task.encounter_type == 'DISCHARGE PATIENT'
+			task.encounter_type = 'NONE'
+			task.url = "/encounters/new/discharge_diagnosis?patient_id=#{patient.id}"
+			
+		else
+			task.encounter_type = 'NONE'
+			task.url = "/patients/show/#{patient.id}"
+		end
+
 		return task
   end
 
