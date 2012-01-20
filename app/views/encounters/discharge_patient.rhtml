@@ -20,36 +20,34 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
   <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
 
    <% options = {
-	:id => "refer", 
-	:field_type => 'text', 
-	:helptext =>"Refer to clinic",
-	:condition => "($('observations__value_coded_or_text').value == 'REFERRED')",
-	:allowFreeText => 'true', 
-	:ajaxURL => "/search/clinics?search_string=", 
-	:textCase => "upper"
-	} %>
+		:id => "refer", 
+		:field_type => 'text', 
+		:helptext =>"Refer to clinic",
+		:condition => "($('observations__value_coded_or_text').value == 'REFERRED')",
+		:allowFreeText => 'true', 
+		:ajaxURL => "/search/clinics?search_string=", 
+		:textCase => "upper"
+		} %>
     <%= text_field_tag "observations[][value_text]", nil, options %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
     <%= hidden_field_tag("observations[][concept_name]", "REFER TO OTHER CLINIC", options) %>
     <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
   
-  <%# if !@patient.patient_programs.current.local.map(&:program).map(&:name).include?('IPD PROGRAM') %>
-      <%#= hidden_field_tag("programs[][patient_program_id]", nil) %>
-      <%#= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
-      <%#= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
-      <%#= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+	<%= hidden_field_tag("programs[][patient_program_id]", nil) %>
+	<%= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
+	<%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+	<%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
 
-      <%= hidden_field_tag("programs[][states][][state]", "Dicharged") %>
-  <%#end%>
+	<%= hidden_field_tag("programs[][states][][state]", "Dicharged") %>
 
-  <% session_date = session[:datetime].to_date rescue nil                       
-    if session_date %>
+	<% session_date = session[:datetime].to_date rescue nil                       
+    	if session_date %>
 
-    <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
-<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    	<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
     <% else %>
-      <%= hidden_field_tag "filter[provider]", nil %>
+		<%= hidden_field_tag "filter[provider]", nil %>
     <%end%> 
-  <%= submit_tag "Finish" %>    
+	<%= submit_tag "Finish" %>    
  </form>
