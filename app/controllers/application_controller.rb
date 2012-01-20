@@ -123,9 +123,9 @@ class ApplicationController < ActionController::Base
 	  return final_options
   end
 
-  def next_task(patient)
+  def next_task(patient, encounter_type = '')
     session_date = session[:datetime].to_date rescue Date.today
-    task = main_next_task(Location.current_location, patient,session_date)
+    task = main_next_task(Location.current_location, patient,session_date, encounter_type)
     begin
       return task.url if task.present? && task.url.present?
       return "/patients/show/#{patient.id}" 
@@ -135,10 +135,22 @@ class ApplicationController < ActionController::Base
   end
 
   # Try to find the next task for the patient at the given location
-  def main_next_task(location, patient, session_date = Date.today)
+  def main_next_task(location, patient, session_date = Date.today , encounter_type = '')
 		task = Task.first rescue Task.new()
-		task.encounter_type = 'NONE'
-		task.url = "/patients/show/#{patient.id}"
+		
+		if encounter_type == 'ADMIT PATIENT'
+			task.encounter_type = 'NONE'
+			task.url = "/encounters/new/admission_diagnosis?patient_id=#{patient.id}"
+					
+		elsif encounter_type == 'DISCHARGE PATIENT'
+			task.encounter_type = 'NONE'
+			task.url = "/encounters/new/discharge_diagnosis?patient_id=#{patient.id}"
+			
+		else
+			task.encounter_type = 'NONE'
+			task.url = "/patients/show/#{patient.id}"
+		end
+
 		return task
   end
 

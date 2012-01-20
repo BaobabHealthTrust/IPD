@@ -164,7 +164,9 @@ class EncountersController < ApplicationController
       if params['encounter']['encounter_type_name'].to_s.upcase == "APPOINTMENT" && !params[:report_url].nil? && !params[:report_url].match(/report/).nil?
          redirect_to  params[:report_url].to_s and return
       end
-      redirect_to next_task(@patient)
+      
+      encounter_type_name = params['encounter']['encounter_type_name'].upcase rescue ''
+      redirect_to next_task(@patient, encounter_type_name)
      end
     else
       if params[:voided]
