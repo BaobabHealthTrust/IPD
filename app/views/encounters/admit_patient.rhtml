@@ -1,11 +1,13 @@
 <style>
-.options{
-    height:11em;
-  }
+  .options{
+      height:11em;
+    }
 </style>
+
 <script>
-var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=false"
+  var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=false"
 </script>
+
 <form id='outcome' action="/encounters/create" method='post'>
  <% options = {} %>
 
@@ -14,7 +16,7 @@ var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=fa
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-	<%= touch_select_tag("observations[][value_coded_or_text]", options_for_select(@ipd_wards), {:helpText => 'Admit to ward', :tt_requireNextClick => 'false'})%>
+	<%= select_tag("observations[][value_coded_or_text]", options_for_select(@ipd_wards), {:helpText => 'Admit to ward', :tt_requireNextClick => 'false'})%>
 	<%= hidden_field_tag("observations[][value_text]", nil) %>
 	<%= hidden_field_tag("observations[][concept_name]", "ADMIT TO WARD", options) %>
 	<%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
