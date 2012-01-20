@@ -19,15 +19,7 @@
             </tr>
             <h1 id='project_name'>
               <div style="font-size: 0.8em; margin-top: 28px;">
-                <%location_name = (@location.downcase == "outpatient" ? "OPD" : "BART") 
-                  if User.current_user.activities.include?('Manage Lab Orders') or User.current_user.activities.include?('Manage Lab Results') or
-                  User.current_user.activities.include?('Manage Sputum Submissions') or User.current_user.activities.include?('Manage TB Clinic Visits') or
-                  User.current_user.activities.include?('Manage TB Reception Visits') or User.current_user.activities.include?('Manage TB Registration Visits') or
-                  User.current_user.activities.include?('Manage HIV Status Visits') %>
                     <span style="font-size: 55px;">IPD</span>
-                <%else%>
-                  <%= location_name %>
-               <%end%>
               </div>
             </h1>
 
