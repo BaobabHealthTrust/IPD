@@ -599,7 +599,8 @@ class EncountersController < ApplicationController
 
 		@suggested_answers = valid_answers.sort.uniq.reject{|answer| filter_list.include?(answer) }.uniq[0..10]
 		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
-		render :text => "<li>" + @suggested_answers.join("</li><li>") + "</li>"
+		@guggested_answers = [""] + @suggested_answers
+		render :text => "<li></li>" + "<li>" + @suggested_answers.join("</li><li>") + "</li>"
 	end
 
   def daignosis_details
