@@ -265,12 +265,12 @@ class EncountersController < ApplicationController
 		@patients = nil
 
 		if (params[:encounter_type].upcase rescue '') == "ADMIT_PATIENT"
-		  ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
-      @ipd_wards = []
-		  @ipd_wards = LocationTagMap.all.collect {| ltm |
-		    [ltm.location.name, ltm.location.name]if ltm.location_tag.name == ipd_wards_tag
-		  }
-    	@ipd_wards = @ipd_wards.compact		  
+			ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
+			@ipd_wards = []
+			@ipd_wards = LocationTagMap.all.collect { | ltm |
+				[ltm.location.name, ltm.location.name] if ltm.location_tag.name == ipd_wards_tag
+			}
+			@ipd_wards = @ipd_wards.compact		  
 		end
 		
 		redirect_to "/" and return unless @patient
@@ -599,7 +599,8 @@ class EncountersController < ApplicationController
 
 		@suggested_answers = valid_answers.sort.uniq.reject{|answer| filter_list.include?(answer) }.uniq[0..10]
 		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
-		render :text => "<li>" + @suggested_answers.join("</li><li>") + "</li>"
+		@guggested_answers = [""] + @suggested_answers
+		render :text => "<li></li>" + "<li>" + @suggested_answers.join("</li><li>") + "</li>"
 	end
 
   def daignosis_details
