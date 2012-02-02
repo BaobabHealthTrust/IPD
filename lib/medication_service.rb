@@ -108,13 +108,12 @@ module MedicationService
   
 	def self.dosages(generic_drug_concept_id)    
 		Drug.find(:all, :conditions => ["concept_id = ?", generic_drug_concept_id]).collect {|d|
-			["#{d.dose_strength.to_i rescue 1}#{d.name.upcase rescue ""}", "#{d.dose_strength.to_i rescue 1}", "#{d.units.upcase rescue ""}"]
+			["#{d.name.upcase rescue ""}", "#{d.dose_strength.to_f rescue 1}", "#{d.units.upcase rescue ""}"]
 		}.uniq.compact rescue []
 	end
 	
   def self.concept_set(concept_name)
-    concept_id = ConceptName.find(:first,:joins =>"INNER JOIN concept USING (concept_id)",
-                                  :conditions =>["voided = 0 AND concept.retired = 0 AND name = ?",concept_name]).concept_id
+    concept_id = ConceptName.find(:first, :conditions =>["name = ?", concept_name]).concept_id
     set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
     options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname, item.concept.concept_id] }
     return options
