@@ -63,8 +63,18 @@ var tstMessageBoxType = {
     YesNoCancel:{}
 }
 
+var touchscreenInterfaceEnabled = 0;
+var contentContainer = null;
+
 var tstTimerHandle = null;
 var tstTimerFunctionCall = "";
+
+var tstMultipleSelected = {};
+
+var ajaxGeneralRequestResult;
+
+var tstInternalCurrentDate = (new Date().getFullYear()) + "-" + padZeros((new Date().getMonth() + 1),2) + "-" + 
+padZeros((new Date().getDate()), 2);
 
 //--------------------------------------
 // Default method in module to access element id changed to __$ to avoid
@@ -105,10 +115,6 @@ function elementSelectedValue(element){
     }
     return null;
 }
-
-
-var touchscreenInterfaceEnabled = 0;
-var contentContainer = null;
 
 function loadTouchscreenToolkit() {
     if(document.getElementById("loadingProgressMessage")){
@@ -782,11 +788,17 @@ function loadSelectOptions(selectOptions, options, dualViewOptions) {
             selected = j;
         } 
         
+        if(selectOptions[j].selected){
+            try{
+                setTimeout("__$(" + (j-1) + ").click();", 0);
+            } catch(e){}
+        }
+        
         // optionsList += (j % 2 == 0 ? " class='odd' tag='odd' " : " class='even' tag='even'") + 
         // ' onmousedown="'+ mouseDownAction +'"';
     
         optionsList += (j % 2 == 0 ? " class='odd' tag='odd' " : " class='even' tag='even'") + 
-            ' onclick="' + mouseDownAction + '" ';
+        ' onclick="' + mouseDownAction + '" ';
         
         // njih
         optionsList += ">" + (tstFormElements[tstCurrentPage].getAttribute("multiple") ? 
@@ -931,12 +943,15 @@ function updateTouchscreenInputForSelect(element, parentElement){
             val = element.value;
         
         // Check if the item is already included
-        var idx = val_arr.toString().indexOf(val);
-        if (idx == -1)
+        // var idx = val_arr.toString().indexOf(val);
+        if (!tstMultipleSelected[val]){ //(idx == -1){
             val_arr.push(val);
-        else
+            tstMultipleSelected[val] = true;
+        } else {
             // val_arr.splice(idx, 1);
             val_arr = removeFromArray(val_arr, val);
+            delete(tstMultipleSelected[val]);
+        }
         inputTarget.value = val_arr.join(tstMultipleSplitChar);
         if (inputTarget.value.indexOf(tstMultipleSplitChar) == 0)
             inputTarget.value = inputTarget.value.substring(1, inputTarget.value.length);
@@ -1456,10 +1471,14 @@ function navigateToPage(destPage, validate, navback){
     }
     else{
 
+        /*
         var popupBox = __$("popupBox");
         if (popupBox) {
             popupBox.style.visibility = "visible";
         }
+    */
+   
+        showStatus();
 
         document.forms[0].submit();
     }
@@ -1508,9 +1527,9 @@ function confirmValue() {
     confirmationBar.appendChild(username);
 
     confirmationBar.innerHTML += "<div style='display: block; margin-top: 15px;'><input type='submit'" +
-        " value='OK' class='btn' style='float: left;' onclick='validateConfirmUsername()'" + 
-        " onmousedown='validateConfirmUsername()'/><input type='submit' value='Cancel' " + 
-        " class='btn' style='float: right; right: 3px;' onmousedown='cancelConfirmValue()' />";
+    " value='OK' class='btn' style='float: left;' onclick='validateConfirmUsername()'" + 
+    " onmousedown='validateConfirmUsername()'/><input type='submit' value='Cancel' " + 
+    " class='btn' style='float: right; right: 3px;' onmousedown='cancelConfirmValue()' />";
 
     confirmationBar.style.display = "block";
     tstInputTarget = __$("confirmUsername");
@@ -1564,7 +1583,6 @@ function clearInput(){
             for(var i = 0; i < options.length; i++){
                 if(options[i].style.backgroundColor == "lightblue"){
                     options[i].click();
-                    options[i].click();
                 }
             }
         } else {
@@ -1579,7 +1597,7 @@ function clearInput(){
     }
 }
 
-function showMessage(aMessage, withCancel) {
+function showMessage(aMessage, withCancel, timed) {
     var messageBar = tstMessageBar;
     messageBar.innerHTML = aMessage +
     "<br />" + (typeof(withCancel) != "undefined" ? (withCancel == true ?
@@ -1589,7 +1607,9 @@ function showMessage(aMessage, withCancel) {
     "clearTimeout(tstTimerHandle); eval(tstTimerFunctionCall);'><span>Ok</span></button>";
     if (aMessage.length > 0) {
         messageBar.style.display = 'block'
-        window.setTimeout("hideMessage()",3000)
+        if((typeof(timed) == "undefined" ? true : timed) == true){
+            window.setTimeout("hideMessage()",3000)
+        }
     }
 }
 
@@ -1674,7 +1694,7 @@ function showBestKeyboard(aPageNum) {
     switch (inputElement.getAttribute("field_type")) {
         case "password":
         case "full_keyboard":
-            showKeyboard(true);
+            showKeyboard(true, (tstUserKeyboardPref.toLowerCase() == "qwerty" ? true : false));
             break;
         case "alpha":
             __$("keyboard").innerHTML = getPreferredKeyboard();
@@ -1743,6 +1763,7 @@ function getDatePart(aElementName) {
 
 
 function gotoNextPage() {
+    tstMultipleSelected = {};
     gotoPage(tstCurrentPage+1, true);
 }
 
@@ -1929,13 +1950,15 @@ function getTimePicker() {
             hour: arrDate[0],
             minute: arrDate[1],
             second: arrDate[2],
-            format: "H:M:S"
+            format: "H:M:S",
+            maxNow: (tstInputTarget.getAttribute("maxNow") ? true : false)
         });
     } else {
         ds = new TimeSelector({
             element: keyboardDiv,
             target: tstInputTarget,
-            format: "H:M:S"
+            format: "H:M:S",
+            maxNow: (tstInputTarget.getAttribute("maxNow") ? true : false)
         });
     }
 
@@ -3108,7 +3131,9 @@ DateSelector.prototype = {
 				<button id="dateselector_preDay" onmousedown="ds.decrementDay();"><span>-</span></button> \
 			</div> \
 			</td><td> \
-                        <button id="today" onmousedown="setToday()" style="width: 150px;"><span>Today</span></button> \
+                        <button id="today" ' + (tstCurrentDate ? (tstCurrentDate == tstInternalCurrentDate ? 
+            'class="blue" ' : 'class="red" ') : 'class="blue" ') + 
+        ' onmousedown="setToday()" style="width: 150px;"><span>Today</span></button> \
 			<!--button id="num" onmousedown="updateKeyColor(this);press(this.id);" style="width: 150px;"><span>Num</span></button--> \
 			<button id="Unknown" onmousedown="updateKeyColor(this);press(this.id);" style="width: 150px;"><span>Unknown</span></button> \
 			</tr></table> \
@@ -3321,6 +3346,12 @@ var DateUtil = {
 
 function setToday(){
     var d = new Date();
+    if (tstCurrentDate) {
+        if(tstCurrentDate.match(/\d{4}\-\d{2}\-\d{2}/)){
+            d = new Date(tstCurrentDate);
+        }
+    }
+    
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     document.getElementById("touchscreenInput" + tstCurrentPage).value =
@@ -3348,7 +3379,8 @@ var TimeSelector = function() {
         second: arguments[0].second || this.time[2],
         format: "H:M:S",
         element: arguments[0].element || document.body,
-        target: arguments[0].target
+        target: arguments[0].target,
+        maxNow: arguments[0].maxNow
     };
 
     if (typeof(tstCurrentTime) != "undefined" && tstCurrentTime) {
@@ -3384,14 +3416,18 @@ TimeSelector.prototype = {
 			<td valign="top"> \
 			<div style="display: inline;" > \
                                 <div style="text-align:center; width:100%; font-size:1.8em;">Hr</div>\
-				<button id="timeselector_nextHour" onmousedown="ds.incrementHour();"><span>+</span></button> \
+				<button id="timeselector_nextHour" onmousedown="ds.incrementHour();" ' + 
+        (this.options["maxNow"] == true ? 'class="blue" ' : 'class="red" ') + 
+        ' ><span>+</span></button> \
 				<input id="timeselector_hour" type="text" > \
 				<button id="timeselector_preHour" onmousedown="ds.decrementHour();"><span>-</span></button> \
 			</div> \
 			</td><td> \
 			<div style="display: inline;"> \
                                 <div style="text-align:center; width:100%; font-size:1.8em;">Min</div>\
-				<button id="timeselector_nextMinute" onmousedown="ds.incrementMinute();"><span>+</span></button> \
+				<button id="timeselector_nextMinute" onmousedown="ds.incrementMinute();"' + 
+        (this.options["maxNow"] == true ? 'class="blue" ' : 'class="red" ') + 
+        ' ><span>+</span></button> \
 				<input id="timeselector_minute" type="text"> \
 				<button id="timeselector_preMinute" onmousedown="ds.decrementMinute();"><span>-</span></button> \
 			</div> \
@@ -3417,14 +3453,20 @@ TimeSelector.prototype = {
 
 
     incrementHour: function() {
-        if(this.currentHour.value >= (new Date().getHours())){
+        if(this.options["maxNow"] == true){       
+            if(this.currentHour.value >= (new Date().getHours())){
 
+            } else if(this.currentHour.value == 23){
+                this.currentHour.value = 0;
+            } else {
+                this.currentHour.value++;
+            }
         } else if(this.currentHour.value == 23){
             this.currentHour.value = 0;
         } else {
             this.currentHour.value++;
         }
-
+        
         this.time[0] = this.currentHour.value;
         this.update(this.target);
     },
@@ -3441,10 +3483,14 @@ TimeSelector.prototype = {
     },
 
     incrementMinute: function() {
-        if(this.currentMinute.value == 59){
-            this.currentMinute.value = 0;
-        //} else if(this.currentMinute.value >= (new Date().getMinutes())){
-        //  this.currentMinute.value++;
+        if(this.options["maxNow"] == true){        
+            if(this.currentMinute.value == 59){
+                this.currentMinute.value = 0;
+            } else if(this.currentMinute.value >= (new Date().getMinutes())){
+                this.currentMinute.value = 0;
+            } else  {
+                this.currentMinute.value++;
+            }
         } else  {
             this.currentMinute.value++;
         }
@@ -3465,8 +3511,12 @@ TimeSelector.prototype = {
     },
 
     incrementSecond: function() {
-        if(this.currentSecond.value == 59){
-            this.currentSecond.value = 0;
+        if(this.options["maxNow"] == true){        
+            if(this.currentSecond.value == 59){
+                this.currentSecond.value = 0;
+            } else {
+                this.currentSecond.value++;
+            }
         } else {
             this.currentSecond.value++;
         }
@@ -3524,15 +3574,15 @@ function stripZero(value){
     return value;
 }
 
-function showKeyboard(full_keyboard){   
+function showKeyboard(full_keyboard, qwerty){   
     var div = document.createElement("div");
     div.id = "divMenu";
     // div.className = "keyboard";
     
-    var row1 = ["Q","W","E","R","T","Y","U","I","O","P"];
-    var row2 = ["A","S","D","F","G","H","J","K","L",":"];
-    var row3 = ["Z","X","C","V","B","N","M",",",".","?"];
-    var row4 = ["cap","space","delete"];
+    var row1 = (qwerty ? ["q","w","e","r","t","y","u","i","o","p"] : ["a","b","c","d","e","f","g","h","i","j"]);
+    var row2 = (qwerty ? ["a","s","d","f","g","h","j","k","l",":"] : ["k","l","m","n","o","p","q","r","s",":"]);
+    var row3 = (qwerty ? ["z","x","c","v","b","n","m",",",".","?"] : ["t","u","v","w","x","y","z",",",".","?"]);
+    var row4 = ["CAP","space","delete"];
     var row5 = ["1","2","3","4","5","6","7","8","9","0"];
     var row6 = ["_","-","@","(",")","+",";","=","\\","/"];
 
@@ -3769,13 +3819,13 @@ function showKeyboard(full_keyboard){
 
                 full_keyboard = true;
 
-                showKeyboard(global_control);
+                showKeyboard(global_control, qwerty);
 
             } else if(this.innerHTML.match(/<span>(.+)<\/span>/)[1].toLowerCase() == "basic"){
 
                 full_keyboard = false;
 
-                showKeyboard(global_control);
+                showKeyboard(global_control, qwerty);
 
             } else if(!this.innerHTML.match(/<span>(.+)<\/span>/)[1].match(/^$/)){
 
@@ -3800,4 +3850,81 @@ function showKeyboard(full_keyboard){
     
     __$("keyboard").appendChild(div);
     
+}
+
+function padZeros(number, positions){
+    var zeros = parseInt(positions) - String(number).length;
+    var padded = "";
+    
+    for(var i = 0; i < zeros; i++){
+        padded += "0";
+    }
+    
+    padded += String(number);
+    
+    return padded;
+}
+
+function ajaxGeneralRequest(aUrl, method) {
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function() {
+        handleGeneralResult(httpRequest, method);
+    };
+    try {        
+        showProgress();
+        
+        httpRequest.open('GET', aUrl, true);
+        httpRequest.send(null);
+    } catch(e){
+    }
+}
+
+function handleGeneralResult(aXMLHttpRequest, method) {    
+    if (!aXMLHttpRequest) return "error";
+
+    if (aXMLHttpRequest.readyState == 4 && (aXMLHttpRequest.status == 200 || aXMLHttpRequest.status == 304)) {
+        var result = aXMLHttpRequest.responseText;
+        
+        ajaxGeneralRequestResult = result;
+        
+        __$("progress_bar").style.display = "none";        
+        
+        eval(method);
+        
+        return ajaxGeneralRequestResult;
+    }  
+    return "";
+}
+
+function showProgress(){
+    if(!__$("progress_bar")){
+        var div = document.createElement("div");
+        div.id = "progress_bar";
+        div.className = "messageBar";
+        div.innerHTML = "Fetching data. Please wait...";
+        //div.style.top = "200px";
+        //div.style.left = "280px";
+        
+        __$("page" + tstCurrentPage).appendChild(div);
+    }
+    
+    __$("progress_bar").style.display = "block";
+}
+
+function hideProgress(){
+    __$("progress_bar").style.display = "none";
+}
+
+function showStatus(){
+    if(!__$("popupBox")){
+        var  popupBox = document.createElement("div");
+        popupBox.id = "popupBox";
+        popupBox.style.display = "none";
+       
+        popupBox.innerHTML = "<p>Processing. Please Wait ...</p>"
+       
+        __$("content").appendChild(popupBox);
+    }
+    
+    __$("popupBox").style.display = "block";
 }
