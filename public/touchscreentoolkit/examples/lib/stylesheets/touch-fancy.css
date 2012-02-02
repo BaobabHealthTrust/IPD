@@ -900,3 +900,21 @@ ul li {
 .selectedOption {
     background-color: lightblue;
 }
+
+#popupBox {
+    height: 130px;
+    width: 450px;
+    position: absolute;
+    top: 150px;
+    left: 260px;
+    font-size: 2em;
+    float: right;
+    text-align: left;
+    z-index: 842;
+    border: thin solid black;
+    background: #40f999;
+    display: none;
+    padding: 20px;   
+    border: 5px outset #40f999;
+    -moz-border-radius: 15px; 
+}
