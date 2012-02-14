@@ -83,18 +83,23 @@
       <% @min = Time.now
          @max = Time.now
          @obs = @patient.person.observations.find_by_concept_name("WEIGHT (KG)")
-		@minWeight = 0
-		@maxWeight = 0
+		 @minWeight = 0
+		 @maxWeight = 0
          @obs.sort_by{|obs| obs.obs_datetime}.each do |obs|
-			if obs.value_numeric <= @minWeight
-				@minWeight = obs.value_numeric
-			end
-			if obs.value_numeric >= @maxWeight
-				@maxWeight =obs.value_numeric
-			end
-           @min = obs.obs_datetime if obs.obs_datetime < @min %>
-        [<%= obs.obs_datetime.to_f -%>, <%= obs.value_numeric -%>],<% end %>
-    ];
+			if !obs.answer_string.upcase.match(/UNKNOWN/i)
+				plot_value = obs.answer_string.to_f
+					
+				if plot_value <= @minWeight
+					@minWeight = plot_value
+				end
+				if plot_value >= @maxWeight
+					@maxWeight = plot_value
+				end
+		       	@min = obs.obs_datetime if obs.obs_datetime < @min %>
+        		[<%= obs.obs_datetime.to_f -%>, <%= (plot_value rescue 0) -%>],
+			<% end %>
+		<% end %>
+    	];
     <% @min = @max - 1.year if @min > @max - 1.year %>
 
     var patient_ticks = [
