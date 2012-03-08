@@ -47,6 +47,11 @@
 
     .tt_controls_closest_landmark_or_plot_number #num{ display:block; }
     .tt_controls_closest_landmark_or_plot_number #char{ display:block; }
+    .tt_controls_closest_landmark_or_plot_number #slash{ display:inline; }
+
+    .azButton .numericKeyboard #char {
+			display: block;
+    }
 
 </style>
 
@@ -177,7 +182,7 @@
 
   Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, {:id => 'gender', :helpText => 'Gender', :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
-  <%= text_field_tag "person[names][middle_name]", params[:middle_name], {:id => 'middle_name', :field_type => 'alpha', :helpText => 'Middle name', :ajaxURL => '/person_names/middle_name?search_string=', :allowFreeText => true, :condition => '$("middle_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
+  <%= text_field_tag "person[names][middle_name]", params[:middle_name], {:id => 'middle_name', :field_type => 'alpha', :helpText => 'Middle name', :tt_pageStyleClass => "azButton", :ajaxURL => '/person_names/middle_name?search_string=', :allowFreeText => true, :condition => '$("middle_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
 
   <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);',:validationJS => "setDOB();" }  %>
 
@@ -194,9 +199,9 @@
 
   <%= text_field_tag "p['address2_a']" , nil, {id => 'address2_a', :tt_onUnLoad => '$("address2").value = $("address2_a").value', :condition => '$("address2").value == "Other"', :id => 'address2_a',:tt_requireNextClick => true, :ajaxURL => '/person_addresses/address2?search_string=', :allowFreeText => true, :field_type => 'alpha', :helpText => 'Specify Home District', :tt_onLoad => "$('nextButton').style.display = 'block';" } if ask_home_village %>  
 
-  <%= text_field "person[addresses]" , 'county_district', :condition => '$("address2").value != "Other"', :helpText => 'Ancestral Traditional Authority (T/A) or area of residence',:tt_requireNextClick => false, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('address2').value);$('nextButton').style.display = 'none';" %></p>
+  <%= text_field "person[addresses]" , 'county_district', :condition => '$("address2").value != "Other"', :helpText => 'Ancestral Traditional Authority (T/A) or area of residence', :tt_pageStyleClass => "azButton", :tt_requireNextClick => false, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('address2').value);$('nextButton').style.display = 'none';" %></p>
 
-  <%= text_field "p[addresses]" , 'county_district_a', :tt_onUnLoad => '$("person_addresses_county_district").value = $("p_addresses_county_district_a").value', :condition => '$("address2").value == "Other"', :ajaxURL => '/person_addresses/traditional_authority?search_string=' , :helpText => 'Specify Ancestral Traditional Authority (T/A) or area of residence' , :allowFreeText => true, :tt_onLoad => "$('nextButton').style.display = 'block';"  %></p>
+  <%= text_field "p[addresses]" , 'county_district_a', :tt_onUnLoad => '$("person_addresses_county_district").value = $("p_addresses_county_district_a").value', :condition => '$("address2").value == "Other"', :ajaxURL => '/person_addresses/traditional_authority?search_string=' , :helpText => 'Specify Ancestral Traditional Authority (T/A) or area of residence' , :allowFreeText => true, :tt_pageStyleClass => "azButton", :tt_onLoad => "$('nextButton').style.display = 'block';"  %></p>
 
 <p><label for="filter_region">Current Region</label></br>
 <%= text_field "filter" , 'region', :xhelpText => 'Region', :tt_requireNextClick => false, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/region/Region?filter_value=' ,document.getElementById('person_addresses_county_district').value);$('nextButton').style.display = 'none';" %></p>
@@ -206,13 +211,13 @@
 
 <p><label for="filter_t_a">Traditional Authority (T/A) or area of residence</label></br>
 
-<%= text_field "filter" , 't_a', :condition => '$("filter_district").value != "Other"', :helpText => 'Traditional Authority (T/A) or area of residence', :tt_requireNextClick => false, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('filter_district').value);$('nextButton').style.display = 'none';" %></p>
+<%= text_field "filter" , 't_a', :condition => '$("filter_district").value != "Other"', :helpText => 'Traditional Authority (T/A) or area of residence', :tt_pageStyleClass => "azButton", :tt_pageStyleClass => "azButton", :tt_requireNextClick => false, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/traditional_authority/TraditionalAuthority?filter_value=' ,document.getElementById('filter_district').value);$('nextButton').style.display = 'none';" %></p>
 
-<%= text_field "filter" , 't_a_a', :tt_onUnLoad => 'if ($("t_a_a")) {$("t_a").value = $("t_a_a").value}', :condition => '$("filter_district").value == "Other"', :ajaxURL => '/person_addresses/traditional_authority?search_string=', :allowFreeText => true,  :helpText => 'Specify Traditional Authority (T/A) or area of residence', :tt_onLoad => "$('nextButton').style.display = 'block';" %></p>
+<%= text_field "filter" , 't_a_a', :tt_onUnLoad => 'if ($("t_a_a")) {$("t_a").value = $("t_a_a").value}', :condition => '$("filter_district").value == "Other"', :ajaxURL => '/person_addresses/traditional_authority?search_string=', :allowFreeText => true, :tt_pageStyleClass => "azButton", :helpText => 'Specify Traditional Authority (T/A) or area of residence', :tt_onLoad => "$('nextButton').style.display = 'block';" %></p>
 
-<%= text_field_tag "person[addresses][city_village]", params[:city_village], {:condition => '$("filter_t_a").value != "Other"',  :field_type => 'alpha', :helpText => 'Location/Village', :tt_requireNextClick => false, :ajaxURL => '/people/village?search_string=', :allowFreeText => false , :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('filter_t_a').value);$('nextButton').style.display = 'none';"}%>
+<%= text_field_tag "person[addresses][city_village]", params[:city_village], {:condition => '$("filter_t_a").value != "Other"',  :field_type => 'alpha', :helpText => 'Location/Village', :tt_requireNextClick => false, :ajaxURL => '/people/village?search_string=', :tt_pageStyleClass => "azButton", :allowFreeText => false , :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('filter_t_a').value);$('nextButton').style.display = 'none';"}%>
 
-<%= text_field_tag "p[addresses][city_village_a]", params[:city_village_a], {:tt_onUnLoad => '$("person_addresses_city_village").value = $("p_addresses_city_village_a").value', :condition => '$("filter_t_a").value == "Other"' , :ajaxURL => '/person_addresses/village?search_string=', :allowFreeText => true, :field_type => 'alpha', :helpText => 'Specify Location/Village', :tt_requireNextClick => true, :tt_onLoad => "$('nextButton').style.display = 'block';"}%>
+<%= text_field_tag "p[addresses][city_village_a]", params[:city_village_a], {:tt_onUnLoad => '$("person_addresses_city_village").value = $("p_addresses_city_village_a").value', :condition => '$("filter_t_a").value == "Other"' , :tt_pageStyleClass => "azButton", :ajaxURL => '/person_addresses/village?search_string=', :allowFreeText => true, :field_type => 'alpha', :helpText => 'Specify Location/Village', :tt_requireNextClick => true, :tt_onLoad => "$('nextButton').style.display = 'block';"}%>
 
 
 <%= text_field_tag "person[addresses][address1]",  params[:address1], {:id => 'address1', :helpText => 'Closest Landmark or Plot Number<br /><span style="font-size:0.7em;font-style:italic">(Please do not include these words: Next to, close, in front of, behind)</span>', :allowFreeText => true, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/landmark?filter_value=' ,document.getElementById('person_addresses_city_village').value);$('nextButton').style.display = 'block';" }%>
