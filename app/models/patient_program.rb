@@ -47,6 +47,7 @@ class PatientProgram < ActiveRecord::Base
   end
   
   def transition(params)
+	#raise params.to_yaml
     ActiveRecord::Base.transaction do
       # Find the state by name
       # Used upcase below as we were having problems matching the concept fullname with the state
@@ -68,11 +69,18 @@ class PatientProgram < ActiveRecord::Base
           :end_date => params[:end_date]
         })
         state.save!
+
+		if selected_state.terminal == 1
+			complete(params[:start_date])
+		else
+			complete(nil)
+		end
+
       end  
     end
   end
   
-  def complete(end_date)
+  def complete(end_date = nil)
     self.date_completed = end_date
     self.save!
   end
