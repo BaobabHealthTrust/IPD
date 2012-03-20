@@ -493,19 +493,25 @@ class PeopleController < ApplicationController
   
 private
   
-  def search_complete_url(found_person_id, primary_person_id)
-    unless (primary_person_id.blank?)
-      # Notice this swaps them!
-      new_relationship_url(:patient_id => primary_person_id, :relation => found_person_id)
-    else
-		#
-		# Hack reversed to continue testing overnight
-		#
-		# TODO: This needs to be redesigned!!!!!!!!!!!
-		#
-      #url_for(:controller => :encounters, :action => :new, :patient_id => found_person_id)
-      url_for(:controller => :people, :action => :confirm , :found_person_id =>found_person_id)
-    end
-  end
+	def search_complete_url(found_person_id, primary_person_id)
+		unless (primary_person_id.blank?)
+			# Notice this swaps them!
+			new_relationship_url(:patient_id => primary_person_id, :relation => found_person_id)
+		else
+			#
+			# Hack reversed to continue testing overnight
+			#
+			# TODO: This needs to be redesigned!!!!!!!!!!!
+			#
+			#url_for(:controller => :encounters, :action => :new, :patient_id => found_person_id)
+			patient = Person.find(found_person_id).patient
+			show_confirmation = CoreService.get_global_property_value('show.patient.confirmation').to_s == "true" rescue false
+			if show_confirmation
+				url_for(:controller => :people, :action => :confirm , :found_person_id =>found_person_id)
+			else
+				next_task(patient)
+			end
+		end
+	end
 end
  
