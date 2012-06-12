@@ -1,0 +1,274 @@
+<script>
+    var tt_cancel_destination = "/people"
+</script>
+    <div id="reportData" style="position:relative; width:100%; height:85%; overflow:auto;">
+    <%= stylesheet_link_tag "report" %>
+
+<div style="text-align : center;">
+    <h2>SPINE - Monthly SPINE(<%=" Period: <i>#{@start_date} to #{@end_date}</i> ) "%>clinical data download <br>
+        tables for automatic reporting on a monthly basis</h2>
+</div>
+<table>
+    <tr>
+      <th>Registration</th>
+    </tr>
+    <tr>
+      <th>1</th>
+
+    </tr>
+    <tr>
+      <td></td>
+      <th>month</th>
+      <th>Male</th>
+      <th>Female</th>
+      <th>Total</th>
+    </tr>
+    <tr>
+      <td></td>
+      <th></th>
+      <td><%=@total_males%></td>
+      <td><%=@total_females %></td>
+      <td><%=@patients_registered.length.to_i%></td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>%</th>
+      <td><%=((@total_males.to_i*100) / @patients_registered.length.to_i) rescue 0%></td>
+      <td ><%= 100-((@total_males.to_i*100) / @patients_registered.length.to_i) rescue 0%></td>
+      <td>100%</td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Median age</th>
+      <td><%=@total_age_male.to_i/@total_males.to_i rescue 0%></td>
+      <td><%=@total_age_female.to_i/@total_females.to_i rescue 0%></td>
+      <td><%=(@total_age_male.to_i + @total_age_female.to_i)/@patients_registered.length.to_i rescue 0 %></td>
+    </tr>
+    
+</table>
+
+<table>
+    <tr>
+      <th>Admissions</th>
+    <tr>
+      <th>1</th>
+    </tr>
+    <tr>
+      <td ></td>
+      <th >Ward</th>
+      <th>Number</th>
+      <td class="none_cell"></td>
+      <td class="none_cell"></td>
+      <th>% of admissions</th>
+      <td class="none_cell"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="none_cell"></td>
+      <th>Total</th>
+      <th>Male</th>
+      <th>Female</th>
+      <th>Male</th>
+      <th>Female</th>
+    </tr>
+<%@admissions.keys.sort.reverse.each do |ward|%>
+    <tr>
+      <td></td>
+      <th><%=ward%></th>
+      <td><%=total=@admissions[ward]["total_male"].to_i + @admissions[ward]["total_female"].to_i%></td>
+      <%@total_patient_admission_per_ward[ward]=total%>
+      <td><%=@admissions[ward]["total_male"].to_i%></td>
+      <td><%=@admissions[ward]["total_female"].to_i%></td>
+	  	<td><%=percent_males = ((100* @admissions[ward]["total_male"].to_i)/total) rescue 0 %></td>
+		<td><%= 100-percent_males %></td>
+    </tr>
+<%end%>
+</table>
+
+<table>
+    <tr>
+      <th>Re-admissions</th>
+    </tr>
+    
+    <tr>
+      <th>1</th>
+    </tr>
+    
+    <tr>
+      <td></td>
+      <th>month</th>
+      <th>Number Admitted</th>
+      <th>total number of patients with documented previous admissions within 3 months</th>
+      <th>total number of patients with documented previous admissions within 6 months</th>
+      <th>number of patients with the same current admission and old discharge diagnosis</th>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Number</th>
+      <td><%=@total_patient_readmissions.to_i%></td>
+      <td><%=@readmission_in_three_months%></td>
+      <td><%=@readmission_in_six_months%></td>
+      <td><%=@total_primary_diag_equal_to_secondary.first.total.to_s rescue nil%></td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>% of total</th>
+      <td>100%</td>
+      <td><%=((@readmission_in_three_months*100)/@total_patient_readmissions.to_i) rescue 0%></td>
+      <td><%=((@readmission_in_six_months*100)/@total_patient_readmissions.to_i) rescue 0%></td>
+      <td><%= ((@total_primary_diag_equal_to_secondary.first.total.to_i*100)/@total_patient_readmissions.to_i) rescue 0%></td>
+    </tr>
+
+</table>
+
+<table> 
+    <tr>
+      <th>2</th>
+    </tr>   
+    
+    <tr>
+      <td></td>
+      <th>Diagnosis</th>
+      <th>Number</th>
+      <th>Percentage of total</th>
+    </tr>
+
+<%@top_ten_syndromic_diagnosis.each do |diagnosis|%>
+    <tr>
+      <td></td>
+      <td style="text-align : left; padding-left:5px;" ><%=diagnosis.syndromic_diagnosis.to_s%></td>
+      <td><%=diagnosis.total_occurance.to_s%></td>
+      <td><%= ("%.2f." % ((diagnosis.total_occurance.to_f * 100)/ @total_top_ten_syndromic_diagnosis.to_f)).to_f rescue 0%></td>
+    </tr>
+<%end rescue ''%>
+</table>
+
+<table>
+    <tr>
+      <th>Discharges</th>
+    </tr>
+    <tr>
+      <th>1</th>
+
+    </tr>
+    <tr>
+      <td></td>
+      <th>Ward</th>
+      <th>No. admissions</th>
+      <th>No. discharges</th>
+      <th>Discharges as % admissions</th>
+      <th>% SPINE compliance</th>
+      <th>Average length of stay</th>
+    </tr>
+    <%@patient_admission_discharge_summary.reverse.each do |ward|%>
+    <tr>
+      <td></td>
+      <th style="width:105px;"><%=ward.ward.to_s%></th>
+      <td><%=ward.total_admissions.to_s%></td>
+      <td><%=ward.total_discharged.to_s%></td>
+      <td><%=((ward.total_discharged.to_i*100)/ward.total_admissions.to_i) rescue 0%></td>
+      <td><%=%>00</td>
+      <td><%=ward.average_days.to_s%></td>
+    </tr>
+    <%end%>
+</table>
+
+<table> 
+    <tr>
+      <th>2</th>
+    </tr>   
+    <tr>
+      <td></td>
+      <th>Discharge diagnosis</th>
+      <th>Number</th>
+      <th>Percent</th>
+      <th>Number HIV positive</th>
+      <th>Percentage HIV positive</th>
+    </tr>
+<%@primary_diagnosis_and_hiv_stat.each do |diagnosis|%>
+    <tr>
+      <td></td>
+      <td><%=diagnosis.primary_diagnosis.to_s%></td>
+      <td><%=diagnosis.total.to_s%></td>
+      <td><%= ("%.2f." % ((diagnosis.total.to_f * 100)/ @total_top_ten_primary_diagnosis.to_f)).to_f rescue 0%></td>
+      <td><%=diagnosis.total_hiv_positive.to_s%></td>
+      <td><%= ("%.2f." % ((diagnosis.total_hiv_positive.to_f * 100)/ diagnosis.total.to_f)).to_f rescue 0%></td>
+    </tr>
+<%end%>
+
+</table>
+<table>
+    <tr>
+      <th>Deaths</th>
+    </tr>
+    <tr>
+      <th>1</th>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Ward</th>
+      <th>Total No. deaths</th>
+      <th>Deaths as % of admissions</th>
+      <th>Death within 24 hrs </th>
+      <th>Death within 24-72 hrs</th>
+      <th>Death 72hrs-7 days</th>
+      <th>Death > 7 days</th>
+      <th>Total No. deaths HIV+</th>
+    </tr>
+    <%@dead_patients_statistic_per_ward.reverse.each do |ward|%>
+    <tr>
+      <td></td>
+      <th><%=ward.ward.to_s%></th>
+      <td><%=ward.total_dead.to_s%></td>
+      <td><%=((ward.total_dead.to_i*100)/@total_patient_admission_per_ward[ward.ward.to_s]) rescue 0%></td>
+      <td><%=ward.total_dated_in_24hrs.to_s%></td>
+      <td><%=ward.dead_btn_24_and_72hrs.to_s%></td>
+      <td><%=ward.dead_btn_3_and_7dys.to_s%></td>
+      <td><%=ward.dead_after_7dys.to_s%></td>
+      <td><%=ward.dead_patients_hiv_positive.to_s%></td>
+    </tr>
+    <%end%>
+</table>
+
+<table>
+    <tr>
+      <th>Specific HIV related data</th>
+    </tr>
+    <tr>
+      <th>1</th>
+
+    </tr>
+    <tr>
+      <td></td>
+      <td class="none_cell"></td>
+      <th>Number</th>
+      <th>Percentage</th>
+    </tr>
+    <tr>
+      <td></td>
+      <th>Total HIV+ admitted</th>
+      <td><%=@specific_hiv_related_data.first.patient_admission_hiv_status.to_s rescue nil %></td>
+      <td><%=((@specific_hiv_related_data.first.patient_admission_hiv_status.to_i * 100)/@specific_hiv_related_data.first.total_admissions.to_i) rescue 0%></td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>No. reg ART clinic</th>
+      <td><%=total_art=@specific_hiv_related_data.first.females_admission_and_on_art.to_i + @specific_hiv_related_data.first.males_admission_and_on_art.to_i rescue nil%></td>
+      <td><%=((total_art.to_i * 100)/@specific_hiv_related_data.first.total_admissions.to_i) rescue 0%></td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>No. Male reg</th>
+      <td><%=@specific_hiv_related_data.first.males_admission_and_on_art.to_i rescue nil %></td>
+      <td><%=(@specific_hiv_related_data.first.males_admission_and_on_art.to_i * 100)/total_art.to_i rescue 0%></td>
+    </tr>
+    <tr>
+      <td></td>
+      <th>No. female reg</th>
+      <td><%=@specific_hiv_related_data.first.females_admission_and_on_art.to_i rescue nil %></td>
+      <td><%=(@specific_hiv_related_data.first.females_admission_and_on_art.to_i * 100)/total_art.to_i rescue 0%></td>
+    </tr>
+    
+</table>
+</div>
+
