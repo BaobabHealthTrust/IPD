@@ -1089,5 +1089,93 @@ class CohortToolController < ApplicationController
 
     patients.sort { |a,b| a[1]['adherence'].to_i <=> b[1]['adherence'].to_i }
   end
+  
+  def ipd_report_index
+    @reports = ['Report 1','Report 2']
+  end
+  
+  def report1
+
+    flash[:notice] = ""
+    unless params[:start_date].to_date <= params[:end_date].to_date
+      flash[:notice] = "Start Date must be less than or equal to End Date"
+      @reports = ['Report 1','Report 2']
+      render :index
+      return
+    end
+
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+
+    @start_date = params[:start_date]
+    @end_date = params[:end_date]
+
+    @total_males = 0
+    @total_females = 0
+    @total_age_male = 0
+    @total_age_female = 0
+    report = Reports::ReportIpd.new()
+    @patients_registered = report.patients_registered(start_date, end_date)
+
+    @patients_registered.each do|patient|
+      if patient.gender == 'M'
+        @total_males += 1
+        @total_age_male += patient.age.to_i
+        else
+        @total_females += 1
+        @total_age_female += patient.age.to_i
+      end
+    end
+
+    @admissions = {}
+    @patients_in_wards = report.patients_in_wards(start_date, end_date)
+
+    @patients_in_wards.each do |ward|
+        @admissions[ward.ward] = {} if !@admissions[ward.ward]
+        if ward.gender == 'M'
+             @admissions[ward.ward]["total_male"] =  ward.total
+        else
+             @admissions[ward.ward]["total_female"] = ward.total
+        end
+     end
+
+     @patient_readmissions = report.re_admissions(start_date, end_date)
+     @total_patient_readmissions = @patient_readmissions.length
+     @readmission_in_three_months = 0
+     @readmission_in_six_months = 0
+
+     @day = []
+     @patient_readmissions.each do |patient|
+        if patient.days.to_i < 91
+          @readmission_in_three_months = @readmission_in_three_months + 1
+        elsif patient.days.to_i < 181
+          @readmission_in_six_months = @readmission_in_six_months + 1
+        end
+     end
+
+     @total_primary_diag_equal_to_secondary = report.total_patients_with_primary_diagnosis_equal_to_secondary(start_date, end_date)
+     @top_ten_syndromic_diagnosis =  report.top_ten_syndromic_diagnosis(start_date, end_date)
+     @total_top_ten_syndromic_diagnosis = 0
+
+     @top_ten_syndromic_diagnosis.each do |diagnosis|
+        @total_top_ten_syndromic_diagnosis += diagnosis.total_occurance.to_i
+     end
+
+     @patient_admission_discharge_summary = report.patient_admission_discharge_summary(start_date, end_date)
+
+     @primary_diagnosis_and_hiv_stat = report.statistic_of_top_ten_primary_diagnosis_and_hiv_status(start_date, end_date)
+
+     @total_top_ten_primary_diagnosis = 0
+     @primary_diagnosis_and_hiv_stat.each do |diagnosis|
+        @total_top_ten_primary_diagnosis += diagnosis.total.to_i
+     end
+     @dead_patients_statistic_per_ward = report.dead_patients_statistic_per_ward(start_date, end_date)
+
+     @specific_hiv_related_data = report.specific_hiv_related_data(start_date, end_date)
+     @total_patient_admission_per_ward = {}
+     render :layout => 'reports'
+
+  end
+  
 end
 
