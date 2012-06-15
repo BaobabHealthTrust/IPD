@@ -1,0 +1,158 @@
+<style>
+  body {
+    -moz-user-select:none;
+  }
+
+  table {
+    vertical-align:center;
+    width: 100%;
+    -moz-user-select:none;
+  }
+
+  .container {
+    height: 82%;
+    background-color: #FFFFDD;
+    margin: 20px 20px 20px 20px;
+    overflow: auto;
+  }
+
+  .data { 
+    padding-left: 5px;
+  }
+
+  td {
+    text-align: left;
+    border-style: solid;
+    border-width: 1px;
+    text-align: left;
+    word-wrap: break-word;
+  }
+
+  th {
+    text-align: left;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 5px;
+    text-align: left;
+  }
+
+  a {
+    background-color: grey;
+    border-bottom: 1px outset #EEEEEE;
+    border-style: outset;
+    border-top: 1px outset #EEEEEE;
+    color: white;
+    display: block;
+    padding: 10px 16px 10px 10px;
+    text-align: center;
+    text-decoration: none;
+  }
+</style>
+
+<script>
+  tt_cancel_destination = "/patients/show/<%=@person.id%>";
+</script>
+
+<div class="container">
+  <table>
+
+    <tr>
+      <th>Name</th>
+      <td class="data"><%=@patient_bean.name%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=name&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Gender</th>
+      <td><%=@patient_bean.sex%></td>
+      <td class="data"><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=sex&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Date of birth</th>
+      <td class="data"><%=@patient_bean.birth_date%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=age&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Home district</th>
+      <td class="data"><%=@patient_bean.home_district%></td>
+      <td><%= link_to "Edit", "#",
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Traditional authority</th>
+      <td class="data"><%=@patient_bean.traditional_authority%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=ta&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Occupation</th>
+      <td class="data"><%=@patient_bean.occupation%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=occupation&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Area of residence</th>
+      <td class="data"><%=@patient_bean.current_residence%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=location&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Land mark</th>
+      <td class="data"><%=@patient_bean.landmark%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=address&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Cell phone number</th>
+      <td class="data"><%=@patient_bean.cell_phone_number%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=cell_phone_number&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Office phone number</th>
+      <td class="data"><%=@patient_bean.office_phone_number%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=office_phone_number&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Home phone number</th>
+      <td class="data"><%=@patient_bean.home_phone_number%></td>
+      <td><%= link_to "Edit", 
+          "/patients/mastercard_modify?field=home_phone_number&id=#{@person.id}&from_demo=true", 
+          :class => "anchor_class" %>
+      </td>
+    </tr>
+
+  </table>
+</div>

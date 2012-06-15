@@ -1,0 +1,33 @@
+production:
+  adapter: mysql
+#  database: test_bart2
+  #database: test_bart2
+  #database: openmrs_bart2
+  #database: openmrs_b2
+  database: dm_bart2_0
+  username: chawa
+  password: baobab
+  host: localhost
+
+development:
+  adapter: mysql
+#  database: test_bart2
+  #database: test_bart2
+  #database: openmrs_bart2
+  database: bart2_0
+  #username: chawa
+  #password: baobab
+  #database: dm_bart2_0
+  username: chawa
+  password: baobab
+  host: localhost
+
+test: &TEST
+  adapter: mysql
+  database: openmrs_bart2
+  username: root
+  password: 
+  host: localhost
+
+cucumber:
+  <<: *TEST

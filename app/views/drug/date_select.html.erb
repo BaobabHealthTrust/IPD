@@ -1,0 +1,22 @@
+<script>
+  var tt_cancel_destination = '/clinic'; // /reports';
+</script>
+
+<style>
+  .options , #num , #Unknown { display:none; }
+
+  .dateselector {
+     position: fixed;
+     top: 195px;
+  }
+</style>
+
+<form id="dates" action="<%=@goto%>" method="post">
+
+   <input type="text" field_type="date" id="start_date" name="start_date" value="" helpText="Select start date" />
+
+   <input type="text" field_type="date" id="end_date" name="end_date" value="" 
+          helpText="Select end date" maxDate="<%= (Date.today + 30.years) %>" />
+
+</form>
+
