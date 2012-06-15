@@ -18,7 +18,7 @@
     <%= javascript_include_tag "logout_timer"%>
 
     <script language="javascript">
-      tstUsername = "<%= User.current_user.username unless User.current_user.nil? %>";
+      tstUsername = "<%= current_user.username unless current_user.nil? %>";
       tstCurrentDate = "<%= Time.now.strftime("%Y/%m/%d") %>";
       auto_logout_screen = true;
     </script>
