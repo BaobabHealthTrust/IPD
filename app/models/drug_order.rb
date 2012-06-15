@@ -99,7 +99,7 @@ class DrugOrder < ActiveRecord::Base
       order = encounter.orders.create(
         :order_type_id => 1, 
         :concept_id => drug.concept_id, 
-        :orderer => User.current_user.user_id, 
+        :orderer => User.current.user_id, 
         :patient_id => patient.id,
         :start_date => start_date,
         :auto_expire_date => auto_expire_date,

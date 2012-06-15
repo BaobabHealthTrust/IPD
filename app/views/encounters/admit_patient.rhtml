@@ -9,21 +9,18 @@
 </script>
 
 <form id='outcome' action="/encounters/create" method='post'>
- <% options = {} %>
-
 	<%= hidden_field_tag "encounter[encounter_type_name]", "ADMIT PATIENT" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
-	<%= select_tag("observations[][value_coded_or_text]", options_for_select(@ipd_wards), {:helpText => 'Admit to ward', :tt_requireNextClick => 'false'})%>
-	<%= hidden_field_tag("observations[][value_text]", nil) %>
-	<%= hidden_field_tag("observations[][concept_name]", "ADMIT TO WARD", options) %>
-	<%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-	<%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+	<%= touch_select_tag "ADMIT TO WARD", @patient, options_for_select(@ipd_wards),
+		{	:helpText => "Admit to ward", 
+			:tt_onload => "$('nextButton').style.display = 'none'",
+			:tt_requireNextClick => "false" } %>
 
 	<% program_id = Program.find_by_name('IPD PROGRAM').id %>
-	<% patient_program_id = @patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil %>
+	<% patient_program_id = @patient.patient_programs.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil %>
 
 	<%= hidden_field_tag("programs[][patient_program_id]", patient_program_id) %>
 	<%= hidden_field_tag("programs[][program_id]", program_id)%>
@@ -32,13 +29,12 @@
 
 	<%= hidden_field_tag("programs[][states][][state]", "Admitted") %>
 
-	<% session_date = session[:datetime].to_date rescue nil                       
-		if session_date %>
-
+	<% if @retrospective %>
 		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
-		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :tt_onload => "$('nextButton').style.display = 'block'", :ajaxURL => '/user/username?username=' %></p>
 	<% else %>
 		<%= hidden_field_tag "filter[provider]", nil %>
-	<%end%> 
+	<% end %>
+	
 	<%= submit_tag "Finish" %>    
  </form>

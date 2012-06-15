@@ -1,8 +1,72 @@
+<%= stylesheet_link_tag "set_date" %>
 <script>
-  var tt_cancel_destination = "/people"
+  function validateDate() {
+    year = $('set_year').value;
+    month = $('set_month').value;
+    day = document.getElementsByName('set_day')[1].value;
+
+    set_date = new Date(year + "-" + ("0" + month).slice(-2) + "-" + ("0" + day).slice(-2));
+
+    if (set_date > new Date()) {
+      msgBar = $("messageBar");
+      msgBar.innerHTML = "You must enter an earlier date than <%=Date.today.strftime('%Y-%b-%d')%>"
+      msgBar.style.display = "block";
+      setTimeout("hideMsg();",2000);
+    }else{ 
+      gotoNextPage();
+    }     
+  }
+
+  function hideMsg() { $("messageBar").style.display = "none"; }
+
+  <% if @patient_id %>
+    var tt_cancel_destination = "/patients/show/<%=@patient_id%>"
+  <% else %>
+    var tt_cancel_destination = "/clinic"
+  <% end %>
+        //:validationMessage => "You must enter an earlier date than #{Date.today.strftime('%Y-%b-%d')}")  %>
+
+  function setAttributes() {
+    $('nextButton').setAttribute("onmousedown","validateDate();");
+  }
+
+  function resetAttributes() {
+    $('nextButton').setAttribute("onmousedown","gotoNextPage()");
+  }
 </script>
 
-<% form_tag :action => "set_datetime" do %>
-  <%= text_field_tag("past_visit_date", nil, {:field_type => 'date', :helpText => 'Past visit date'}) %>
+<style>
+  .tt_controls_year #char { display: none; }
+  #qwerty { display: none; }
+</style>
+
+<form action = "/people/set_datetime/<%=@patient_id%>" method = "post">
+
+  <%= text_field_tag(:set_year,nil,
+      {:field_type => 'number', 
+       :absoluteMin => "1940", 
+       :id => "set_year",
+       :absoluteMax => Time.now.year, 
+       :helpText => 'Year'}) %>
+
+  <% optionsString = "<option>" "" "</option>"
+  1.upto(12){ |number| 
+       optionsString += "<option value = '" + number.to_s + "'>" + Date::MONTHNAMES[number] + "</option>"
+      }
+      optionsString << "<option>" "Unknown" "</option>"
+  %>
+  <%= select_tag :set_month, optionsString, {:helpText => 'Month',:id => "set_month"}%>
+
+  <%day=Array.new(31){|d|d + 1 } 
+    unknown=Array.new
+    unknown[0]= "Unknown" 
+    days_with_unknown = day 
+    days = [""].concat day%>
+    <%= select_tag(:set_day, options_for_select(days), 
+        :field_type => 'number' , 
+        :helpText => 'Day' ,
+        :tt_OnUnLoad => "resetAttributes();",
+        :tt_OnLoad => "setAttributes();") %>
+
   <%= submit_tag "Set visit date" %>
-<% end %>
+</form>

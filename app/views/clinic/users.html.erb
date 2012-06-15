@@ -6,9 +6,9 @@
 
 <%
   @reports = []
-  @reports << ['Change password',"/user/change_password/#{User.current_user.id}"]
-  @reports << ['Edit name',"/user/edit/#{User.current_user.id}"]
-  if User.current_user.admin? 
+  @reports << ['Change password',"/user/change_password/#{current_user.id}"]
+  @reports << ['Edit name',"/user/edit/#{current_user.id}"]
+  if current_user.admin? 
     @reports << ['Create user',"/user/new"]
     @reports << ['Edit user',"/user/select_user"]
   end

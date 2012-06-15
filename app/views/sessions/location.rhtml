@@ -33,13 +33,8 @@
     }
   </style>
 
-  <% form_tag session_path, :method => :put do -%>
+<form id='sessions' action="/sessions/update" method='post'>
     <label for="location">Location</label>
     <%= text_field_tag(:location, nil, :helpText => "Workstation location", :field_type => "number", :tt_onLoad => "inform();") %><br>
     <%= submit_tag :value => "Submit" %>
-  <% end %>
-
-  <div id="popupBox"  align="center">
-    <p id="p1">Verifying location</p>
-    <p id="p2">Please wait...</p>
-  </div>
+</form>

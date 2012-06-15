@@ -5,10 +5,13 @@
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
 
 	function updateNextFinish(){
-		if (tstInputTarget.value == '')
+		if (tstInputTarget.value == '') {
 			$('nextButton').innerHTML = '<span>Finish</span>';
-		else
+			$('nextButton').setAttribute("onMouseDown","submit();");
+		} else {
 			$('nextButton').innerHTML = '<span>Next</span>';
+			$('nextButton').setAttribute("onMouseDown", "gotoNextPage()");
+		}
 		setTimeout(updateNextFinish, 500)
 	}
 	
@@ -20,6 +23,11 @@
 
 	diagnoses_requiring_details = '<%= "#{@diagnoses_requiring_details}" %>';
 	diagnoses_requiring_specification = '<%= "#{@diagnoses_requiring_specification}"%>';
+	
+  function submit()
+  {
+      document.forms["outpatient_diagnosis"].submit();
+  }
 
 </script>
 
@@ -28,7 +36,7 @@
   <%= hidden_field_tag "encounter[encounter_type_name]", "ADMISSION DIAGNOSIS" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
 	<%= touch_select_tag "Primary diagnosis", @patient, nil,
 		{	:id => "primary_diagnosis",
@@ -71,6 +79,30 @@
 			:textCase => "upper",
 		 	:helpText => "Specific secondary diagnosis" } %>
 
+	<% counter = 0%>
+	<% 4.times do %>
+			<% counter += 1%>
+			<%= touch_select_tag "Additional Diagnosis", @patient, nil,
+				{	:id => "additional_diagnosis_#{counter}",
+					:ajaxURL => "/encounters/diagnoses?search_string=",
+					:optional => "true",
+					:tt_onLoad => "setTimeout(updateNextFinish, 20)",
+				 	:helpText => "Additional Diagnosis" } %>
+
+			<%= touch_select_tag "Detailed additional diagnosis", @patient, nil,
+				{	:id => "additional_secondary_diagnosis_details_#{counter}",
+				 	:condition => "diagnoses_requiring_details.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
+					:ajaxURL => "/encounters/daignosis_details?search_string=",
+					:tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('additional_diagnosis_#{counter}').value);",
+				 	:helpText => "Detailed additional diagnosis" } %>
+
+			<%= touch_text_field_tag "Specific additional diagnosis", @patient, nil,
+				{	:id => "additional_specific_diagnosis_#{counter}",
+				 	:condition => "diagnoses_requiring_specification.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
+					:allowFreeText => 'true',
+					:textCase => "upper",
+				 	:helpText => "Additional specific secondary diagnosis" } %>
+	<% end %>
 
 	<% if @retrospective %>
 		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>

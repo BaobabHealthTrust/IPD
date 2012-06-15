@@ -1,11 +1,11 @@
 <%
 @reports = []
-@reports << ['Change password',"/user/change_password/#{User.current_user.id}"]
-@reports << ['Edit name',"/user/edit/#{User.current_user.id}"]
+@reports << ['Change password',"/user/change_password/#{current_user.id}"]
+@reports << ['Edit name',"/user/edit/#{current_user.id}"]
 if not Location.current_location.name.match(/Outpatient/i)
-  @reports << ['Settings',"/user/activities/#{User.current_user.id}"]
+  @reports << ['Settings',"/user/activities/#{current_user.id}"]
 end
-if User.current_user.admin?
+if current_user.admin?
   @reports << ['Create user',"/user/new"]
   @reports << ['Edit user',"/user/select_user"]
 end
@@ -13,6 +13,11 @@ end
 
 
 <style type="text/css">
+  body {
+    -moz-user-select:none;
+	 font-family: Arial,sans-serif;
+  }
+  
   #stats {
     width:98%;
     margin:10px;

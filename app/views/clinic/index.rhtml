@@ -4,7 +4,7 @@
     <script type="text/javascript" language="javascript" src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer ></script>
     <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
     <script language="javascript">
-      tstUsername = "<%= User.current_user rescue "" %>";
+      tstUsername = "<%= current_user rescue "" %>";
       tstCurrentDate = "<%= @date %>";
       tt_cancel_destination = '/logout';
       tt_cancel_show = '/people/search';
@@ -19,7 +19,7 @@
             </tr>
             <h1 id='project_name'>
               <div style="font-size: 0.8em; margin-top: 28px;">
-                    <span style="font-size: 55px;">IPD</span>
+				IPD
               </div>
             </h1>
 
@@ -37,7 +37,7 @@
               <%if @location == 'Chronic Cough'%>
                 <option value='/clinic/lab_tab'>Laboratory</option>
               <%end%>
-              <% if User.current_user.admin? %>
+              <% if current_user.admin? %>
                 <option value='/clinic/properties_tab'>Properties</option>
               <%end%>
               <option value='/clinic/administration_tab'>Administration</option>
@@ -48,19 +48,19 @@
 <%# Show Find / Register Patient button on HIV Reception and Find by Name button
 on the rest of the stations %>
 
+              <%# if @location =~ /HIV Reception/ %>
                 <option value='/people/search' link='/people/search' ttSize="295px">Find or Register Patient</option>
+              <%# else %>
+                <!--<option value='/people/search' link='/people/search' ttSize="200px">Find By Name</option>-->
+              <%# end %>
 
-            <%# Hide Find by ARV Number button on non-HIV workstations %>
+<%# Hide Find by ARV Number button on non-HIV workstations %>
               <% if @location =~ /HIV/ %>
                 <option value="/people/find_by_arv_number" ttSize="265px">Find By ARV Number</option>
               <% end %>
               <% if development_environment? %>
                 <option value='/location?from=clinic' ttSize="100px">Swap Desk</option>
               <% end %>
-              
-              <% if @super_user || @spine_clinician %>
-                <option value = '/encounters/lab_results_entry' ttSize="210px">Find Lab Test</option>
-              <%end%>
 
               <option value='<%= ((session[:datetime].to_date rescue '') != '' ?
                           "/people/reset_datetime" : "/people/set_datetime") %>'  ttSize="100px">

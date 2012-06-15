@@ -4,10 +4,11 @@
   <head>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
     <% @title = "#{controller.controller_name.humanize} #{controller.action_name.humanize}" rescue ""  %>
-z    <script type="text/javascript" language="javascript" src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer="true"></script>
+    <script type="text/javascript" language="javascript" src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer="true"></script>
     <script language="javascript">
-      tstUsername = "<%= User.current_user.username unless User.current_user.nil? %>";
-      tstCurrentDate = "<%= Time.now.strftime("%Y/%m/%d") %>";
+      tstUserKeyboardPref = "<%=preferred_user_keyboard%>"
+      tstUsername = "<%= current_user.username unless current_user.nil? %>";
+      tstCurrentDate = "<%= Time.now.strftime("%Y-%m-%d") %>";
     </script>
     <%#= stylesheet_link_tag "mateme" %>
     <%#= stylesheet_link_tag fancy_or_high_contrast_touch %>
@@ -32,6 +33,9 @@ z    <script type="text/javascript" language="javascript" src="/touchscreentoolk
         <% end %>
         <% unless flash[:error].nil? %>
           <p id="flash_error" style="color: red"><%= flash[:error] %></p>
+        <% end %>
+        <% unless flash[:error].nil? %>
+          <p id="flash_alert" style="color: green"><%= flash[:alert] %></p>
         <% end %>
         <%= yield %>  
         <div id="footer">

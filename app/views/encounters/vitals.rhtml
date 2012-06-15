@@ -45,11 +45,11 @@
 	<%= hidden_field_tag "encounter[encounter_type_name]", "VITALS" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
 	<%= select_tag "choice", options_for_select(["", "Temperature", 
 		"Respiratory Rate", "Blood Pressure", "Pulse Rate", "Weight", "Height", "Oxygen Saturation"]), 
-		{	:helpText => 'Select Outcome', 
+		{	:helpText => 'Select vital signs', 
 			:id => "choice", 
 			:multiple => true } %>
 

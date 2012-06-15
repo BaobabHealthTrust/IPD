@@ -418,9 +418,10 @@ function generateDashboard(){
     var gender = document.createElement("div");
     gender.id = "gendercell";
     if(__$('patient_gender')){
-        gender.innerHTML = "<div id='gender'><img src='/images/" +
+        gender.innerHTML = "<div id='gender' style='padding-left: 3px; padding-top: 2px; " + 
+            "height: 25px; width: 25px;' class='" +
         (__$('patient_gender').innerHTML.toLowerCase().trim() == "female" ? "female" : "male") +
-        ".gif' height='25px' width='25px' style='padding-left: 3px; padding-top: 2px;' /></div>";
+        "' /></div>";
     }
 
     topicRow.appendChild(gender);
@@ -613,9 +614,10 @@ function generateDashboard(){
             var page = (children[i].value.trim() != children[i].innerHTML.trim() ? children[i].value :
                 "tabpages/" + children[i].innerHTML.trim().toLowerCase().replace(/\s/gi, "_") + ".html")
 
-            var selected = (children[i].getAttribute("selectedTab") ? true : false);
+            var selectedtab = (children[i].getAttribute("selectedTab") ? true : false);
+            var alerttab = (children[i].getAttribute("alertTab") ? true : false);
             
-            heading.push([children[i].innerHTML.trim(), page, selected]);
+            heading.push([children[i].innerHTML.trim(), page, selectedtab, alerttab]);
         }
 
         generateTab(heading, __$("patient-dashboard-main"))
@@ -817,6 +819,8 @@ function activate(id){
 
             if(__$(controls[i]).getAttribute("selectedTab")){
                 __$(controls[i]).className = "selectedHighlightedTab";
+            } else if(__$(controls[i]).getAttribute("alertTab")){
+                __$(controls[i]).className = "selectedAlertTab";
             } else {
                 __$(controls[i]).className = "active-tab";
             }
@@ -826,6 +830,8 @@ function activate(id){
             
             if(__$(controls[i]).getAttribute("selectedTab")){
                 __$(controls[i]).className = "deSelectedHighlightedTab";
+            } else if(__$(controls[i]).getAttribute("alertTab")){
+                __$(controls[i]).className = "deSelectedAlertTab";
             } else {
                 __$(controls[i]).className = "inactive-tab";
             }
@@ -905,6 +911,10 @@ function generateTab(headings, target, content){
         
         if(headings[i][2]){
             tab.setAttribute("selectedTab", true);
+        }
+        
+        if(headings[i][3]){
+            tab.setAttribute("alertTab", true);
         }
         
         tab.onclick = function(){

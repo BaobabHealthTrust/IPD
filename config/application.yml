@@ -3,13 +3,18 @@ production:
  use.user.selected.activities: yes
 
 development:
- encounter_privilege_map: Admit patient:Manage Patient Admissions,Admission diagnosis:Manage admission diagnoses,Discharge patient:Manage Patient Discharges,Discharge diagnosis:Manage Discharge Diagnoses,Lab orders:Manage Lab Orders,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs
+ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
+ application_diagnosis_concept: Qech outpatient diagnosis list
+ application_generic_medication: Diabetes Medication
+ use.filing.number: false
+ filing.number.limit: 300
+ show.patient.confirmation: false
  create_from_remote: false
  use.user.selected.activities: false
- ipd.wards.tag: MPC Inpatient Wards
- show.patient.confirmation: true
- application_diagnosis_concept: QECH Emergency Diagnosis List
  advanced.prescription.interface: true
+ auto_set_appointment: false
+ is_referral_centre: true
+ ipd.wards.tag: Ward
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes

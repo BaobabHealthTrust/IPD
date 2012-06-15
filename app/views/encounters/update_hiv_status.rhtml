@@ -76,7 +76,7 @@
   <%= hidden_field_tag "encounter[encounter_type_name]", "UPDATE HIV STATUS" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
   <!--TODO
   Compile the Date of HIV test from the three data fields and check for validity.
@@ -102,11 +102,11 @@
       :tt_onUnload=> "updateTestDate();"
   } %>
 
-  <%= text_field_tag :summary, nil, { :tt_onLoad => '$("hivTestReminder").style.display = "block";$("nextButton").innerHTML = "<span>Finish</span>";', :optional => "true", :tt_pageStyleClass => "NoControls", :helpText => 'HTC Reminder', :condition => '(updateTestDate() && $("hiv_status").value == "Negative") || ($("hiv_status").value == "Unknown")|| ($("art_started").value == "Defaulter");'} %>
+  <%= text_field_tag :summary, nil, { :tt_onLoad => '$("hivTestReminder").style.display = "block";$("nextButton").innerHTML = "<span>Finish</span>";', :optional => "true", :tt_pageStyleClass => "NoControls", :helpText => 'HTC Reminder', :condition => '(updateTestDate() && $("hiv_status").value == "Negative") || ($("hiv_status").value == "Unknown");'} %>
 
   <%= touch_location_tag "LOCATION OF HIV TEST", @patient, nil,
     {:id => "location_of_hiv_test",
-     :condition => '$("hiv_status").value == "POSITIVE"',
+      :condition => '$("hiv_status").value == "POSITIVE"',
      :helpText => "Location of HIV test" } %>
 
  <%= touch_numeric_tag "HTC SERIAL NUMBER", @patient, nil,
@@ -115,44 +115,13 @@
      :tt_pageStyleClass => "Numeric NumbersOnly",
      :helpText => "HTC serial number" } %>
      
-<%#unless @art_patient%>     
- <%= touch_yes_no_unknown_tag "CPT STARTED", @patient, nil,
-   {:id => "cpt_started",
+<%unless @art_patient%>     
+ <%= touch_yes_no_unknown_tag "ON ART", @patient, nil,
+   {:id => "art_status",
      :condition => '$("hiv_status").value == "POSITIVE"',
      :tt_pageStyleClass => "NoKeyboard",
      :helpText => "On ART?" } %>
- 
- <%= touch_select_tag "ON ART", @patient, options_for_select(@select_options['art_started_answers']),
-    {:id => "art_started",
-     :condition => '$("hiv_status").value == "POSITIVE"',
-     :tt_pageStyleClass => "NoKeyboard",
-     :helpText => "ART started" } %>
-
- <% art_start_date = "#{session[:datetime].strftime('%Y-%m-%d')}" rescue "#{(Date.today).strftime('%Y-%m-%d')}"%>
- <%= text_field_tag 'art_start_date', art_start_date,
-      {:id => 'art_start_date',
-       :field_type => 'date', 
-       :helpText => "ART start date",
-       :condition => '$("art_started").value == "Yes"',
-       :max => "#{(Date.today).strftime('%Y-%m-%d')}",
-       :tt_pageStyleClass => "Date DatesOnly"} %>
-
-  <% art_default_date = "#{session[:datetime].strftime('%Y-%m-%d')}" rescue "#{(Date.today).strftime('%Y-%m-%d')}"%>
-  <%= text_field_tag 'art_default_date', art_default_date,
-      {:id => 'art_default_date',
-       :field_type => 'date', 
-       :helpText => "ART default date",
-       :condition => '$("art_started").value == "DEFAULTER"',
-       :max => "#{(Date.today).strftime('%Y-%m-%d')}",
-       :tt_pageStyleClass => "Date DatesOnly"} %>
-
- <!-- :ajaxURL => '/search/health_facilities?search_string=' -->
- <%= touch_location_tag "LOCATION OF HIV TEST", @patient, nil,
-    {:id => "location_of_hiv_test",
-      :condition => '$("hiv_status").value == "POSITIVE"',
-     :helpText => "ART clinic location" } %>
-
-<%#end%>
+<%end%>
 
  <%= touch_hidden_tag "HIV TEST DATE", @patient, nil, {:id => "hiv_test_date", :value_datetime => true}%>
 
@@ -184,4 +153,5 @@
 <div id='hivTestReminder' class='messageBar' style='display:none'>
   Please refer this person to HTC<br /> 
   <button onmousedown="$('hivTestReminder').style.display = 'none';"><span>OK</span></button>
-</div>
+</div> 
+

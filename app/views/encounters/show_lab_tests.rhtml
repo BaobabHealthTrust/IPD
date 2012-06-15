@@ -43,7 +43,7 @@ ul.list{
 
 </style>
 
-<div style="margin:10px;">
+<div id="general_dashboard" style="margin:10px;">
   <div style="font-size:1.1em; position:relative;top: 0px; width:650px;">
     <%= render :partial => "details" %>
   </div>
@@ -63,6 +63,6 @@ ul.list{
 </div>
 
  div style="z-index:11;bottom:1px; height: 64px; width: 435px; left: 120px; position: absolute;"><table><tr><td>Location</td><td>: <span style='font-color:green'><span style='font-color:green'><%=session[:ward]%></span></td></tr>
-      <tr><td>User </td><td>: <span style='font-color:green'><%=User.find(session[:user_id]).name rescue 'User' %></span></td></tr></table></div-->
+      <tr><td>User </td><td>: <span style='font-color:green'><%=User.find(current_user.person_id).name rescue 'User' %></span></td></tr></table></div-->
 
 

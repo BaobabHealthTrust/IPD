@@ -5,8 +5,8 @@
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
     <%= @title = "#{controller.controller_name.humanize} #{controller.action_name.humanize}" rescue ""  %>
     <script language="javascript">
-      tstUsername = "<%= User.current_user.username unless User.current_user.nil? %>";
-      tstCurrentDate = "<%= Time.now.strftime("%Y/%m/%d") %>";
+      tstUsername = "<%= current_user.username unless current_user.nil? %>";
+      tstCurrentDate = "<%= Time.now.strftime("%Y-%m-%d") %>";
       var tt_cancel_destination = null;
       auto_logout_screen = true;
     </script>

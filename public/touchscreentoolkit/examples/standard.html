@@ -25,11 +25,22 @@
                         <tr>
                             <td>Preferred Keyboard</td>
                             <td>
-                                <select style='width: 100%' name='keybrd' id='keybrd' 
-                                        helptext='Preferred Keyboard' tt_onUnLoad="tstUserKeyboardPref=__$('keybrd').value">
+                                <select style='width: 100%' name='keybrd' id='keybrd' tt_requireNextClick="false"
+                                        helptext='Preferred Keyboard'>
                                     <option></option>
                                     <option value="abc">abc</option>
                                     <option value="qwerty">qwerty</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Are you sure?</td>
+                            <td>
+                                <select style='width: 100%' name='verifykeybrd' id='verifykeybrd' tt_requireNextClick="false"
+                                        helptext='Are you sure?' tt_onUnLoad="tstUserKeyboardPref=__$('keybrd').value">
+                                    <option></option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
                                 </select>
                             </td>
                         </tr>

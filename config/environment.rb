@@ -6,16 +6,18 @@ BART_VERSION = '2.0 beta'
 require File.join(File.dirname(__FILE__), 'boot')
 
 Rails::Initializer.run do |config|
-  config.frameworks -= [ :action_web_service, :action_mailer, :active_resource ]
-  config.log_level = :debug
-  config.action_controller.session_store = :active_record_store
-  config.active_record.schema_format = :sql
-  # config.time_zone = 'UTC'
-  
-  config.action_controller.session = {
-    :session_key => 'bart_session',
-    :secret      => '8sgdhr431ba87cfd9bea177ba3d344a67acb0f179753f37d28db8bd102134261cdb4b1dbacccb126435631686d66e148a203fac1c5d71eea6abf955a66a472ce'
-  }  
+	config.frameworks -= [ :action_web_service, :action_mailer, :active_resource ]
+	config.log_level = :debug
+	config.action_controller.session_store = :active_record_store
+	config.active_record.schema_format = :sql
+	# config.time_zone = 'UTC'
+	config.gem 'warden'
+	config.gem 'devise'
+    
+	config.action_controller.session = {
+		:session_key => 'bart_session',
+		:secret      => '8sgdhr431ba87cfd9bea177ba3d344a67acb0f179753f37d28db8bd102134261cdb4b1dbacccb126435631686d66e148a203fac1c5d71eea6abf955a66a472ce'
+	}  
 end
 
 BART_SETTINGS = YAML.load_file(File.join(Rails.root, "config", "settings.yml"))[Rails.env] rescue nil

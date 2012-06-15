@@ -718,18 +718,53 @@ EOF
   end
 
   def self.drug_given_before(patient, date = Date.today)
-    encounter_type = EncounterType.find_by_name('TREATMENT')
-    Encounter.find(:first,
-      :joins => 'INNER JOIN orders ON orders.encounter_id = encounter.encounter_id
-               INNER JOIN drug_order ON drug_order.order_id = orders.order_id',
-      :conditions => ["quantity IS NOT NULL AND encounter_type = ? AND
-               encounter.patient_id = ? AND encounter_datetime < TIMESTAMP(?)",
-        encounter_type.id,patient.id,
-        date.to_date.strftime('%Y-%m-%d 00:00:00')],
-      :order => 'encounter_datetime DESC,date_created DESC').orders rescue []
+    clinic_encounters = ["APPOINTMENT", "VITALS","ART_INITIAL","HIV RECEPTION",
+      "ART VISIT","TREATMENT","DISPENSING",'ART ADHERENCE','HIV STAGING']
+    encounter_type_ids = EncounterType.find_all_by_name(clinic_encounters).collect{|e|e.id}
+
+    latest_encounter_date = Encounter.find(:first,:conditions =>["patient_id=? AND encounter_datetime < ? AND 
+        encounter_type IN(?)",patient.id,date.strftime('%Y-%m-%d 00:00:00'),
+        encounter_type_ids],:order =>"encounter_datetime DESC").encounter_datetime rescue nil
+                        
+    return [] if latest_encounter_date.blank?
+
+    start_date = latest_encounter_date.strftime('%Y-%m-%d 00:00:00')
+    end_date = latest_encounter_date.strftime('%Y-%m-%d 23:59:59')
+                                       
+    concept_id = Concept.find_by_name('AMOUNT DISPENSED').id
+    Order.find(:all,:joins =>"INNER JOIN obs ON obs.order_id = orders.order_id",
+        :conditions =>["obs.person_id = ? AND obs.concept_id = ?                    
+        AND obs_datetime >=? AND obs_datetime <=?",
+        patient.id,concept_id,start_date,end_date],
+        :order =>"obs_datetime")
   end
 
-  def self.get_patient(person)
+  def self.drugs_given_on(patient, date = Date.today)
+    clinic_encounters = ["APPOINTMENT", "VITALS","ART_INITIAL","HIV RECEPTION",
+      "ART VISIT","TREATMENT","DISPENSING",'ART ADHERENCE','HIV STAGING']
+    encounter_type_ids = EncounterType.find_all_by_name(clinic_encounters).collect{|e|e.id}
+
+    latest_encounter_date = Encounter.find(:first,
+        :conditions =>["patient_id = ? AND encounter_datetime >= ? 
+        AND encounter_datetime <=? AND encounter_type IN(?)",
+        patient.id,date.strftime('%Y-%m-%d 00:00:00'),
+        date.strftime('%Y-%m-%d 23:59:59'),encounter_type_ids],
+        :order =>"encounter_datetime DESC").encounter_datetime rescue nil
+                        
+    return [] if latest_encounter_date.blank?
+
+    start_date = latest_encounter_date.strftime('%Y-%m-%d 00:00:00')
+    end_date = latest_encounter_date.strftime('%Y-%m-%d 23:59:59')
+                                       
+    concept_id = Concept.find_by_name('AMOUNT DISPENSED').id
+    Order.find(:all,:joins =>"INNER JOIN obs ON obs.order_id = orders.order_id",
+        :conditions =>["obs.person_id = ? AND obs.concept_id = ?                    
+        AND obs_datetime >=? AND obs_datetime <=?",
+        patient.id,concept_id,start_date,end_date],
+        :order =>"obs_datetime")
+  end
+
+  def self.get_patient(person, current_date = Date.today)
     patient = PatientBean.new('')
     patient.person_id = person.id
     patient.patient_id = person.patient.id
@@ -739,20 +774,24 @@ EOF
 	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
     patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
     patient.sex = sex(person)
-    patient.age = age(person)
-    patient.age_in_months = age_in_months(person)
+    patient.age = age(person, current_date)
+    patient.age_in_months = age_in_months(person, current_date)
     patient.dead = person.dead
     patient.birth_date = birthdate_formatted(person)
     patient.birthdate_estimated = person.birthdate_estimated
     patient.home_district = person.addresses.first.address2
     patient.traditional_authority = person.addresses.first.county_district
     patient.current_residence = person.addresses.first.city_village
+    patient.landmark = person.addresses.first.address1
     patient.mothers_surname = person.names.first.family_name2
     patient.eid_number = get_patient_identifier(person.patient, 'EID Number') rescue nil
     patient.pre_art_number = get_patient_identifier(person.patient, 'Pre ART Number (Old format)') rescue nil
     patient.archived_filing_number = get_patient_identifier(person.patient, 'Archived filing number')rescue nil
     patient.filing_number = get_patient_identifier(person.patient, 'Filing Number')
     patient.occupation = get_attribute(person, 'Occupation')
+    patient.cell_phone_number = get_attribute(person, 'Cell phone number')
+    patient.office_phone_number = get_attribute(person, 'Office phone number')
+    patient.home_phone_number = get_attribute(person, 'Home phone number')
     patient.guardian = art_guardian(person.patient) rescue nil 
     patient
   end
@@ -861,7 +900,7 @@ EOF
             patient_to_be_archived.id,PatientIdentifierType.find_by_name("Filing Number").id])
 				current_filing_numbers.each do | filing_number |
 					filing_number.voided = 1
-					filing_number.voided_by = User.current_user.id
+					filing_number.voided_by = current_user.id
 					filing_number.void_reason = "Archived - filing number given to:#{current_patient.id}"
 					filing_number.date_voided = Time.now()
 					filing_number.save

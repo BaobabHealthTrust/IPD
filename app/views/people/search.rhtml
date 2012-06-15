@@ -1,10 +1,13 @@
 <style>
-      #num{ display:none; }
-      #char{ display:none; }
+  #num{ display:none; }
+  #char{ display:none; }
 </style>
+
+<%= javascript_include_tag "prototype" %>
 
 <script type="text/javascript" defer>
   var people = [{}];
+  var remote_people;
 
 <%
 pos = 1
@@ -13,43 +16,64 @@ pos = 1
 
     people.push({});
 
+    people.push({});
+
     people[<%= pos %>]["Name"] = "<%= person.name %>";
           
     people[<%= pos %>]["Gender"] = "<%= person.sex %>";
 
-    <% if person.dead == 1 %>
-        people[<%= pos %>]["Status"] = "<%=h 'Died' if person.dead == 1 rescue '' -%>";
-    <% end %>
+  <% if person.dead == 1 %>
+      people[<%= pos %>]["Status"] = "<%=h 'Died' if person.dead == 1 rescue '' -%>";
+  <% end %>
     
-    people[<%= pos %>]["Birthdate"] = "<%= person.birth_date rescue "" %>";
+    try {
+      people[<%= pos %>]["Birthdate"] = "<%= person.birth_date rescue "" %>";
+    }catch(e){
+      people[<%= pos %>]["Birthdate"] = null;
+    }
 
-    people[<%= pos %>]["Age"] = "<%= person.age rescue "" %>";
+    try {
+      people[<%= pos %>]["Age"] = "<%= person.age rescue "" %>";
+    }catch(e){
+      people[<%= pos %>]["Age"] = null;
+    }
            
-    people[<%= pos %>]["Home District"] = "<%=h person.home_district -%>";
+    try {
+      people[<%= pos %>]["Home District"] = "<%=h person.home_district -%>";
+    }catch(e){
+      people[<%= pos %>]["Home District"] = null;
+    }
 
-    people[<%= pos %>]["Ancestral Traditional Authority(T/A)"] = "<%=h person.traditional_authority -%>";
+    try {
+      people[<%= pos %>]["Ancestral Traditional Authority(T/A)"] = "<%=h person.traditional_authority -%>";
+    }catch(e){
+      people[<%= pos %>]["Ancestral Traditional Authority(T/A)"] = null;
+    }
+    try {
+      people[<%= pos %>]["Current Residence"] = "" //"<%#=h person.current_residence -%>";
+    }catch(e){
+      people[<%= pos %>]["Current Residence"] = null;
+    }
 
-    people[<%= pos %>]["Current Residence"] = "<%=h person.current_residence -%>";
+  <% if !person.mothers_surname.blank? %>  
+      people[<%= pos %>]["Mother Surname"] = "<%=h person.mothers_surname -%>";
+  <% end %>
 
-    <% if !person.mothers_surname.blank? %>  
-        people[<%= pos %>]["Mother Surname"] = "<%=h person.mothers_surname -%>";
-    <% end %>
+  <% if !person.arv_number.blank? %> 
+      people[<%= pos %>]["ARV Number"] = "<%=h person.arv_number rescue "" -%>";
+  <% end %>
 
-    <% if !person.arv_number.blank? %> 
-        people[<%= pos %>]["ARV Number"] = "<%=h person.arv_number rescue "" -%>";
-    <% end %>
+  <% if !person.national_id.blank? %>     
+      people[<%= pos %>]["Patient National ID"] = "<%=h person.national_id rescue "" -%>";
+  <% end %>
 
-    <% if !person.national_id.blank? %>     
-        people[<%= pos %>]["Patient National ID"] = "<%=h person.national_id rescue "" -%>";
-    <% end %>
-    
-    <% if !person.eid_number.blank? %>    
-        people[<%= pos %>]["EID Number"] = "<%=h person.eid_number rescue "" -%>";
-    <% end %>
+  <% if !person.eid_number.blank? %>    
+      people[<%= pos %>]["EID Number"] = "<%=h person.eid_number rescue "" -%>";
+  <% end %>
 
-    <% if !person.pre_art_number.blank? %>    
-        people[<%= pos %>]["Pre-ART Number"] = "<%=h person.pre_art_number rescue "" -%>";
-    <% end %>
+  <% if !person.pre_art_number.blank? %>    
+      people[<%= pos %>]["Pre-ART Number"] = "<%=h person.pre_art_number rescue "" -%>";
+  <% end %>
   <%
 
   pos = pos + 1
@@ -61,8 +85,133 @@ end -%>
     var tt_cancel_destination = "/clinic"
 <% end %>
 
-  function changeNextButtonText(text){
-    $('nextButton').innerHTML = "<span>" + text + "</span>";
+  function changeNextButtonText(text, pos){
+    __$('nextButton').innerHTML = "<span>" + text + "</span>";
+    
+    if(pos){
+      document.forms[0].action = "create";
+      __$('nextButton').onmousedown = function(){
+        document.forms[0].submit();
+      }
+      
+      clearFields();
+      
+      pos = parseInt(pos);
+      
+      var fields = [
+        "identifier", 
+        "gender",
+        "given_name",
+        "family_name",
+        "family_name2",
+        "address2",
+        "relation",
+        "birthdate",
+        "birthdate_estimated",
+        "state_province",
+        "city_village",
+        "county_district",
+        "occupation",
+        "cell_phone_number",
+        "national_id"
+      ]
+    
+      createControlAndAssignValue("remote", "remote", "true");
+    
+      for(var i = 0; i < fields.length; i++){
+        switch(fields[i]){
+          case "identifier":
+            createControlAndAssignValue("identifier", "person[identifiers]",
+            remote_people[pos]["person"]["data"]["patient"]["identifiers"]["diabetes_number"]);
+            break;
+          case "gender":
+            createControlAndAssignValue("gender", "person[gender]", 
+            remote_people[pos]["person"]["gender"]);
+            break;
+          case "given_name":
+            createControlAndAssignValue("given_name", "person[names][given_name]", 
+            remote_people[pos]["person"]["given_name"]);
+            break;
+          case "family_name":
+            createControlAndAssignValue("family_name", "person[names][family_name]", 
+            remote_people[pos]["person"]["family_name"]);
+            break;
+          case "family_name2":
+            break;
+          case "address2":
+            createControlAndAssignValue("address2", "person[addresses][address2]",
+            remote_people[pos]["person"]["data"]["addresses"]["address2"]);
+            break;
+          case "relation":
+            break;
+          case "birthdate":
+            try{
+              var birthdate = new Date(remote_people[pos]["person"]["data"]["birthdate"]);
+              
+              if(birthdate){
+                createControlAndAssignValue("person_birth_year", "person[birth_year]",
+                birthdate.getFullYear());
+              
+                createControlAndAssignValue("person_birth_month", "person[birth_month]",
+                birthdate.getMonth() + 1);
+              
+                createControlAndAssignValue("person_birth_day", "person[birth_day]",
+                birthdate.getDate());
+              }
+            } catch(e){}
+            break;
+          case "birthdate_estimated":
+            createControlAndAssignValue("birthdate_estimated", "person[age_estimate]",
+            remote_people[pos]["person"]["data"]["birthdate_estimated"]);
+            break;
+          case "state_province":
+            createControlAndAssignValue("state_province", "person[addresses][state_province]",
+            remote_people[pos]["person"]["data"]["addresses"]["state_province"]);
+            break;
+          case "city_village":
+            createControlAndAssignValue("city_village", "person[addresses][city_village]",
+            remote_people[pos]["person"]["data"]["addresses"]["city_village"]);
+            break;
+          case "county_district":
+            createControlAndAssignValue("county_district", "person[addresses][county_district]",
+            remote_people[pos]["person"]["data"]["addresses"]["county_district"]);
+            break;
+          case "occupation":
+            createControlAndAssignValue("occupation", "person[occupation]",
+            remote_people[pos]["person"]["data"]["attributes"]["occupation"]);
+            break;
+          case "cell_phone_number":
+            createControlAndAssignValue("cellphone", "person[cell_phone_number]",
+            remote_people[pos]["person"]["data"]["attributes"]["cell_phone_number"]);
+            break;
+          case "national_id":
+            createControlAndAssignValue("national_id", "person[patient][identifiers][National id]", 
+            remote_people[pos]["person"]["value"]);
+            break;
+        }
+      }
+    } else {
+      document.forms[0].action = "select";
+      __$('nextButton').onmousedown = function(){
+        gotoNextPage();
+      }
+      
+      addFields();
+    }
+  }
+
+  function createControlAndAssignValue(control, name, value){
+    if(!__$(control)){
+      var hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.id = control;
+      hidden.value = "";
+      
+      document.forms[0].appendChild(hidden);
+    }
+    
+    __$(control).name = name;
+    __$(control).value = value;
   }
 
   function newSearch(){
@@ -71,10 +220,18 @@ end -%>
     else
       window.location.href = "/people/search";
   }
-
+   
+  function makeRemoteButton(){
+    <% if create_from_dde_server %>
+    __$("backButton").innerHTML = "<span>Remote Search</span>";
+    __$('backButton').setAttribute("onmousedown","search_remote();");
+    __$('backButton').style.display = "block";
+    <%end%>
+  }
+    
   function createNewSearchButton(){
     $('clearButton').innerHTML = "<span>New Search</span>";
-    $('clearButton').setAttribute("onmousedown","newSearch();");
+    $('clearButton').setAttribute("onmousedown","newSearch();");            
   }
 
   function newSearch() {
@@ -87,8 +244,100 @@ end -%>
       buttondiv = document.getElementById("buttons");
       buttondiv.innerHTML += "<div id='tt_extraButtons'></div>"
       buttondiv.innerHTML+= "<button class='button navButton' id='newSearch' onmousedown='newSearch();'><span>New search</span></button>"
-<%end%>
+<%end%>  
   }
+   
+  function search_remote(){
+    var url = "/people/dde_search?given_name=<%= params[:given_name] %>" + 
+      "&family_name=<%= params[:family_name] %>&gender=<%= params[:gender] %>";  
+    
+    ajaxGeneralRequest(url, "loadPatient()");
+    
+  }
+  
+  function loadPatient(){
+    __$("summary").innerHTML = "";
+    remote_people = JSON.parse(ajaxGeneralRequestResult);
+    
+    people = [{}];
+    
+    var targetElement = tstFormElements[__$("touchscreenInput"+tstCurrentPage).getAttribute("refersToTouchscreenInputID")];
+    
+    var opts = __$("tt_currentUnorderedListOptions").getElementsByTagName("li");
+    var selOptions = targetElement.getElementsByTagName("option");
+
+    for(var i = opts.length-1; i > 0; i--){
+      if(opts[i].id > 0){
+        __$("tt_currentUnorderedListOptions").removeChild(opts[i]);
+      }
+    }
+    
+    for(var j = selOptions.length-1; j > 1; j--){      
+      targetElement.removeChild(selOptions[j]);
+    }
+    
+    var pos = 1
+    for(var i = 0; i < remote_people.length; i++){
+      people.push({});
+      
+      people[pos]["Name"] = remote_people[i]["person"]["data"]["names"]["given_name"] + 
+        " " + remote_people[i]["person"]["data"]["names"]["family_name"];
+      
+      people[pos]["Gender"] = ((remote_people[i]["person"]["data"]["gender"].length > 0) ? 
+        (remote_people[i]["person"]["data"]["gender"] == "M" ? "Male" : "Female") : "");
+      
+      people[pos]["Birthdate"] = remote_people[i]["person"]["birthdate"];
+      
+      try{
+        var t = new Date();
+        var d = new Date(remote_people[i]["person"]["birthdate"]);
+
+        var age = (t.getFullYear() - d.getFullYear());
+        
+        people[pos]["Age"] = age;
+      } catch(e){}
+      
+      people[pos]["Home District"] = remote_people[i]["person"]["data"]["addresses"]["state_province"];
+      
+      people[pos]["Ancestral Traditional Authority(T/A)"] = remote_people[i]["person"]["data"]["addresses"]["county_district"];
+      
+      people[pos]["Current Residence"] = remote_people[i]["person"]["data"]["addresses"]["city_village"];
+      
+      people[pos]["Patient National ID"] = remote_people[i]["person"]["value"];
+      
+      var li = document.createElement("li");
+      li.id = i + 1;
+      li.className = ((i + 1)/2 > 0 ? "odd" : "even");
+      li.setAttribute("tstvalue", i + 1);
+      li.setAttribute("pos", i);
+      li.innerHTML = people[pos]["Name"] + " (" + people[pos]["Gender"] + ") " + 
+        people[pos]["Birthdate"] + ", " + people[pos]["Home District"];
+      li.setAttribute("tag", ((i + 1)/2 > 0 ? "odd" : "even"));
+      li.onmousedown = function(){
+        changeNextButtonText('Select Patient', this.getAttribute("pos")); 
+        updateTouchscreenInputForSelect(this); 
+        changeSummary(this.id);
+      }
+      li.onclick = function(){
+        changeNextButtonText('Select Patient', this.getAttribute("pos")); 
+        updateTouchscreenInputForSelect(this); 
+        changeSummary(this.id);
+      }
+      
+      __$("tt_currentUnorderedListOptions").appendChild(li);
+      
+      var selOption = document.createElement("option");
+      selOption.innerHTML = li.innerHTML;
+      selOption.setAttribute("value", i + 1);
+      
+      targetElement.appendChild(selOption);
+      
+      pos++;
+    }
+    
+    tstDualViewOptions = people;
+  }
+  
 </script>
 <body onload = "setTimeout('setAttributes();', 300);">
   <% if (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
@@ -103,7 +352,7 @@ end -%>
     <% end -%>
   <% end -%>
   <% unless (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
-    <% form_tag "select", :method => :get do %>
+    <% form_tag "select", :method => :post do %>
       <% if @people.blank? %>
         <% if @relation.blank? %>
           <label for="person">No patients were found:</label>
@@ -117,15 +366,30 @@ end -%>
           <label for="person">Select the guardian from the following</label>
         <% end %>
       <% end -%>
-      <select name="person" id="person" dualView="true" dualViewOptions="people">
-        <% if params[:identifier] %>
-          <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
-        <% else %>
-          <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
-        <% end %>
+      <select name="person[id]" id="person" dualView="true" dualViewOptions="people" tt_onLoad="makeRemoteButton()">
+        <!--option onmousedown="search_remote()">Search from remote server for person with name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option-->
+
+			<% if @relation.blank? %>
+					<% if params[:identifier] %>
+						<option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
+					<% else %>
+						<option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+					<% end %>
+			 <% else %>
+					<% if params[:identifier] %>
+						<option value="0" onmousedown="changeNextButtonText('New Guardian')">Create a new person with the identifier <%=h params[:identifier] -%></option>
+					<% else %>
+						<option value="0" onmousedown="changeNextButtonText('New Guardian')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+					<% end %>
+			 <% end %>
+        
         <% @patients.each do | patient |
           next if patient.blank? -%>
-          <option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Patient')">
+				<% if @relation.blank? %>
+					<option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Patient')">
+				<% else %>
+					<option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Guardian')">
+				<% end %>
             <%=h patient.name -%> (<%= patient.sex %>)
             <% unless patient.birth_date.blank? %> <%=h patient.birth_date -%><% end %>,
             <% unless patient.current_residence.blank? %> <%=h patient.current_residence -%> <% end %>,
@@ -133,13 +397,32 @@ end -%>
           </option>
         <% end -%>
       </select>
-      <input type="hidden" name="identifier" value="<%=h params[:identifier] -%>" />
-      <input type="hidden" name="gender" value="<%=h params[:gender] -%>" />
-      <input type="hidden" name="given_name" value="<%=h params[:given_name] -%>" />
-      <input type="hidden" name="family_name" value="<%=h params[:family_name] -%>" />
-      <input type="hidden" name="family_name2" value="<%=h params[:family_name2] -%>" />
-      <input type="hidden" name="address2" value="<%=h params[:address2] -%>" />
-      <input type="hidden" name="relation" value="<%=h params[:relation] -%>" />
+      <input type="hidden" id="identifier" name="identifier" value="<%=h params[:identifier] -%>" />
+      <input type="hidden" id="gender" name="gender" value="<%=h params[:gender] -%>" />
+      <input type="hidden" id="given_name" name="given_name" value="<%=h params[:given_name] -%>" />
+      <input type="hidden" id="family_name" name="family_name" value="<%=h params[:family_name] -%>" />
+      <input type="hidden" id="family_name2" name="family_name2" value="<%=h params[:family_name2] -%>" />
+      <input type="hidden" id="address2" name="address2" value="<%=h params[:address2] -%>" />
+      <input type="hidden" id="relation" name="relation" value="<%=h params[:relation] -%>" />
     <% end -%>
   <% end -%>
+
+  <script type="text/javascript" lang="javascript">
+    <!--
+    var ctrls = ["identifier", "gender", "given_name", "family_name", "family_name2", "address2", "relation"];
+        
+    function clearFields(){
+      for(var i = 0; i < ctrls.length; i++){
+        __$(ctrls[i]).removeAttribute("name");
+      }
+    }
+        
+    function addFields(){
+      for(var i = 0; i < ctrls.length; i++){
+        __$(ctrls[i]).setAttribute("name", ctrls[i]);
+      }
+    }
+        
+    //-->
+  </script>
 </body>

@@ -6,37 +6,24 @@
 </style>
 <form id='referral' action="/encounters/create" method='post'>
 
-  <%= hidden_field_tag "encounter[encounter_type_name]", "IS PATIENT REFERRED?" %>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "REFERRAL" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+       
+<%= touch_location_tag 'REFERRAL CLINIC IF REFERRED', @patient, nil,
+    { :id => 'location_id',
+			:field_type => 'alpha',
+			:helpText => "Referral Facility",
+			:ajaxURL => '/programs/locations?q=',
+			:allowFreeText => false } %>
 
-
-  <select id="select" name="observations[][value_coded_or_text]" helptext="Is the Patient a Referral Case From Another Health Facility?">
-    <option value="YES">Yes</option>
-    <option value="NO">No</option>
-  </select>
-    <% options = {
-	:id => "referred",
-	:field_type => 'text'
-	} %>
-  <%= hidden_field_tag("observations[][concept_name]", "IS PATIENT REFERRED?", options) %>
-  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
-  
-  <label for="refer">Referral Facility?</label>
-  <% options = {
-    :id => "referrer",
-    :field_type => 'text',
-    :helptext =>"Referral Facility if Referred",
-    :condition => "($('select').value == 'YES')",
-    :allowFreeText => 'true',
-    :ajaxURL => "/encounters/locations?search_string="
-  } %>
-  <%= text_field_tag "observations[][value_coded_or_text]", nil, options %>
-  <%= hidden_field_tag("observations[][concept_name]", "REFERRAL CLINIC IF REFERRED", options) %>
-  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
-  <%= hidden_field_tag("next_url", "/patients/show/#{ @patient.patient_id }") %>
+  			
+		<% if @retrospective %>
+			<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+			<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+		<% else %>
+			<%= hidden_field_tag "filter[provider]", nil %>
+		<% end %>
   
 </form>
