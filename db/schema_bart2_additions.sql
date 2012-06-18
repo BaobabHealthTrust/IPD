@@ -911,7 +911,7 @@ CREATE TABLE `village` (
 ) ENGINE=InnoDB AUTO_INCREMENT=34162 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
+SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -969,3 +969,4 @@ INSERT INTO `user_property` VALUES (1,'loginAttempts','0');
 /*!40000 ALTER TABLE `user_property` ENABLE KEYS */;
 UNLOCK TABLES;
 
+SET FOREIGN_KEY_CHECKS = 1;
