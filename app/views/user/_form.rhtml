@@ -4,8 +4,8 @@
         <%= @username = User.all(:order =>'username').map{|u|[u.username]}
            select(:user, :username, @username,{},{:include_blank => true ,:textCase => "lower" ,:validationRule =>"\\w{6}\\w*" ,:validationMessage => "Username must be at least SIX characters long"})%>
   <%when "change_password"%>
-      <p><label for="user_password">Password</label><br/>
-      <%= password_field 'user', 'password', :xhelpText => 'Password' ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters", :value =>"", :minlength => 6 %></p>
+      <p><label for="user_plain_password">Password</label><br/>
+      <%= password_field 'user', 'plain_password', :xhelpText => 'Password' ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters", :value =>"", :minlength => 6 %></p>
 
       <p><label for="user_confirm_password">Re-enter Password</label><br/>
       <%= password_field 'user_confirm', 'password', :xhelpText => 'Password',:textCase =>"lower",:validationRule =>"\\w{4}\\w*", :validationMessage =>"Password less than FOUR characters." %></p>
@@ -18,7 +18,7 @@
 
       <p><label for="person_name_family_name">Last name</label><br/>
       <%= text_field 'person_name', 'family_name', :ajaxURL => '/person_names/family_names?search_string=', :value => @user_last_name, :allowFreeText => true%></p>
-      <% if User.current_user.admin? %>
+      <% if current_user.admin? %>
         <p><label for="user_username">Username</label><br/>
         <%= text_field 'user', 'username', :textCase => "lower",:value => @user_name,:tt_onload =>"$('touchscreenInput5').value = ($('user_first_name').value.substring(0,3)+$('user_last_name').value.substring(0,3)).toLowerCase()" ,:validationRule =>"\\w{6}\\w*" ,:validationMessage => "Username must have at least SIX letters", :textCase => "lower" %></p>
       <%end%>
@@ -54,8 +54,8 @@
       <p><label for="user_username">Username</label><br/>
       <%= text_field 'user', 'username', :xhelpText => 'Username',:textCase => "lower",:value => @user_name,:tt_onload =>"$('touchscreenInput5').value = ($('user_first_name').value.substring(0,3)+$('user_last_name').value.substring(0,3)).toLowerCase()" ,:validationRule =>"\\w{6}\\w*" ,:validationMessage => "Username must have at least SIX letters" ,:textCase => "lower"%></p>
 
-      <p><label for="user_password">Password</label><br/>
-      <%= password_field 'user', 'password', :xhelpText => 'Password', :minlength => 6 ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters" %></p>
+      <p><label for="user_plain_password">Password</label><br/>
+      <%= password_field 'user', 'plain_password', :xhelpText => 'Password', :minlength => 6 ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters" %></p>
 
       <p><label for="user_confirm_password">Re-enter Password</label><br/>
       <%= password_field 'user_confirm', 'password', :xhelpText => 'Password',:textCase =>"lower",:validationRule =>"\\w{4}\\w*", :validationMessage =>"Password less than FOUR characters." %></p>

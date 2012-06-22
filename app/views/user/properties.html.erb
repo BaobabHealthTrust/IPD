@@ -1,0 +1,9 @@
+<script>
+  var tt_cancel_destination = "/clinic"; // /properties"
+</script>
+
+
+<form method = 'post' action = "/user/properties">
+   <%= select_tag("property_value", options_for_select([" ", "Yes", "No"]),
+       :id => 'value',:helpText  => "Use qwerty keyboard?") %>
+</form>
