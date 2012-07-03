@@ -29,7 +29,7 @@
     if (recent) select(recent);
   })
 </script>
-  <div id="encounters" style="border: 1px solid #eee; padding: 10px; -moz-border-radius: 15px;">
+  <div id="encounters" style="border: 1px solid #eee; padding: 10px; border-radius: 15px;">
     <% current_day = session[:datetime].strftime('%Y-%m-%d') rescue 'Today'%>
     <h2 style="margin: 0px;"><%=current_day %>'s Visit summary</h2>
     

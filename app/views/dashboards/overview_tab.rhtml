@@ -31,18 +31,18 @@
 </script>
 <style>
   .even {
-     -moz-border-radius: 15px;
+     border-radius: 15px;
   }
   .noneWarnings {color:black;background:orange;}
 </style>
 <div  style="display: table; width: 99%;">
   <div  style="display: table-row;">
     <div style="display: table-cell; width: 50%; padding: 10px; vertical-align: top;
-         border: 1px solid #eee; -moz-border-radius: 15px;">
+         border: 1px solid #eee; border-radius: 15px;">
 
       <div id="programs">
         <!-- h2>Programs</h2 -->
-        <ul class="list small" style="height:140px; -moz-border-radius: 15px;">
+        <ul class="list small" style="height:140px; border-radius: 15px;">
           <% for prog in @programs do %>
               <li class="data <%= cycle('even', 'odd') %>" program="<%= prog.id %>">
                 <div class="program">
@@ -68,7 +68,7 @@
         </div>
 
 
-        <div style="display: table-cell; width: 50%; padding: 10px; border: 1px solid #eee; -moz-border-radius: 15px;">
+        <div style="display: table-cell; width: 50%; padding: 10px; border: 1px solid #eee; border-radius: 15px;">
 
           <div id="charts" >
           </div>
@@ -77,11 +77,11 @@
       </div>
       <div  style="display: table-row;">
 
-        <div style="display: table-cell; width: 50%; padding: 5px; border: 1px solid #eee; -moz-border-radius: 15px;">
+        <div style="display: table-cell; width: 50%; padding: 5px; border: 1px solid #eee; border-radius: 15px;">
 
           <div id="treatment">
             <!-- h2>Treatment</h2 -->
-            <ul class="list small" style="height:140px; -moz-border-radius: 15px;">
+            <ul class="list small" style="height:140px; border-radius: 15px;">
               <% for presc in @prescriptions do %>
                   <li class="data <%= cycle('even', 'odd') %>" prescription="<%= presc.id %>">
                     <div class="prescription"><%=h presc.to_s %></div>
@@ -95,15 +95,15 @@
               </ul>
             </div>
           </div>
-<div style="display: table-cell; width: 50%; padding: 5px; border: 1px solid #eee; -moz-border-radius: 15px;">
+<div style="display: table-cell; width: 50%; padding: 5px; border: 1px solid #eee; border-radius: 15px;">
 
             <div id="alerts">
               <!-- h2>Alerts</h2 -->
-              <ul class="list" style="height:140px; -moz-border-radius: 15px;">
+              <ul class="list" style="height:140px; border-radius: 15px;">
                 <% for alert in @alerts do %>
                     <% if alert.include?("Missed") %>
                       <li class="data <%= cycle('even', 'odd') %>"
-                          <%= (alert.include?("Missed") ? "style='background-color: #f33; -moz-border-radius: 15px;'" : "") %> >
+                          <%= (alert.include?("Missed") ? "style='background-color: #f33; border-radius: 15px;'" : "") %> >
                         <div class="patientState"><%=h alert %></div>
                       </li>
                      <% else %>
