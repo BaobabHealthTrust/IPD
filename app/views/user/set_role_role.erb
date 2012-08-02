@@ -1,0 +1,14 @@
+<script>
+	var tt_cancel_destination = "/clinic";
+</script>
+
+<form action="/user/roles">
+
+  <label for="role_role">Select role</label>
+  <select name="role_role" id="role_role">
+    <% @roles.each do |role| %>
+        <option><%= role %></option>
+    <% end %>
+  </select>
+  <%= submit_tag "Finish" %>    
+</form>

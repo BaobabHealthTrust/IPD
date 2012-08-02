@@ -80,16 +80,27 @@ class GenericPeopleController < ApplicationController
 				end
 			end
 			if found_person
+				show_confirmation = CoreService.get_global_property_value('show.patient.confirmation').to_s == "true" rescue false
+
 				if params[:relation]
 					redirect_to search_complete_url(found_person.id, params[:relation]) and return
 				else
-					redirect_to :action => 'confirm', :found_person_id => found_person.id, :relation => params[:relation] and return
+					url = ''
+					if show_confirmation
+						url = url_for(:controller => :people, :action => :confirm , :found_person_id =>found_person.id)
+					else
+						url = next_task(found_person.patient)
+					end
+
+					redirect_to url and return
 				end
 			end
 		end
 		@relation = params[:relation]
 		@people = PatientService.person_search(params)
 		@patients = []
+		# PatientService#person_search returns person_id if search returns 1 match
+		@people = [Person.find(@people)] if @people.is_a? Fixnum
 		@people.each do | person |
 			patient = PatientService.get_patient(person) rescue nil
 			@patients << patient
@@ -197,8 +208,7 @@ class GenericPeopleController < ApplicationController
 	def select
     
     if params[:person][:id] != '0' && Person.find(params[:person][:id]).dead == 1
-      
-			redirect_to :controller => :patients, :action => :show, :id => params[:person]
+			redirect_to :controller => :patients, :action => :show, :id => params[:person][:id]
 		else
 			redirect_to search_complete_url(params[:person][:id], params[:relation]) and return unless params[:person][:id].blank? || params[:person][:id] == '0'
 

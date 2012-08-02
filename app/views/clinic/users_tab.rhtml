@@ -2,22 +2,21 @@
 @reports = []
 @reports << ['Change password',"/user/change_password/#{current_user.id}"]
 @reports << ['Edit name',"/user/edit/#{current_user.id}"]
+@reports << ['Preffered keyboard',"/user/properties/#{current_user.id}"]
+
 if not Location.current_location.name.match(/Outpatient/i)
-  @reports << ['Settings',"/user/activities/#{current_user.id}"]
+  @reports << ['Activities',"/user/activities/#{current_user.id}"]
 end
 if current_user.admin?
   @reports << ['Create user',"/user/new"]
   @reports << ['Edit user',"/user/select_user"]
+	@reports << ['Set user roles',"/user/users"]
+	@reports << ['Set related roles',"/user/set_role_role/#{current_user.id}"]
 end
 %>
 
 
 <style type="text/css">
-  body {
-    -moz-user-select:none;
-	 font-family: Arial,sans-serif;
-  }
-  
   #stats {
     width:98%;
     margin:10px;
