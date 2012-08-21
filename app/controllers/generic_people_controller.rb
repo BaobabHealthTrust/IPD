@@ -331,7 +331,7 @@ class GenericPeopleController < ApplicationController
   # List traditional authority containing the string given in params[:value]
   def traditional_authority
     district_id = District.find_by_name("#{params[:filter_value]}").id
-    traditional_authority_conditions = ["name LIKE (?) AND district_id = ?", "#{params[:search_string]}%", district_id]
+    traditional_authority_conditions = ["name LIKE (?) AND district_id = ?", "%#{params[:search_string]}%", district_id]
 
     traditional_authorities = TraditionalAuthority.find(:all,:conditions => traditional_authority_conditions, :order => 'name')
     traditional_authorities = traditional_authorities.map do |t_a|
@@ -374,7 +374,7 @@ class GenericPeopleController < ApplicationController
     # Villages containing the string given in params[:value]
   def village
     traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id
-    village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "#{params[:search_string]}%", traditional_authority_id]
+    village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "%#{params[:search_string]}%", traditional_authority_id]
 
     villages = Village.find(:all,:conditions => village_conditions, :order => 'name')
     villages = villages.map do |v|
