@@ -1,0 +1,52 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  
+  function getSelected(){
+    var choices = "";
+
+    for(var o = 0; o < __$('proc_done').options.length; o++){
+      if(__$('proc_done').options[o].selected == true){
+        choices += __$('proc_done').options[o].innerHTML + " ";
+      }
+    }
+
+    return choices;
+  }
+</script>
+<style>
+  #space { display:inline; font-size:1.2em; }
+</style>
+<form id='procedure' action="/encounters/create" method='post'>
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "PROCEDURES DONE" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]",  DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
+
+	<%= touch_select_tag "PROCEDURE DONE", @patient, concept_set_options("Medical Procedures"),
+		{
+			:id => "proc_done",
+			:multiple => true,
+			:tt_pageStyleclass => "LongListSelect",
+			:helpText => 'Procedure Done'
+		} %>
+		
+	<%= touch_text_field_tag "Specific procedure done", @patient, nil,
+		{
+			:id => "proc_other",
+    	:condition => "getSelected().match(/OTHER/i)",
+			:helpText => 'Other procedure'
+		} %>
+		
+		
+	<% if @retrospective %>
+		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+	<% else %>
+		<%= hidden_field_tag "filter[provider]", nil %>
+	<% end %>
+
+  <%= submit_tag "Finish" %> 
+</form>
+
+
