@@ -1127,7 +1127,7 @@ class CohortToolController < ApplicationController
       end
     end
 
-    @admissions = {}
+    @admissions = {} # From here, there is need for editing 
     @patients_in_wards = report.patients_in_wards(start_date, end_date)
 
     @patients_in_wards.each do |ward|

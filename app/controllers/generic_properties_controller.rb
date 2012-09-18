@@ -100,7 +100,7 @@ class GenericPropertiesController < ApplicationController
     end
   end
   
-  def set_role_privileges
+ def set_role_privileges
     if request.post?
       role = params[:role]['title']
       privileges = params[:role]['privileges']
@@ -121,8 +121,26 @@ class GenericPropertiesController < ApplicationController
         redirect_to "/clinic" and return
       end
     else
-      @privileges = Privilege.find(:all).collect{|r|r.privilege}
-      @activities = RolePrivilege.find(:all).collect{|r|r.privilege}
+		@privileges = Privilege.find(:all, :order => "privilege").collect{|r|r.privilege} 
+		@privilege_index = {}
+		@role_privileges = {}
+
+		counter = 0
+		@privileges.each do | privilege |
+			counter = counter + 1
+			@privilege_index[privilege] = counter
+		end
+
+		Role.find(:all).each do | role |
+			@role_privileges[role.role] = RolePrivilege.find(:all, :conditions =>["role = ?", role.role]).collect{ | rp |
+				rp.privilege.privilege
+			}.join(',')
+		end
+
+		#raise @privilege_index.to_yaml
+		#,:conditions => ["privilege IN (?)",privileges])
+		#@privileges = Privilege.find(:all) 
+		@activities = RolePrivilege.find(:all).collect{|r|r.privilege}
     end
   end
 
