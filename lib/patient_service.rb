@@ -1013,10 +1013,38 @@ EOF
   end
   
   def self.person_search(params)
-    people = search_by_identifier(params[:identifier])
-
+    people = []
+    people = search_by_identifier(params[:identifier]) if params[:identifier]
     return people.first.id unless people.blank? || people.size > 1
     people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
+        "gender = ? AND \
+     person_name.given_name = ? AND \
+     person_name.family_name = ?",
+        params[:gender],
+        params[:given_name],
+        params[:family_name]
+      ]) if people.blank?
+
+    if people.length < 15
+      matching_people = people.collect{| person |
+                              person.person_id
+                          }
+                          # raise matching_people.to_yaml
+      people_like = Person.find(:all, :limit => 15, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
+        "gender = ? AND \
+     person_name_code.given_name_code LIKE ? AND \
+     person_name_code.family_name_code LIKE ? AND person.person_id NOT IN (?)",
+        params[:gender],
+        (params[:given_name] || '').soundex,
+        (params[:family_name] || '').soundex,
+        matching_people
+      ], :order => "person_name.given_name ASC, person_name_code.family_name_code ASC")
+      people = people + people_like
+    end
+=begin
+    raise "done"
+
+people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
         "gender = ? AND \
      (person_name.given_name LIKE ? OR person_name_code.given_name_code LIKE ?) AND \
      (person_name.family_name LIKE ? OR person_name_code.family_name_code LIKE ?)",
@@ -1027,8 +1055,11 @@ EOF
         (params[:family_name] || '').soundex
       ]) if people.blank?
 
+    raise "afta pulling"
+=end
     return people
   end
+
 
   def self.person_search_from_dde(params)
     search_string = "given_name=#{params[:given_name]}"
