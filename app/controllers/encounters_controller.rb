@@ -238,7 +238,7 @@ class EncountersController < GenericEncountersController
 			#raise @tb_classification.to_s
 
 		end
-
+		
         if  ['ART_VISIT', 'TB_VISIT', 'HIV_STAGING'].include?((params[:encounter_type].upcase rescue ''))
 			@local_tb_dot_sites_tag = tb_dot_sites_tag 
 			for encounter in @current_encounters.reverse do
@@ -320,8 +320,9 @@ class EncountersController < GenericEncountersController
 			#raise @not_explicitly_asked.to_yaml
 			#raise concept_set('PRESUMED SEVERE HIV CRITERIA IN INFANTS').to_yaml
 		end
-
+		
 		if (params[:encounter_type].upcase rescue '') == "ADMIT_PATIENT"
+			
 			ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
 			@ipd_wards = []
 			@ipd_wards = LocationTagMap.all.collect { | ltm |
