@@ -586,7 +586,7 @@ class EncountersController < GenericEncountersController
 		     return false
 	end
 
-  private
+ 
 
   def daignosis_details
 				diagnosis = params[:diagnosis_string]
@@ -596,7 +596,6 @@ class EncountersController < GenericEncountersController
 		      ConceptSet.find(:all, :conditions => ["concept_set IN (?)", ConceptName.find(:all, :joins => :concept, 
 		              :conditions => ["voided = 0 AND name = ?", diagnosis]).collect{|nom| nom.concept_id}]).collect{|set| 
 		          set.concept_id}]).collect{|term| term.name}.uniq 
-		  
 		    render :text => "<li></li><li>" + @diagnoses_detail.join("</li><li>") + "</li>"
   end
   
