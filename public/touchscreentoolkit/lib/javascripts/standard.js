@@ -642,26 +642,35 @@ function getOptions() {
         }
         else {
             if(tstFormElements[i].tagName == "SELECT") {
-                var selectOptions = tstFormElements[i].getElementsByTagName("option");
 
-                if(selectOptions.length > 0){
-                    // Append an empty option first
-                    if(selectOptions[0].innerHTML.trim().length > 0){
-                        tstFormElements[i].innerHTML = "<option></option>" + tstFormElements[i].innerHTML;
-                    }
-                }
+                if(tstFormElements[i].getAttribute("nested") != null){
 
-                if(tstFormElements[i].getAttribute("dualView") != undefined &&
-                    tstFormElements[i].getAttribute("dualViewOptions") != undefined){
-                    loadSelectOptions(selectOptions, options, tstFormElements[i].getAttribute("dualViewOptions"));
+                    setTimeout("nested_select('" + tstFormElements[i].id +
+                        "', 'options'); __$('viewport').style.height='22em'; __$('keyboard').style.display='none';", 50);
+
                 } else {
-                    loadSelectOptions(selectOptions, options);
-                }
+                    var selectOptions = tstFormElements[i].getElementsByTagName("option");
+
+                    if(selectOptions.length > 0){
+                        // Append an empty option first
+                        if(selectOptions[0].innerHTML.trim().length > 0){
+                            tstFormElements[i].innerHTML = "<option></option>" + tstFormElements[i].innerHTML;
+                        }
+                    }
+
+                    if(tstFormElements[i].getAttribute("dualView") != undefined &&
+                        tstFormElements[i].getAttribute("dualViewOptions") != undefined){
+                        loadSelectOptions(selectOptions, options, tstFormElements[i].getAttribute("dualViewOptions"));
+                    } else {
+                        loadSelectOptions(selectOptions, options);
+                    }
                 
-                var val = elementSelectedValue(tstFormElements[i]);
-                if (val == null) val = "";
-                tstInputTarget.value = val;
-                if (tstFormElements[i].multiple) tstInputTarget.setAttribute("multiple", "multiple");
+                    var val = elementSelectedValue(tstFormElements[i]);
+                    if (val == null) val = "";
+                    tstInputTarget.value = val;
+                    if (tstFormElements[i].multiple) tstInputTarget.setAttribute("multiple", "multiple");
+
+                }
             }else if (tstFormElements[i].getAttribute("type") == "radio") {
                 var selectOptions = document.getElementsByName(tstFormElements[i].name);
                 for(var j=0;j<selectOptions.length;j++){
@@ -813,7 +822,8 @@ function loadSelectOptions(selectOptions, options, dualViewOptions) {
         // njih
         optionsList += ">" + (tstFormElements[tstCurrentPage].getAttribute("multiple") ? 
             "<div style='display: table; border-spacing: 0px;'><div style='display: table-row'>" + 
-            "<div style='display: table-cell;'><img id='img" + (j-1) + "' src='lib/images/unticked.jpg' alt='[ ]' />" + 
+            "<div style='display: table-cell;'><img id='img" + (j-1) +
+            "' src='/touchscreentoolkit/lib/images/unticked.jpg' alt='[ ]' />" +
             "</div><div style='display: table-cell; vertical-align: middle; " + 
             "text-align: left; padding-left: 15px;' id='optionValue"  + (j-1) + "'>" : "") + 
         selectOptions[j].text + "</div></div></div></li>\n";
@@ -1588,20 +1598,33 @@ function clearInput(){
     }
     
     if(tstFormElements[tstPages[tstCurrentPage]].tagName == "SELECT"){
-        var options = __$("tt_currentUnorderedListOptions").getElementsByTagName("li");
+        if(__$("tt_currentUnorderedListOptions")){
+            var options = __$("tt_currentUnorderedListOptions").getElementsByTagName("li");
             
-        if(tstFormElements[tstPages[tstCurrentPage]].getAttribute("multiple")){
-            for(var i = 0; i < options.length; i++){
-                if(options[i].style.backgroundColor == "lightblue"){
-                    options[i].click();
+            if(tstFormElements[tstPages[tstCurrentPage]].getAttribute("multiple")){
+                for(var i = 0; i < options.length; i++){
+                    if(options[i].style.backgroundColor == "lightblue"){
+                        options[i].click();
+                    }
+                }
+            } else {
+                for(var i = 0; i < options.length; i++){
+                    if(options[i].style.backgroundColor == "lightblue"){
+                        options[i].style.backgroundColor = "";
+                        tstFormElements[tstPages[tstCurrentPage]].value = "";
+                        __$('touchscreenInput'+tstCurrentPage).setAttribute("tstvalue", "");
+                    }
                 }
             }
         } else {
-            for(var i = 0; i < options.length; i++){
-                if(options[i].style.backgroundColor == "lightblue"){
-                    options[i].style.backgroundColor = "";
-                    tstFormElements[tstPages[tstCurrentPage]].value = ""; 
-                    __$('touchscreenInput'+tstCurrentPage).setAttribute("tstvalue", "");
+            var controls = __$("options").getElementsByTagName("img");
+
+            for(var j = 0; j < controls.length; j++){
+                try{
+                    if(controls[j].getAttribute("src").match(/un/) == null){
+                        controls[j].click();
+                    }
+                } catch(e){
                 }
             }
         }
@@ -1692,12 +1715,16 @@ function toggleShift() {
 
 function showBestKeyboard(aPageNum) {
     var inputElement = tstFormElements[tstPages[aPageNum]];
+
+    __$("keyboard").style.display = "block";
+    
     if (isDateElement(inputElement)) {
         var thisDate = new RailsDate(inputElement);
+
         if (tstSearchPage) {
             if (thisDate.isDayOfMonthElement()) getDatePicker();
             else __$("keyboard").innerHTML = getNumericKeyboard();
-        }	else {
+        } else {
             getDatePicker();
         }
         return;
@@ -2155,6 +2182,10 @@ function press(pressedChar){
     inputTarget = tstInputTarget;
     var singleButtonMode = inputTarget.getAttribute("singleButtonMode");
     if (singleButtonMode)
+        inputTarget.value = "";
+
+    var unknownClickedEarlier = inputTarget.value.toLowerCase();
+    if (unknownClickedEarlier == "unknown" || unknownClickedEarlier == "n/a")
         inputTarget.value = "";
 
     if (pressedChar.length == 1) {
@@ -3158,6 +3189,7 @@ var DateSelector = function() {
 
 DateSelector.prototype = {
     build: function() {
+
         var node = document.createElement('div');
         // TODO: move style stuff to a css file
         node.innerHTML = ' \
@@ -4120,7 +4152,7 @@ AdvancedTimeSelector.prototype = {
                                         style="text-align: center; font-size: 36px;">Minute</div></div>\
                                         <div class="row"><div class="cell" \
                                         style="text-align: center;"><object type="image/svg+xml" \
-                                        data="/touchscreentoolkit/examples/lib/images/hour.svg" wmode="transparent" \
+                                        data="/touchscreentoolkit/lib/images/hour.svg" wmode="transparent" \
                                         style="padding:5px; overflow:hidden;" \
                                         id="hour" >\
                                     <param id="et1" name="t1" value="" />\
@@ -4136,7 +4168,7 @@ AdvancedTimeSelector.prototype = {
                                     <param id="et11" name="t11" value="" />\
                                     <param id="et12" name="t12" value="" /></object></div><div class="cell"></div>\
                               <div class="cell" style="text-align: center;"><object type="image/svg+xml" \
-                                data="/touchscreentoolkit/examples/lib/images/minute.svg" \
+                                data="/touchscreentoolkit/lib/images/minute.svg" \
                                    wmode="transparent" \
                                 style="padding:5px; overflow:hidden;" id="minute" >\
                                     <param id="etm5" name="tm5" value="" />\
@@ -4484,4 +4516,283 @@ function unCheckAll(){
         }
     }
 }
-   
+
+/*
+ * Part of the Module containing methods to cater for nested select options.
+ * The module expects a select control with tag "<optgroup>" in which case the
+ * following happens:
+ *      1. We get a collection of each top level child
+ *      2. With the top level kids,
+ *          a.) if the kid is of type "<option>", we just
+ *                  create its node and proceed
+ *          b.) if it is of type "<optgroup>", we create the parent node which
+ *              has the following behaviours:
+ *                  i.) it has the name of the group as its label taken from its
+ *                      label attribute
+ *                  ii.) initially, all its children are colapsed
+ *                  iii.) when it is clicked,
+ *                          - all children expanded
+ *                          - all children are deselected
+ *                        These children correspond to the elements under a
+ *                        corresponding source control
+ *              The behaviours for this control would also map to standard
+ *              behaviours for cases where the source control is a
+ *              "multipe select"
+ *
+ */
+var peerGroup = "";
+
+function nested_select(id, destination){
+    __$("viewport").style.backgroundColor = "white";
+    peerGroup = "";
+    var parent = document.createElement("div");
+    parent.style.display = "table";
+    parent.style.width = "100%";
+    parent.style.backgroundColor = "white";
+    parent.style.marginTop = "20px";
+
+    __$(destination).appendChild(parent);
+
+    var row3 = document.createElement("div");
+    row3.style.display = "table-row";
+
+    parent.appendChild(row3);
+
+    var cell3 = document.createElement("div");
+    cell3.style.display = "table-cell";
+
+    row3.appendChild(cell3);
+
+    var container = document.createElement("div");
+    container.className = "selectContent";
+    container.style.overflow = "auto";
+
+    cell3.appendChild(container);
+
+    var select = document.createElement("div")
+    select.style.display = "table";
+    select.style.width = "100%";
+    select.style.borderSpacing = "5px";
+    var multiple = (__$(id).getAttribute("multiple") ? true : false);
+
+    container.appendChild(select);
+
+    var options = __$(id).children;
+
+    for(var i = 0; i < options.length; i++){
+        if(options[i].tagName.toUpperCase() == "OPTGROUP"){
+            add_opt_group(options[i], select, multiple, i);
+        } else {
+            add_options([options[i]], select, multiple, false, i);
+        }
+        if(!multiple){
+            peerGroup += "group" + i + "|";
+        }
+    }
+
+}
+
+function add_opt_group(control, parent, single, groupNumber){
+    var multiple = (typeof(single) != "undefined" ? single : false);
+
+    var row = document.createElement("div");
+    row.style.display = "table-row";
+    row.style.fontSize = "32px";
+
+    parent.appendChild(row);
+
+    var cell1_1 = document.createElement("div");
+    cell1_1.style.display = "table-cell";
+    cell1_1.style.verticalAlign = "middle";
+    cell1_1.style.padding = "5px";
+    cell1_1.style.width = "52px";
+
+    row.appendChild(cell1_1);
+
+    var img = document.createElement("img");
+    img.setAttribute("multiple", (multiple ? "true" : "false"));
+    img.setAttribute("src", "/touchscreentoolkit/lib/images/un" + (multiple ? "ticked" : "checked") + ".jpg");
+    img.setAttribute("groupNumber", groupNumber);
+    img.id = "group" + groupNumber;
+
+    img.onclick = function(){
+        var multiple = (this.getAttribute("multiple") == "true" ? true : false);
+        var colorPartner = this.parentNode.parentNode.getElementsByTagName("div");
+        var group = this.getAttribute("groupNumber");
+
+        if(!multiple){
+            deselectSection(peerGroup);
+        }
+
+        if(this.getAttribute("src").match(/un/)){
+            this.setAttribute("src", "/touchscreentoolkit/lib/images/" + (multiple ? "ticked" : "checked") + ".jpg");
+            colorPartner[1].style.backgroundColor = "lightblue";
+            __$("groupRow" + group).style.display = "table-row";
+        } else {
+            this.setAttribute("src", "/touchscreentoolkit/lib/images/un" + (multiple ? "ticked" : "checked") + ".jpg");
+            deselectSection(this.getAttribute("childrenGroup"));
+
+            colorPartner[1].style.backgroundColor = "";
+            __$("groupRow" + group).style.display = "none";
+        }
+
+    }
+
+    cell1_1.appendChild(img);
+
+    var cell1_2 = document.createElement("div");
+    cell1_2.style.display = "table-cell";
+    cell1_2.innerHTML = control.label;
+    cell1_2.style.verticalAlign = "middle";
+    cell1_2.style.padding = "5px";
+    cell1_2.style.width = "100%";
+    cell1_2.style.borderBottom = "1px solid #ccc";
+
+    cell1_2.onclick = function(){
+        var colorPartner = this.parentNode.getElementsByTagName("img");
+
+        colorPartner[0].click();
+    }
+
+    row.appendChild(cell1_2);
+
+    var row2 = document.createElement("div");
+    row2.style.display = "none";
+    row2.id = "groupRow" + groupNumber;
+
+    parent.appendChild(row2);
+
+    var cell2_1 = document.createElement("div");
+    cell2_1.style.display = "table-cell";
+    cell2_1.innerHTML = "&nbsp;";
+    cell2_1.style.width = "52px";
+
+    row2.appendChild(cell2_1);
+
+    var cell2_2 = document.createElement("div");
+    cell2_2.style.display = "table-cell";
+
+    row2.appendChild(cell2_2);
+
+    var table = document.createElement("div");
+    table.style.display = "table";
+    table.style.width = "100%";
+    table.style.borderSpacing = "5px";
+
+    cell2_2.appendChild(table);
+
+    var groupKids = control.children;
+
+    add_options(groupKids, table, single, true, groupNumber);
+
+}
+
+function add_options(groupKids, parent, single, mapToParent, groupNumber){
+    var multiple = (typeof(single) != "undefined" ? single : false);
+    var parentTag = "";
+
+    for(var i = 0; i < groupKids.length; i++){
+        if(groupKids[i].innerHTML.trim() == ""){
+            continue;
+        }
+
+        var row = document.createElement("div");
+        row.style.display = "table-row";
+
+        parent.appendChild(row);
+
+        var cell1_1 = document.createElement("div");
+        cell1_1.style.display = "table-cell";
+        cell1_1.style.verticalAlign = "middle";
+        cell1_1.style.padding = "5px";
+        cell1_1.style.width = "52px";
+
+        row.appendChild(cell1_1);
+
+        var img = document.createElement("img");
+        img.setAttribute("multiple", (multiple ? "true" : "false"));
+        img.setAttribute("src", "/touchscreentoolkit/lib/images/un" + (multiple ? "ticked" : "checked") + ".jpg");
+        img.setAttribute("groupNumber", groupNumber);
+        img.id = (mapToParent == true ? "child" + groupNumber + "_" + i : "group" + groupNumber);
+
+        if(mapToParent){
+            parentTag += img.id + "|";
+        }
+
+        if (groupKids[i].value) {
+            img.setAttribute("tstValue", groupKids[i].value);
+        }
+
+        img.onclick = function(){
+            var multiple = (this.getAttribute("multiple") == "true" ? true : false);
+            var colorPartner = this.parentNode.parentNode.getElementsByTagName("div");
+
+            if(this.getAttribute("src").match(/un/)){
+                if(!multiple){
+                    if(this.id != "group" + this.getAttribute("groupNumber")){
+                        deselectSection(__$("group" + this.getAttribute("groupNumber")).getAttribute("childrenGroup"));
+                    } else {
+                        deselectSection(peerGroup);
+                    }
+                }
+
+                this.setAttribute("src", "/touchscreentoolkit/lib/images/" + (multiple ? "ticked" : "checked") + ".jpg");
+                colorPartner[1].style.backgroundColor = "lightblue";
+
+                __$("touchscreenInput" + tstCurrentPage).setAttribute("tstValue", this.getAttribute("tstValue"));
+
+                __$("touchscreenInput" + tstCurrentPage).value =
+                (multiple ? __$("touchscreenInput" + tstCurrentPage).value : "") +
+                unescape(colorPartner[1].innerHTML) + (multiple ? ";" : "");
+
+            } else {
+                this.setAttribute("src", "/touchscreentoolkit/lib/images/un" + (multiple ? "ticked" : "checked") + ".jpg");
+                colorPartner[1].style.backgroundColor = "";
+
+                __$("touchscreenInput" + tstCurrentPage).value = subtract(colorPartner[1].innerHTML + (multiple ? ";" : ""));
+            }
+        }
+
+        cell1_1.appendChild(img);
+
+        var cell1_2 = document.createElement("div");
+        cell1_2.style.display = "table-cell";
+        cell1_2.innerHTML = groupKids[i].innerHTML;
+        cell1_2.style.verticalAlign = "middle";
+        cell1_2.style.padding = "5px";
+        cell1_2.style.borderBottom = "1px solid #ccc";
+        cell1_2.style.fontSize = "32px";
+
+        cell1_2.onclick = function(){
+            var colorPartner = this.parentNode.getElementsByTagName("img");
+
+            colorPartner[0].click();
+        }
+
+        row.appendChild(cell1_2);
+    }
+
+    if(mapToParent){
+        __$("group" + groupNumber).setAttribute("childrenGroup", parentTag);
+    }
+
+}
+
+function deselectSection(group){
+    var controls = group.split("|");
+
+    for(var i = 0; i < controls.length; i++){
+        if(controls[i].trim() != ""){
+            if(__$(controls[i])){
+                if(!__$(controls[i]).getAttribute("src").match(/un/)){
+                    __$(controls[i]).click();
+                }
+            }
+        }
+    }
+}
+
+function subtract(string){
+    var result = __$("touchscreenInput" + tstCurrentPage).value.replace(string, "");
+    return result
+}
