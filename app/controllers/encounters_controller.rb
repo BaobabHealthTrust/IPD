@@ -113,6 +113,16 @@ class EncountersController < GenericEncountersController
 
 		@patient_has_closed_TB_program_at_current_location = PatientProgram.find(:all,:conditions =>
 			["voided = 0 AND patient_id = ? AND location_id = ? AND (program_id = ? OR program_id = ?)", @patient.id, Location.current_health_center.id, Program.find_by_name('TB PROGRAM').id, Program.find_by_name('MDR-TB PROGRAM').id]).last.closed? rescue true
+        
+		if (params[:encounter_type].upcase rescue '') == 'PRESENTING_COMPLAINTS'
+			complaint_concept_set_id = ConceptName.find_by_name("Presenting complaints requiring specification").concept.id
+			complaint_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', complaint_concept_set_id])
+			@complaints_requiring_specification = complaint_concepts.map{|concept| concept.fullname.upcase}.join(';')
+
+			complaint_concept_set_id = ConceptName.find_by_name("Presenting complaints requiring details").concept.id
+			complaint_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', complaint_concept_set_id])	
+			@complaints_requiring_details = complaint_concepts.map{|concept| concept.fullname.upcase}.join(';')
+        end
 
 		if (params[:encounter_type].upcase rescue '') == 'IPT CONTACT PERSON'
 			@contacts_ipt = []
@@ -665,5 +675,70 @@ class EncountersController < GenericEncountersController
   # Chronic Conditions question set
   def create_chronics
     create_influenza_data
+  end 
+def presenting_complaints
+		search_string = (params[:search_string] || '').upcase
+		filter_list = params[:filter_list].split(/, */) rescue []
+		
+		presenting_complaint = ConceptName.find_by_name("PRESENTING COMPLAINT").concept
+		
+
+		complaint_set = CoreService.get_global_property_value("application_presenting_complaint")
+		complaint_set = "PRESENTING COMPLAINT" if complaint_set.blank?
+		complaint_concept_set = ConceptName.find_by_name(complaint_set).concept
+		complaint_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', complaint_concept_set.id])
+
+		valid_answers = complaint_concepts.map{|concept| 
+			name = concept.fullname rescue nil
+			name.upcase.include?(search_string) ? name : nil rescue nil
+		}.compact
+
+		previous_answers = []
+
+		# TODO Need to check global property to find out if we want previous answers or not (right now we)
+		previous_answers = Observation.find_most_common(presenting_complaint, search_string)
+
+		@suggested_answers = (previous_answers + valid_answers.sort!).reject{|answer| filter_list.include?(answer) }.uniq[0..10] 
+		@suggested_answers = @suggested_answers - params[:search_filter].split(',') rescue @suggested_answers
+		render :text => "<li></li>" + "<li>" + @suggested_answers.join("</li><li>") + "</li>"
+	end
+
+  #added this to ensure that we are able to get the detailed diagnosis set
+  def concept_options
+      concept_name = params[:search_string]
+      options = concept_set(concept_name).flatten.uniq
+      
+      render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
   end
+  def life_threatening_condition  
+    search_string = (params[:search_string] || '').upcase
+    
+    aconcept_set = []
+        
+    common_answers = Observation.find_most_common(ConceptName.find_by_name("Life threatening condition").concept, search_string)
+    concept_set("Life threatening condition").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
+    set = (common_answers + aconcept_set.sort).uniq             
+    set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
+    
+    set = set.sort rescue []
+           
+    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
+
+ end
+
+ def triage_category
+
+    search_string = (params[:search_string] || '').upcase   
+    aconcept_set = []        
+
+        common_answers = Observation.find_most_common(ConceptName.find_by_name("Triage category").concept, search_string)
+    concept_set("Triage category").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
+        set = (common_answers + aconcept_set.sort).uniq             
+      set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
+             
+    set = set.sort rescue []
+           
+    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
+ end
+
 end
