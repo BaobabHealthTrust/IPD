@@ -30,27 +30,23 @@ module MedicationService
 		diabetes_medication_drug_concepts
 	end
 
-  # Convert a list +Concept+s of +Regimen+s for the given +Patient+ <tt>age</tt>
-  # into select options. See also +EncountersController#arv_regimen_answers+
-	def self.regimen_options(regimen_concepts, age)
-		options = regimen_concepts.map { |r|
-			[r.concept_id, (r.concept_names.typed("SHORT").first ||
-				r.concept_names.typed("FULLY_SPECIFIED").first).name]
-		}
-	
-		suffixed_options = options.collect { |opt|
-			opt_reg = Regimen.find(	:all,
-									:select => 'regimen_index',
+  # Generate a given list of Regimen+s for the given +Patient+ <tt>weight</tt>
+  # into select options. 
+	def self.regimen_options(weight, program)
+		regimens = Regimen.find(	:all,
 									:order => 'regimen_index',
-									:conditions => ['concept_id = ?', opt[0]]).uniq.first
+									:conditions => ['? >= min_weight AND ? < max_weight AND program_id = ?', weight, weight, program.program_id])
 
-			#[opt[0], "#{opt_reg.regimen_index}#{suffix} - #{opt[1]}"]
-			if !opt_reg.regimen_index.blank?
-				["#{opt_reg.regimen_index} - #{opt[1]}", opt[0], opt_reg.regimen_index.to_i]
+		options = regimens.map { |r|
+			concept_name = (r.concept.concept_names.typed("SHORT").first ||	r.concept.concept_names.typed("FULLY_SPECIFIED").first).name
+			if r.regimen_index.blank?
+				["#{concept_name}", r.concept_id, r.regimen_index.to_i]
 			else
-				["#{opt[1]}", opt[0], opt_reg.regimen_index.to_i]
+				["#{r.regimen_index} - #{concept_name}", r.concept_id, r.regimen_index.to_i]
 			end
-		}.sort_by{|opt| opt[2]}
+		}.sort_by{| r | r[2]}.uniq
+
+		return options
 	end
 	
   def self.current_orders(patient)
@@ -88,7 +84,6 @@ module MedicationService
     return_drugs = all_drugs - (all_drugs - application_drugs) 
   end
 
-  
   def self.frequencies
     ConceptName.find_by_sql("SELECT name FROM concept_name WHERE concept_id IN \
                         (SELECT answer_concept FROM concept_answer c WHERE \
@@ -100,6 +95,17 @@ module MedicationService
                             freq.name rescue nil
                         }.compact rescue []
   end
+  
+	def self.fully_specified_frequencies
+		concept_id = ConceptName.find_by_name('DRUG FREQUENCY CODED').concept_id
+		set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+		frequencies = {}
+		options = set.each{ | item | 
+			next if item.concept.blank?
+			frequencies[item.concept.shortname] = item.concept.fullname + "(" + item.concept.shortname + ")"
+		}
+		frequencies
+	end
   
 	def self.dosages(generic_drug_concept_id)    
 		Drug.find(:all, :conditions => ["concept_id = ?", generic_drug_concept_id]).collect {|d|
