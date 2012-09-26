@@ -1,0 +1,92 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+
+	function updateNextFinish(){
+		if (tstInputTarget.value == '') {
+			$('nextButton').innerHTML = '<span>Finish</span>';
+			$('nextButton').setAttribute("onMouseDown","submit();");
+		} else {
+			$('nextButton').innerHTML = '<span>Next</span>';
+			$('nextButton').setAttribute("onMouseDown", "gotoNextPage()");
+		}
+		setTimeout(updateNextFinish, 500)
+	}
+	
+  function set_ajaxURL_for_suggestions(value) {
+  	url = "/encounters/concept_options?search_string=" + value 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
+    listSuggestions(tstCurrentPage);
+  }
+
+	complaints_requiring_details = '<%= "#{@complaints_requiring_details}" %>';
+	complaints_requiring_specification = '<%= "#{@complaints_requiring_specification}"%>';
+	
+  function submit()
+  {
+      document.forms["presenting_complaints"].submit();
+  }
+
+</script>
+
+<form id='presenting_complaints' action="/encounters/create" method='post'>
+
+	<%= hidden_field_tag "encounter[encounter_type_name]", "PRESENTING COMPLAINTS" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
+
+	<%= hidden_field_tag "filter[provider]", "Dummy", {:id => "presenting_complaint_0"} %>
+
+	<% counter = 0
+		presenting_label = "Presenting complaint"	
+	%>
+	<% 5.times do %>
+			<% counter += 1%>
+			<%= touch_select_tag "Presenting complaint", @patient, nil,
+				{	:id => "presenting_complaint_#{counter}",
+					:ajaxURL => "/encounters/presenting_complaints?search_string=",
+					:optional => "true",
+				 	:condition => "$('presenting_complaint_#{counter-1}').value != '';",
+				 	:helpText => presenting_label } %>
+
+			<%= touch_select_tag "Detailed additional diagnosis", @patient, nil,
+				{	:id => "detailed_presenting_complaint_#{counter}",
+					:parent_concept_name => "Presenting complaint",
+				 	:condition => "complaints_requiring_details.contains($('presenting_complaint_#{counter}').value.toUpperCase())",
+					:ajaxURL => "/encounters/concept_options?search_string=",
+					:tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('presenting_complaint_#{counter}').value);",
+				 	:helpText => "Detailed presenting complaint" } %>
+
+			<%= touch_text_field_tag "Specific presenting complaint", @patient, nil,
+				{	:id => "specific_presenting_complaint_#{counter}",
+					:parent_concept_name => "Presenting complaint",
+				 	:condition => "complaints_requiring_specification.contains($('presenting_complaint_#{counter}').value.toUpperCase())",
+					:allowFreeText => 'true',
+					:textCase => "upper",
+				 	:helpText => "Specific presenting complaint" } %>
+			<% presenting_label = "Additional presenting complaint" %>
+	<% end %>
+
+	<%= touch_select_tag "Life threatening condition", @patient, concept_set_options('LIFE THREATENING CONDITION'),
+		{	:id => "life_threatening_conditions",
+			:optional => "true",
+			:multiple => "true",
+		 	:helpText => "Select life threatening conditions" } %>
+
+	<%= touch_select_tag "Triage category", @patient, concept_set_options('TRIAGE CATEGORY'),
+		{	:id => "triage_category",
+		 	:helpText => "Triage category" } %>
+
+
+	<% if @retrospective %>
+		<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+		<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+	<% else %>
+		<%= hidden_field_tag "filter[provider]", nil %>
+	<% end %>
+
+  <%= submit_tag "Finish" %>
+</form>
