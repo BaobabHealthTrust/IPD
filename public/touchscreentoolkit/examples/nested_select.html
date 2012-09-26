@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <title>Nested Select</title>
+        <!--script type="text/javascript" language="javascript" src="lib/javascripts/touchScreenToolkit.js" defer  ></script-->
+        <script type="text/javascript" language="javascript" src="lib/javascripts/nested_select.js" defer  ></script>
+        <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+        <script language="javascript">
+            tstUsername = "";
+            tstCurrentDate = "2010/03/12";
+            tt_cancel_destination = '../home.html';
+            tt_cancel_show = 'show.html';
+            
+            function __$(id){
+                return document.getElementById(id);
+            }
+
+        </script>
+        <style type="text/css">
+            button {
+                width: 200px;
+                padding: 10px;
+            }
+            div {
+                font-size: 32px;
+                -moz-user-select: none;
+            }
+            .multi {
+                height: 150px;
+            }
+            .selectContent {
+                height: 450px;
+                width: 600px;
+                border: 1px solid #000;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body><div id='content'>
+            <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+                <form  action='' method="post">
+                    <table cellpadding=10>
+                        <tr>
+                            <th colspan=2>Nested Select</th>
+                            <td rowspan="5">
+                                <div id="interpreter" style="min-width: 600px; border-radius: 30px;
+                                     border: 1px solid #ccc; height: 650px; padding: 20px; overflow: auto;">
+                                    &nbsp;
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td> 
+                                <button onclick="__$('interpreter').innerHTML = ''; nested_select('nsingle', 'interpreter'); return false;">
+                                    Normal Single Select                                    
+                                </button>
+                            </td>
+                            <td style="width: 350px;">
+                                <select style='width: 100%' name='nsingle' id='nsingle'
+                                        helptext='Normal Single Select'>
+                                    <option></option>
+                                    <option>value 1</option>
+                                    <option>value 2</option>
+                                    <option>value 3</option>
+                                    <option>value 4</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="__$('interpreter').innerHTML = ''; nested_select('nmulti', 'interpreter'); return false;">
+                                    Normal Multiple Select                                
+                                </button>
+                            </td>
+                            <td>
+                                <select class="multi" style='width: 100%' name='nmulti' id='nmulti'
+                                        helptext='Normal Multiple Select' multiple="multiple">
+                                    <option></option>
+                                    <option>value 1</option>
+                                    <option>value 2</option>
+                                    <option>value 3</option>
+                                    <option>value 4</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="__$('interpreter').innerHTML = ''; nested_select('single', 'interpreter'); return false;">
+                                    Single Select
+                                </button>
+                            </td>
+                            <td>
+                                <select style='width: 100%' name='single' id='single'
+                                        helptext='Single Select'>
+                                    <option></option>
+                                    <optgroup label="Group 1">
+                                        <option>value g1_1</option>
+                                        <option>value g1_2</option>
+                                        <option>value g1_3</option>
+                                        <option>value g1_4</option>
+                                    </optgroup>
+                                    <optgroup label="Group 2">
+                                        <option>value g2_1</option>
+                                        <option>value g2_2</option>
+                                        <option>value g2_3</option>
+                                        <option>value g2_4</option>
+                                    </optgroup>
+                                    <optgroup label="Group 3">
+                                        <option>value g3_1</option>
+                                        <option>value g3_2</option>
+                                        <option>value g3_3</option>
+                                        <option>value g3_4</option>
+                                    </optgroup>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="__$('interpreter').innerHTML = ''; nested_select('multiselect', 'interpreter'); return false;">
+                                    Multiple Select
+                                </button>
+                            </td>
+                            <td>
+                                <select class="multi" style='width: 100%' name='multiselect' id='multiselect'
+                                        helptext='Multiple Select' multiple="multiple">
+                                    <option></option>
+                                    <optgroup label="Group 1">
+                                        <option>value g1_1</option>
+                                        <option>value g1_2</option>
+                                        <option>value g1_3</option>
+                                        <option>value g1_4</option>
+                                    </optgroup>
+                                    <optgroup label="Group 2">
+                                        <option>value g2_1</option>
+                                        <option>value g2_2</option>
+                                        <option>value g2_3</option>
+                                        <option>value g2_4</option>
+                                    </optgroup>
+                                    <optgroup label="Group 3">
+                                        <option>value g3_1</option>
+                                        <option>value g3_2</option>
+                                        <option>value g3_3</option>
+                                        <option>value g3_4</option>
+                                    </optgroup>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </center>
+        </div>
+    </body>
+</html>
