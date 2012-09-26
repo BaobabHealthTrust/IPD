@@ -1,28 +1,63 @@
 <link href="/touchscreentoolkit/lib/stylesheets/drug-style.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript">
-  var tt_cancel_destination = "/patients/show/?patient_id=<%= @patient.id %>"
+<link href="/touchscreentoolkit/lib/stylesheets/dispense.css" type="text/css" rel="stylesheet" />
+<% 
+url = request.referrer.gsub(/http\:\/\//,"") 
 
-  var generics = <%= @generics.sort.to_json %>;
-  var frequencies = <%= @frequencies.to_json %>;
-  var diagnosisList = <%= @diagnosis.to_json %>;
-  var patient_id = <%= params[:patient_id] rescue "" %>;
+url = url[url.index("/"), url.length - url.index("/")]
+%>
+<script type="text/javascript" language="javascript">
+  
+  // tt_cancel_show = "<%= '/patients/treatment_dashboard/#{@patient.id}' %>";
+  tt_cancel_destination = '<%= "/patients/treatment_dashboard/#{@patient.id}" %>';
+
+	var generic_drugs = <%= @generics.sort.to_json %>;
+	var drugslist = <%= @formulations.to_json %>;
+	var frequencies = <%= @frequencies.to_json %>;
+	var diagnosisList = <%= @diagnosis.to_json %>;
+	var patient_id = <%= params[:patient_id] rescue "" %>;
+
+  var search_path = "/prescriptions/load_frequencies_and_dosages";
 
 </script>
-<script language="javascript" type="text/javascript" src="/touchscreentoolkit/lib/javascripts/treatment.js"></script>
+
+<script language="javascript" type="text/javascript" src="/touchscreentoolkit/lib/javascripts/prescriber.js" defer></script>
+
 <style type="text/css">
   #space { display:inline; font-size:1.2em; }
   #helpText0 { width:680px}
+
+  #alertBox {
+    position: absolute;
+    top: 35px;
+    left: 420px;
+    min-height: 50px;
+    min-width: 560px;
+    background-color: #87d469;
+    z-index: 1000;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px outset #87d469;    
+    font-size: 2em;
+    vertical-align: middle;
+    padding-top: 10px;
+    opacity: 0.9;
+    display: none;
+  }
 </style>
-<%= stylesheet_link_tag "drug-style" %>
+
+<div id="alertBox">  
+  Hello World!
+</div>
+
 <form id='prescription' action="/prescriptions/create_advanced_prescription" method='post'>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "TREATMENT" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
   <input
-    type='text' name='drugs' tt_onLoad='generateGenerics()'
+    type='text' name='drugs' tt_onLoad='generateGenerics(<%= @patient.id %>)'
     tt_onUnLoad='removeGenerics()' tt_pageStyleClass='NoControls'
     optional />
 
@@ -33,10 +68,9 @@
 
 </form>
 
-
-<div style="z-index:11;bottom:28px; height: 64px; width: 435px; left: 230px; 
+<div style="z-index:11;bottom:28px; height: 64px; width: 435px; left: 230px;
      right: -66px; position: absolute;">
-  <button id="viewSelectedOnlyButton" class="button navButton blue" style="min-width:350px;"
+  <!--button id="viewSelectedOnlyButton" class="button navButton blue" style="min-width:350px;"
           onclick="if(this.innerHTML=='<span>Show Selected Drugs Only</span>'){
             this.innerHTML = '<span>Show All Drugs</span>';
             showSelectedDrugsOnly();
@@ -48,5 +82,8 @@
     <span>
       Show Selected Drugs Only
     </span>
-  </button>
+  </button-->
 </div>
+<script type="text/javascript" language="javascript">
+
+</script>
