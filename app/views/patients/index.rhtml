@@ -73,8 +73,10 @@
 				</select>
 
 				<select id="links">
+					<option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Presenting complaints</option>
 					<option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
-          <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
+                    <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
+                    
 					<%  if @spine_clinician  %>
 						<option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
 						<option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option> 
