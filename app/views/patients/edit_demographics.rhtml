@@ -1,37 +1,54 @@
-<style type="text/css">
+<style>
+  body {
+    -moz-user-select:none;
+  }
 
   table {
+    vertical-align:center;
     width: 100%;
-    border-collapse: collapse;
-    height: 50%;
+    -moz-user-select:none;
+  }
+
+  .container {
+    height: 92%;
+    background-color: #FFFFDD;
+    margin: 20px 20px 20px 20px;
     overflow: auto;
   }
 
-  .title {
-    font-weight:bold;
-    border-color: #000000;
-    border-width: 0 0 0 0;
-    border-style: groove;
-    margin: 0;
-    padding: 4px;
-    text-align: left;
-    border-width: 0px 1px 1px;
-    width: 50%;
-    font-size: 22px;
-  }
-  
-  .data {
-    font-size: 25px;
-    border-color: #000000;
-    border-width: 0 0 0 0;
-    border-style: groove;
-    margin: 0;
-    padding: 4px;
-    text-align: left;
-    border-width: 0px 1px 1px;
+  .data { 
+    padding-left: 5px;
   }
 
+  td {
+    text-align: left;
+    border-style: solid;
+    border-width: 1px;
+    text-align: left;
+    word-wrap: break-word;
+  }
+
+  th {
+    text-align: left;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 5px;
+    text-align: left;
+  }
+
+  a {
+    background-color: grey;
+    border-bottom: 1px outset #EEEEEE;
+    border-style: outset;
+    border-top: 1px outset #EEEEEE;
+    color: white;
+    display: block;
+    padding: 10px 16px 10px 10px;
+    text-align: center;
+    text-decoration: none;
+  }
 </style>
+
 
 <script type="text/javascript">
   tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
@@ -44,54 +61,65 @@
       <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
   </form>
 
-<div>
-<h2><%= "Demographics for #{@patient_bean.name}"%></h2>
-<h3>(You can update/change any detail by touching on the indicator and going through the update process)</h3>
-<div style="border-top:1px solid black; height:430px; overflow:auto;">
+
+<div class="container">
 <table>
   <tr>
-    <td class='title' style='border-width:1px 1px 1px'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=first_name">First Name</a></td>
-    <td class='data' style='border-width:1px 1px 1px'><%= @patient_bean.first_name %></td>
+  	<th>First Name</th>
+  	<td class='data' style='border-width:1px 1px 1px'><%= @patient_bean.first_name %></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=first_name">Edit</a></td>
+
   </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=last_name">Last Name</a></td>
+  	<th>Last Name</th>
     <td class='data'><%=@patient_bean.last_name %></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=last_name">Edit</a></td>
   </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=birthdate">Birthdate </a></td>
+  	<th>Birthdate</th>
     <td class='data'><%=@patient_bean.birth_date%></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=birthdate">Edit </a></td>
   </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=gender">Gender</a></td>
+  	<th>Gender</th>
     <td class='data'><%=@patient_bean.sex%></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=gender">Edit</a></td>
   </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_village"> Current Residence</a></td>
+  	<th>Current Residence</th>
     <td class='data'> <%=@patient_bean.current_residence%></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_village"> Edit</a></td>
   </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_ta">Current Traditional Authority</a></td>
+  	<th>Current Traditional Authority</th>
     <td class='data'><%=@patient_bean.traditional_authority%></td>
+    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_ta">Edit</a></td>
   </tr>
   <!-- tr> 
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_district"> Current District</a> </td> 
+  	<th>Current District</th>
     <td class='data'> <%#=@patient_bean.current_district%></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=current_district"> Edit</a> </td> 
   </tr -->
   <tr> 
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=home_district"> Home District</a></td> 
+  	<th>Home District</th>
     <td class='data'><%=@patient_bean.home_district%></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=home_district"> Edit</a></td> 
   </tr>
   <tr> 
-    <td class='title'> <a href="modify_demographics?patient_id=<%=@patient.id%>&field=primary_phone">Primary Phone</a></td> 
+  	<th>Primary Phone</th>
     <td class='data'><%= @patient_bean.cell_phone_number %></td>
+    <td class='anchor_class'> <a href="modify_demographics?patient_id=<%=@patient.id%>&field=primary_phone">Edit</a></td> 
   </tr>
-  <tr> <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=secondary_phone">Secondary Phone</a></td> <td class='data'><%=@patient_bean.home_phone_number%></td></tr>
+  <tr> 
+  	<th>Secondary Phone</th>
+  	<td class='data'><%=@patient_bean.home_phone_number%></td>
+  	<td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=secondary_phone">Edit</a></td> 
+  </tr>
   <tr>
-    <td class='title'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=occupation">Occupation</a></td>
-    <td class='data'><%=@patient_bean.occupation%><br/> </td>
+  	<th>Occupation</th>
+    <td class='data'><%=@patient_bean.occupation%><br/></td>
+    <td class='anchor_class'><a href="modify_demographics?patient_id=<%=@patient.id%>&field=occupation">Edit</a></td>
   </tr>
 </table>
 </div>
-</div>
-</div>
-</div>
+<div>
