@@ -1,0 +1,85 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  
+  // Every 500 milliseconds update the Next/Finish button
+  function updateNextFinish(){
+    if (tstInputTarget.value == '')
+      $('nextButton').innerHTML = '<span>Finish</span>';
+    else
+      $('nextButton').innerHTML = '<span>Next</span>';
+    setTimeout(updateNextFinish, 500)
+  }
+</script>
+<form id='referral' action="/encounters/create" method='post'>
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "REFERRAL" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+  <select id="select" name="observations[][value_coded_or_text]" helptext="Is the Patient a Referral Case From Another Health Facility?">
+    <option value="YES">Yes</option>
+    <option value="NO">No</option>
+  </select>
+  <% options = {
+    :id => "referred",
+    :field_type => 'text'
+  } %>
+  <%= hidden_field_tag("observations[][value_datetime]",   nil)%>
+  <%= hidden_field_tag("observations[][concept_name]", "IS PATIENT REFERRED?", options) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", (session[:datetime] ? session[:datetime].to_time : DateTime.now()).strftime("%Y-%m-%d %H:%M")) %>
+
+  <label for="refer">Referral Facility?</label>
+  <% options = {
+    :id => "referrer",
+    :field_type => 'text',
+    :helptext =>"Referral Facility",
+    :condition => "($('select').value == 'YES')",
+    :allowFreeText => 'true',
+    :ajaxURL => "/encounters/locations?search_string="
+  } %>
+  <%= text_field_tag "observations[][value_coded_or_text]", nil, options %>
+  <%= hidden_field_tag("observations[][value_datetime]",   nil)%>
+  <%= hidden_field_tag("observations[][concept_name]", "REFERRAL CLINIC IF REFERRED", options) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", (session[:datetime] ? session[:datetime].to_time : DateTime.now()).strftime("%Y-%m-%d %H:%M")) %>
+
+  <% options = {
+    :id => "date_of_delivery",
+    :field_type => 'date',
+    :helptext =>"Date of referral arrival",
+    :condition => "(__$('select').value == 'YES')"
+  }%>
+  <%= hidden_field_tag "observations[][value_coded_or_text]", nil %>
+  <%= text_field_tag("observations[][value_datetime]",   nil, options)%>
+  <%= hidden_field_tag("observations[][concept_name]",  "REFERRAL ARRIVAL DATE")%>
+  <%= hidden_field_tag("observations[][patient_id]",    @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]",  (session[:datetime] ? session[:datetime].to_time : DateTime.now()).strftime("%Y-%m-%d %H:%M")) %>
+
+  
+  <% options = {
+    :helpText       => 'Select referral diagnosis',
+    :allowFreeText  => 'true',
+    :ajaxURL        => "/encounters/diagnoses?search_string=",
+    :textCase       => "upper",
+    :tt_pageStyleClass => "qwertyKeyboardOnly",
+    :condition => "(__$('select').value == 'YES')"
+  } %>
+
+  <%= text_field_tag("observations[][value_coded_or_text]", nil, options) %>
+  <%= hidden_field_tag("observations[][concept_name]", "REASON FOR REFERRAL TO ANOTHER SITE", options) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", (session[:datetime] ? session[:datetime].to_time : DateTime.now()).strftime("%Y-%m-%d %H:%M")) %>
+
+  <%= hidden_field_tag "next_url", (@roles.include?("Registration Clerk") ? "/people" : "/patients/show/#{@patient.id}") %>
+
+</form>
+  			
+		<% if @retrospective %>
+			<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+			<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+		<% else %>
+			<%= hidden_field_tag "filter[provider]", nil %>
+		<% end %>
+  
+</form>
