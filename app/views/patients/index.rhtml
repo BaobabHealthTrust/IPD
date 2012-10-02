@@ -1,101 +1,102 @@
 <html>
-	<head>
-		<title>Patient Dashboard</title>
-		<script type="text/javascript" language="javascript"
-			src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  >
-		</script>
-		<meta http-equiv='content-type' content='text/html;charset=UTF-8' />
-		<script language="javascript">
-			tstUsername = "";
-			tstCurrentDate = "<%= @date %>";
-			//tt_cancel_destination = '/clinic';
-			tt_cancel_show = '/clinic';
-		</script>
-		<style>
-			<%  if @spine_clinician  %>
+  <head>
+    <title>Patient Dashboard</title>
+    <script type="text/javascript" language="javascript"
+            src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  >
+    </script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      //tt_cancel_destination = '/clinic';
+      tt_cancel_show = '/clinic';
+    </script>
+    <style>
+<%  if @spine_clinician  %>
 
-				#tab8 {
-				background-color: white;
-				border: 0 none;
-				color: black;
-				font-weight: bold;
-				}
+        #tab8 {
+          background-color: white;
+          border: 0 none;
+          color: black;
+          font-weight: bold;
+        }
 
-			<% else %>
+<% else %>
 
-				#tab6 {
-				background-color: white;
-				border: 0 none;
-				color: black;
-				font-weight: bold;
-				}
+        #tab6 {
+          background-color: white;
+          border: 0 none;
+          color: black;
+          font-weight: bold;
+        }
 
 
-			<% end %>
-		</style>
-	</head>
-	<body>
-		<div id='content'>
-			<form id = 'dashboard' action='/clinic'>
-				<div id='project_name'>
+<% end %>
+    </style>
+  </head>
+  <body>
+    <div id='content'>
+      <form id = 'dashboard' action='/clinic'>
+        <div id='project_name'>
 					 IPD
-				</div>
-				<span id='patient_name'><%= @patient_bean.name rescue "" %></span>
-				<span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
-				<span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
-				<span id='patient_age'><%= @patient_bean.age rescue "" %></span>
-				<span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+        </div>
+        <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+        <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+        <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+        <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+        <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
 
-				<div id="patient_card">
-					<% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
-						<span value="<%= @hiv_status rescue "" %>">HIV Status</span>
-					<% end %>
-				</div>
+        <div id="patient_card">
+          <% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
+            <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
+          <% end %>
+        </div>
 
-				<%
-					task = @task
-					task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
-				%>
+        <%
+        task = @task
+        task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
+      %>
 
-				<select id="tabs">
-					<option value='/patients/overview?patient_id=<%= @patient.id %>'>Overview</option>
-					<option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
-					<option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
-					<option value="/patients/past_diagnoses?patient_id=<%=@patient.patient_id%>">Medical History</option>
-					<%  if @spine_clinician  %>
-						<option value="/patients/influenza_info?patient_id=<%=@patient.patient_id%>"> Influenza </option>
-						<option value="/patients/chronic_conditions_info?patient_id=<%=@patient.patient_id%>"> Chronic Diseases</option>
-					<% end %>
-					<option value='/patients/personal/<%= @patient.id -%>'>Printouts/Other</option>
-					<option value='/patients/next_task_description?task_id=<%= task.id -%>'>
+        <select id="tabs">
+          <option value='/patients/overview?patient_id=<%= @patient.id %>'>Overview</option>
+          <option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
+          <option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
+          <option value="/patients/past_diagnoses?patient_id=<%=@patient.patient_id%>">Medical History</option>
+          <%  if @spine_clinician  %>
+            <option value="/patients/influenza_info?patient_id=<%=@patient.patient_id%>"> Influenza </option>
+            <option value="/patients/chronic_conditions_info?patient_id=<%=@patient.patient_id%>"> Chronic Diseases</option>
+          <% end %>
+          <option value='/patients/personal/<%= @patient.id -%>'>Printouts/Other</option>
+          <option value='/patients/next_task_description?task_id=<%= task.id -%>'>
 						NEXT TASK: <%= task_name.gsub('_',' ') %>
-					</option>
-				</select>
+          </option>
+        </select>
 
-				<select id="links">
-					<option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Presenting complaints</option>
-					<option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
-                    <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
-                    
-					<%  if @spine_clinician  %>
-						<option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
-						<option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option> 
-					<% end %>
-				</select>
+        <select id="links">
+          <option value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>'>Inpatient Diagnosis</option>
+          <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Presenting complaints</option>
+          <option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
+          <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
 
-				<select id="navigation_links">
-					<option link="/encounter_types?patient_id=<%= @patient.id -%>" ttSize = "160px">Tasks</option>
-					<% if show_lab_results %>
-						<option link="/lab/results/<%=@patient.id -%>">Lab results</option>
-					<%end%>
-					<option link='<%= ((session[:datetime].to_date rescue '') != '' ?
-						"/people/reset_datetime/#{@patient.id}" : "/people/set_datetime/#{@patient.id}") %>'  ttSize="160px">
-						<%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %>
-					</option>
-					<option link='/patients/edit_demographics?patient_id=<%= @patient.id -%>'>Edit Demographics</option>
-				</select>
-				<input type='submit' value='Finish' />
-			</form>
-		</div>
-	</body>
+          <%  if @spine_clinician  %>
+            <option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
+            <option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option>
+          <% end %>
+        </select>
+
+        <select id="navigation_links">
+          <option link="/encounter_types?patient_id=<%= @patient.id -%>" ttSize = "160px">Tasks</option>
+          <% if show_lab_results %>
+            <option link="/lab/results/<%=@patient.id -%>">Lab results</option>
+          <%end%>
+          <option link='<%= ((session[:datetime].to_date rescue '') != '' ?
+                      "/people/reset_datetime/#{@patient.id}" : "/people/set_datetime/#{@patient.id}") %>'  ttSize="160px">
+                    <%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %>
+          </option>
+          <option link='/patients/edit_demographics?patient_id=<%= @patient.id -%>'>Edit Demographics</option>
+        </select>
+        <input type='submit' value='Finish' />
+      </form>
+    </div>
+  </body>
 </html>
