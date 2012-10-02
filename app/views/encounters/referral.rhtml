@@ -1,29 +1,47 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
-</script>
-<style>
-  #space { display:inline; font-size:1.2em; }
-</style>
-<form id='referral' action="/encounters/create" method='post'>
+
+ </script>
+
+<form id='referr_out' action="/encounters/create" method='post'>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "REFERRAL" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
-       
-<%= touch_location_tag 'REFERRAL CLINIC IF REFERRED', @patient, nil,
-    { :id => 'location_id',
-			:field_type => 'alpha',
-			:helpText => "Referral Facility",
-			:ajaxURL => '/programs/locations?q=',
-			:allowFreeText => false } %>
-
-  			
-		<% if @retrospective %>
-			<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
-			<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
-		<% else %>
-			<%= hidden_field_tag "filter[provider]", nil %>
-		<% end %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
   
-</form>
+  <% options = {
+    :id => "hospital",
+    :field_type => 'text',
+    :helptext =>"Referral Facility",
+    #:condition => "($('select').value == 'YES')",
+    :allowFreeText => 'true',
+    :ajaxURL => "/encounters/locations?search_string=",
+    :textCase => "upper"
+  } %>
+
+  <%= text_field_tag "observations[][value_text]", nil, options %>
+  <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "REFER TO OTHER HOSPITAL", options) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", session[:datetime] ||= DateTime.now()) %>
+
+  <% options = {
+    :id => "clinic",
+    :field_type => 'text',
+    :helptext =>"Specialist clinic referring to",
+   # :condition => "($('hospital').value != '')",
+    :allowFreeText => 'true',
+    :ajaxURL => "/encounters/specialist_clinic?search_string=",
+    :textCase => "upper"
+  } %>
+
+  <%= text_field_tag "observations[][value_text]", nil, options %>
+  <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+  <%= hidden_field_tag("observations[][concept_name]", "SPECIALIST CLINIC", options) %>
+  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]", session[:datetime] ||= DateTime.now()) %>
+
