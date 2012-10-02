@@ -153,7 +153,7 @@
 </script>
 
 <% form_for :person, @person, :url => { :action => "create" } do |f| %>
-
+  <%= hidden_field_tag "next_url", "/encounters/referal" %>
   <%= text_field_tag "person[names][given_name]", params[:given_name], {:id => 'given_name', :field_type => 'alpha', :helpText => 'First name', :ajaxURL => '/person_names/given_names?search_string=', :allowFreeText => true, :condition => '$("given_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
   
   <%= text_field_tag "person[names][family_name]", params[:family_name], {:id => 'family_name', :field_type => 'alpha', :helpText => 'Last name', :ajaxURL => '/person_names/family_names?search_string=', :allowFreeText => true, :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
