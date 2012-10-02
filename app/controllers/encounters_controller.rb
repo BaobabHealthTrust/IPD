@@ -150,7 +150,7 @@ class EncountersController < GenericEncountersController
 			:show_other_regimen => show_other_regimen      == "true")
 
 		hiv_program = Program.find_by_name('HIV Program')
-		@answer_array = MedicationService.regimen_options(hiv_program.regimens, @patient_bean.age)
+		@answer_array = MedicationService.regimen_options(@patient_bean.weight, hiv_program)
 		@answer_array += [['Other', 'Other'], ['Unknown', 'Unknown']]
 
 		@hiv_status = PatientService.patient_hiv_status(@patient)
@@ -740,5 +740,33 @@ def presenting_complaints
            
     render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
  end
+ 
+ def referal
+    @patient = Patient.find(params[:patient_id])
 
+    @roles = User.find(session[:user_id]).user_roles.collect{|r| r.role}  rescue []
+  end
+  def locations
+    search_string = (params[:search_string] || "").upcase
+    
+    locations = []
+    
+    File.open(RAILS_ROOT + "/public/data/locations.txt", "r").each{ |loc|
+      locations << loc if loc.upcase.strip.match(search_string)
+    }
+    render :text => "<li></li><li " + locations.map{|location| "value=\"#{location}\">#{location}" }.join("</li><li ") + "</li>"
+  end
+  def specialist_clinic
+    search_string = (params[:search_string] || '').upcase   
+    aconcept_set = []  
+    common_answers = Observation.find_most_common(ConceptName.find_by_name("Specialist clinic").concept, search_string)
+    concept_set("Specialist clinic").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
+        set = (common_answers + aconcept_set.sort).uniq             
+    set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
+             
+    set = set.sort rescue []           
+    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
+    
+ end
+  
 end
