@@ -3,8 +3,8 @@
 
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
-
- </script>
+   
+</script>
 
 <form id='referr_out' action="/encounters/create" method='post'>
 
@@ -12,36 +12,17 @@
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
-  
-  <% options = {
-    :id => "hospital",
-    :field_type => 'text',
-    :helptext =>"Referral Facility",
-    #:condition => "($('select').value == 'YES')",
-    :allowFreeText => 'true',
+
+  <%= touch_select_tag "REFER TO OTHER HOSPITAL", @patient, nil,
+    {	:id => "hospital",
     :ajaxURL => "/encounters/locations?search_string=",
-    :textCase => "upper"
-  } %>
+    :helpText => "Referral Facility" } %>
 
-  <%= text_field_tag "observations[][value_text]", nil, options %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
-  <%= hidden_field_tag("observations[][concept_name]", "REFER TO OTHER HOSPITAL", options) %>
-  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]", session[:datetime] ||= DateTime.now()) %>
+  <%= touch_select_tag "SPECIALIST CLINIC", @patient, concept_set_options('SPECIALIST CLINIC'),
+    {	:id => "specialist_clinic",
+    :helpText => "Specialist clinic referring to",
+    :tt_onload => "hideKeyBoard();",
+    :tt_pageStyleClass => "longSelectList"
+    } %>
 
-  <% options = {
-    :id => "clinic",
-    :field_type => 'text',
-    :helptext =>"Specialist clinic referring to",
-   # :condition => "($('hospital').value != '')",
-    :allowFreeText => 'true',
-    :ajaxURL => "/encounters/specialist_clinic?search_string=",
-    :textCase => "upper"
-  } %>
-
-  <%= text_field_tag "observations[][value_text]", nil, options %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
-  <%= hidden_field_tag("observations[][concept_name]", "SPECIALIST CLINIC", options) %>
-  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]", session[:datetime] ||= DateTime.now()) %>
-
+</form>
