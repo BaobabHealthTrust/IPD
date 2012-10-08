@@ -22,97 +22,97 @@ class EncountersController < GenericEncountersController
     @diagnosis_type = params[:diagnosis_type]
         
 		@diagnoses_requiring_specification = [
-				'OTHER',
-				'ABSCESS',
-				'ALL OTHER COMMUNICABLE DISEASES',
-				'ALL OTHER NON-COMMUNICABLE DISEASES',
-				'ALL OTHER SURGICAL CONDITIONS',
-				'GYNAECOLOGICAL DISORDERS',
-				'OPPORTUNISTIC INFECTIONS',
-				'OTHER HEART DISEASES',
-				'OTHER SKIN CONDITION'].join(';')
+      'OTHER',
+      'ABSCESS',
+      'ALL OTHER COMMUNICABLE DISEASES',
+      'ALL OTHER NON-COMMUNICABLE DISEASES',
+      'ALL OTHER SURGICAL CONDITIONS',
+      'GYNAECOLOGICAL DISORDERS',
+      'OPPORTUNISTIC INFECTIONS',
+      'OTHER HEART DISEASES',
+      'OTHER SKIN CONDITION'].join(';')
 
-		  @diagnoses_requiring_details = [
-		    "ABORTION COMPLICATIONS",
-		    "CANCER",
-		    "CANDIDA",
-		    "CHRONIC PSYCHIATRIC DISORDER",
-		    "DIARRHOEA DISEASES",
-		    "FRACTURE",
-		    "GASTROINTESTINAL BLEED",
-		    "MALARIA",
-		    "MENINGITIS",
-		    "MUSCULOSKELETAL PAINS",
-		    "PNEUMONIA",
-		    "POISONING",
-		    "RENAL FAILURE",
-		    "ROAD TRAFFIC ACCIDENT",
-		    "SEXUALLY TRANSMITTED INFECTION",
-		    "SOFT TISSUE INJURY",
-		    "TRAUMATIC CONDITIONS",
-		    "TUBERCULOSIS",
-		    "ULCERS"].join(';')
+    @diagnoses_requiring_details = [
+      "ABORTION COMPLICATIONS",
+      "CANCER",
+      "CANDIDA",
+      "CHRONIC PSYCHIATRIC DISORDER",
+      "DIARRHOEA DISEASES",
+      "FRACTURE",
+      "GASTROINTESTINAL BLEED",
+      "MALARIA",
+      "MENINGITIS",
+      "MUSCULOSKELETAL PAINS",
+      "PNEUMONIA",
+      "POISONING",
+      "RENAL FAILURE",
+      "ROAD TRAFFIC ACCIDENT",
+      "SEXUALLY TRANSMITTED INFECTION",
+      "SOFT TISSUE INJURY",
+      "TRAUMATIC CONDITIONS",
+      "TUBERCULOSIS",
+      "ULCERS"].join(';')
 		    
-#		    raise @diagnoses_requiring_details.to_yaml
+    #		    raise @diagnoses_requiring_details.to_yaml
     
 		@current_height = PatientService.get_patient_attribute_value(@patient, "current_height")
 		@min_weight = PatientService.get_patient_attribute_value(@patient, "min_weight")
-        @max_weight = PatientService.get_patient_attribute_value(@patient, "max_weight")
-        @min_height = PatientService.get_patient_attribute_value(@patient, "min_height")
-        @max_height = PatientService.get_patient_attribute_value(@patient, "max_height")
-        @given_arvs_before = given_arvs_before(@patient)
-        @current_encounters = @patient.encounters.find_by_date(session_date)   
-        @previous_tb_visit = previous_tb_visit(@patient.id)
-        @is_patient_pregnant_value = nil
-        @is_patient_breast_feeding_value = nil
-        @currently_using_family_planning_methods = nil
-        @transfer_in_TB_registration_number = get_todays_observation_answer_for_encounter(@patient.id, "TB_INITIAL", "TB registration number")
-        @referred_to_htc = nil
-        @family_planning_methods = []
+    @max_weight = PatientService.get_patient_attribute_value(@patient, "max_weight")
+    @min_height = PatientService.get_patient_attribute_value(@patient, "min_height")
+    @max_height = PatientService.get_patient_attribute_value(@patient, "max_height")
+    @given_arvs_before = given_arvs_before(@patient)
+    @current_encounters = @patient.encounters.find_by_date(session_date)
+    @previous_tb_visit = previous_tb_visit(@patient.id)
+    @is_patient_pregnant_value = nil
+    @is_patient_breast_feeding_value = nil
+    @currently_using_family_planning_methods = nil
+    @transfer_in_TB_registration_number = get_todays_observation_answer_for_encounter(@patient.id, "TB_INITIAL", "TB registration number")
+    @referred_to_htc = nil
+    @family_planning_methods = []
 
-        if 'tb_reception'.upcase == (params[:encounter_type].upcase rescue '')
-            @phone_numbers = PatientService.phone_numbers(Person.find(params[:patient_id]))
-        end
+    if 'tb_reception'.upcase == (params[:encounter_type].upcase rescue '')
+      @phone_numbers = PatientService.phone_numbers(Person.find(params[:patient_id]))
+    end
         
-        if 'ART_VISIT' == (params[:encounter_type].upcase rescue '')
-            session_date = session[:datetime].to_date rescue Date.today
+    if 'ART_VISIT' == (params[:encounter_type].upcase rescue '')
+      session_date = session[:datetime].to_date rescue Date.today
 
-            @allergic_to_sulphur = Observation.find(Observation.find(:first,                   
-                            :order => "obs_datetime DESC,date_created DESC",            
-                            :conditions => ["person_id = ? AND concept_id = ? 
+      @allergic_to_sulphur = Observation.find(Observation.find(:first,
+          :order => "obs_datetime DESC,date_created DESC",
+          :conditions => ["person_id = ? AND concept_id = ?
                             AND DATE(obs_datetime) = ?",@patient.id,
-                            ConceptName.find_by_name("Allergic to sulphur").concept_id,session_date])).to_s.strip.squish rescue ''
+            ConceptName.find_by_name("Allergic to sulphur").concept_id,session_date])).to_s.strip.squish rescue ''
 
-            @obs_ans = Observation.find(Observation.find(:first,                   
-                            :order => "obs_datetime DESC,date_created DESC",            
-                            :conditions => ["person_id = ? AND concept_id = ? AND DATE(obs_datetime) = ?",
-                            @patient.id,ConceptName.find_by_name("Prescribe drugs").concept_id,session_date])).to_s.strip.squish rescue ''        
+      @obs_ans = Observation.find(Observation.find(:first,
+          :order => "obs_datetime DESC,date_created DESC",
+          :conditions => ["person_id = ? AND concept_id = ? AND DATE(obs_datetime) = ?",
+            @patient.id,ConceptName.find_by_name("Prescribe drugs").concept_id,session_date])).to_s.strip.squish rescue ''
         
-        end
+    end
         
-        if (params[:encounter_type].upcase rescue '') == 'UPDATE HIV STATUS'
-            @referred_to_htc = get_todays_observation_answer_for_encounter(@patient.id, "UPDATE HIV STATUS", "Refer to HTC")
-        end
+    if (params[:encounter_type].upcase rescue '') == 'UPDATE HIV STATUS'
+      @referred_to_htc = get_todays_observation_answer_for_encounter(@patient.id, "UPDATE HIV STATUS", "Refer to HTC")
+    end
 
 		@given_lab_results = Encounter.find(:last,
 			:order => "encounter_datetime DESC,date_created DESC",
 			:conditions =>["encounter_type = ? and patient_id = ?",
 				EncounterType.find_by_name("GIVE LAB RESULTS").id,@patient.id]).observations.map{|o|
-				o.answer_string if o.to_s.include?("Laboratory results given to patient")} rescue nil
+      o.answer_string if o.to_s.include?("Laboratory results given to patient")} rescue nil
 
 		@transfer_to = Encounter.find(:last,:conditions =>["encounter_type = ? and patient_id = ?",
-			EncounterType.find_by_name("TB VISIT").id,@patient.id]).observations.map{|o|
-				o.answer_string if o.to_s.include?("Transfer out to")} rescue nil
+        EncounterType.find_by_name("TB VISIT").id,@patient.id]).observations.map{|o|
+      o.answer_string if o.to_s.include?("Transfer out to")} rescue nil
 
 		@recent_sputum_results = PatientService.recent_sputum_results(@patient.id) rescue nil
-    	@recent_sputum_submissions = PatientService.recent_sputum_submissions(@patient_id) rescue nil
+    @recent_sputum_submissions = PatientService.recent_sputum_submissions(@patient_id) rescue nil
 		@continue_treatment_at_site = []
 		Encounter.find(:last,:conditions =>["encounter_type = ? and patient_id = ? AND DATE(encounter_datetime) = ?",
-		EncounterType.find_by_name("TB CLINIC VISIT").id,
-		@patient.id,session_date.to_date]).observations.map{|o| @continue_treatment_at_site << o.answer_string if o.to_s.include?("Continue treatment")} rescue nil
+        EncounterType.find_by_name("TB CLINIC VISIT").id,
+        @patient.id,session_date.to_date]).observations.map{|o| @continue_treatment_at_site << o.answer_string if o.to_s.include?("Continue treatment")} rescue nil
 
 		@patient_has_closed_TB_program_at_current_location = PatientProgram.find(:all,:conditions =>
-			["voided = 0 AND patient_id = ? AND location_id = ? AND (program_id = ? OR program_id = ?)", @patient.id, Location.current_health_center.id, Program.find_by_name('TB PROGRAM').id, Program.find_by_name('MDR-TB PROGRAM').id]).last.closed? rescue true
+        ["voided = 0 AND patient_id = ? AND location_id = ? AND (program_id = ? OR program_id = ?)", @patient.id, Location.current_health_center.id, Program.find_by_name('TB PROGRAM').id, Program.find_by_name('MDR-TB PROGRAM').id]).last.closed? rescue true
         
 		if (params[:encounter_type].upcase rescue '') == 'PRESENTING_COMPLAINTS'
 			complaint_concept_set_id = ConceptName.find_by_name("Presenting complaints requiring specification").concept.id
@@ -122,7 +122,7 @@ class EncountersController < GenericEncountersController
 			complaint_concept_set_id = ConceptName.find_by_name("Presenting complaints requiring details").concept.id
 			complaint_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', complaint_concept_set_id])	
 			@complaints_requiring_details = complaint_concepts.map{|concept| concept.fullname.upcase}.join(';')
-        end
+    end
 
 		if (params[:encounter_type].upcase rescue '') == 'IPT CONTACT PERSON'
 			@contacts_ipt = []
@@ -155,7 +155,7 @@ class EncountersController < GenericEncountersController
 
 		@hiv_status = PatientService.patient_hiv_status(@patient)
 		@hiv_test_date = PatientService.hiv_test_date(@patient.id)
-#raise @hiv_test_date.to_s
+    #raise @hiv_test_date.to_s
 		@lab_activities = lab_activities
 		# @tb_classification = [["Pulmonary TB","PULMONARY TB"],["Extra Pulmonary TB","EXTRA PULMONARY TB"]]
 		@tb_patient_category = [["New","NEW"], ["Relapse","RELAPSE"], ["Retreatment after default","RETREATMENT AFTER DEFAULT"], ["Fail","FAIL"], ["Other","OTHER"]]
@@ -180,14 +180,14 @@ class EncountersController < GenericEncountersController
 		sputum_results_not_given(@patient.id).each{|order| @sputum_results_not_given[order.accession_number] = Concept.find(order.value_coded).fullname rescue order.value_text}
 
 		@tb_status = recent_lab_results(@patient.id, session_date)
-    	# use @patient_tb_status  for the tb_status moved from the patient model
-    	@patient_tb_status = PatientService.patient_tb_status(@patient)
+    # use @patient_tb_status  for the tb_status moved from the patient model
+    @patient_tb_status = PatientService.patient_tb_status(@patient)
 		@patient_is_transfer_in = is_transfer_in(@patient)
 		@patient_transfer_in_date = get_transfer_in_date(@patient)
 		@patient_is_child_bearing_female = is_child_bearing_female(@patient)
-    	@cell_number = @patient.person.person_attributes.find_by_person_attribute_type_id(PersonAttributeType.find_by_name("Cell Phone Number").id).value rescue ''
+    @cell_number = @patient.person.person_attributes.find_by_person_attribute_type_id(PersonAttributeType.find_by_name("Cell Phone Number").id).value rescue ''
 
-    	@tb_symptoms = []
+    @tb_symptoms = []
 
 		if (params[:encounter_type].upcase rescue '') == 'TB_INITIAL'
 			tb_program = Program.find_by_name('TB Program')
@@ -199,10 +199,10 @@ class EncountersController < GenericEncountersController
 
 		if (params[:encounter_type].upcase rescue '') == 'TB_VISIT'
 		  @current_encounters.reverse.each do |enc|
-		     enc.observations.each do |o|
-		       @tb_symptoms << o.answer_string.strip if o.to_s.include?("TB symptoms") rescue nil
-		     end
-		   end
+        enc.observations.each do |o|
+          @tb_symptoms << o.answer_string.strip if o.to_s.include?("TB symptoms") rescue nil
+        end
+      end
 		end
 
 		@location_transferred_to = []
@@ -211,10 +211,10 @@ class EncountersController < GenericEncountersController
 		  @report_url = nil
 		  @report_url =  params[:report_url]  and @old_appointment = params[:old_appointment] if !params[:report_url].nil?
 		  @current_encounters.reverse.each do |enc|
-		     enc.observations.each do |o|
-		       @location_transferred_to << o.to_s_location_name.strip if o.to_s.include?("Transfer out to") rescue nil
-		     end
-		   end
+        enc.observations.each do |o|
+          @location_transferred_to << o.to_s_location_name.strip if o.to_s.include?("Transfer out to") rescue nil
+        end
+      end
 		end
 
 		@tb_classification = nil
@@ -236,7 +236,7 @@ class EncountersController < GenericEncountersController
 
 			tb_clinic_visit_obs = Encounter.find(:first,:order => "encounter_datetime DESC",
 				:conditions => ["DATE(encounter_datetime) = ? AND patient_id = ? AND encounter_type = ?",
-				session_date, @patient.id, EncounterType.find_by_name('TB CLINIC VISIT').id]).observations rescue []
+          session_date, @patient.id, EncounterType.find_by_name('TB CLINIC VISIT').id]).observations rescue []
 
 			(tb_clinic_visit_obs || []).each do | obs | 
 				if (obs.concept_id == (Concept.find_by_name('TB type').concept_id rescue nil) || obs.concept_id == (Concept.find_by_name('TB classification').concept_id rescue nil) || 	obs.concept_id == (Concept.find_by_name('EPTB classification').concept_id rescue nil))
@@ -249,7 +249,7 @@ class EncountersController < GenericEncountersController
 
 		end
 		
-        if  ['ART_VISIT', 'TB_VISIT', 'HIV_STAGING'].include?((params[:encounter_type].upcase rescue ''))
+    if  ['ART_VISIT', 'TB_VISIT', 'HIV_STAGING'].include?((params[:encounter_type].upcase rescue ''))
 			@local_tb_dot_sites_tag = tb_dot_sites_tag 
 			for encounter in @current_encounters.reverse do
 				if encounter.name.humanize.include?('Hiv staging') || encounter.name.humanize.include?('Tb visit') || encounter.name.humanize.include?('Art visit') 
@@ -278,18 +278,18 @@ class EncountersController < GenericEncountersController
 					end
 				end
 			end
-        end
+    end
         
-        if (params[:encounter_type].upcase rescue '') == 'DISCHARGE_PATIENT'
+    if (params[:encounter_type].upcase rescue '') == 'DISCHARGE_PATIENT'
 			@discharge_outcomes = [
-					['',''],
-					['Alive (Discharged home)', 'Alive'],
-					['Dead', 'Dead'],
-					['Referred (Within facility)', 'Referred'],
-					['Transferred (Another health facility)', 'Transferred'],
-					['Absconded', 'Absconded'],
-					['Discharged (Home based care)', 'Home based care']]        
-        end
+        ['',''],
+        ['Alive (Discharged home)', 'Alive'],
+        ['Dead', 'Dead'],
+        ['Referred (Within facility)', 'Referred'],
+        ['Transferred (Another health facility)', 'Transferred'],
+        ['Absconded', 'Absconded'],
+        ['Discharged (Home based care)', 'Home based care']]
+    end
 
 		if (params[:encounter_type].upcase rescue '') == 'HIV_STAGING'
 			if @patient_bean.age > 14 
@@ -319,7 +319,7 @@ class EncountersController < GenericEncountersController
 			end
 			
 			if @tb_status == true && @hiv_status != 'Negative'
-		    	tb_hiv_exclusions = [['Pulmonary tuberculosis (current)', 'Pulmonary tuberculosis (current)'], 
+        tb_hiv_exclusions = [['Pulmonary tuberculosis (current)', 'Pulmonary tuberculosis (current)'],
 					['Tuberculosis (PTB or EPTB) within the last 2 years', 'Tuberculosis (PTB or EPTB) within the last 2 years']]
 				@who_stage_iii = @who_stage_iii - tb_hiv_exclusions
 			end
@@ -349,10 +349,10 @@ class EncountersController < GenericEncountersController
 
 		if params[:encounter_type].upcase == 'ADMISSION DIAGNOSIS' || params[:encounter_type].upcase == 'DISCHARGE DIAGNOSIS' || params[:encounter_type].upcase == 'OUTPATIENT_DIAGNOSIS'
 			if !is_encounter_available(@patient, 'VITALS', session_date)
-					if @patient_bean.age <= 14
-							session[:original_encounter] = params[:encounter_type]
-							params[:encounter_type] = 'vitals'					
-					end
+        if @patient_bean.age <= 14
+          session[:original_encounter] = params[:encounter_type]
+          params[:encounter_type] = 'vitals'
+        end
 			end
 		end
 		
@@ -366,86 +366,86 @@ class EncountersController < GenericEncountersController
 
   def select_options
     select_options = {
-     'reason_for_tb_clinic_visit' => [
+      'reason_for_tb_clinic_visit' => [
         ['',''],
         ['Clinical review (Children, Smear-, HIV+)','CLINICAL REVIEW'],
         ['Smear Positive (HIV-)','SMEAR POSITIVE'],
         ['X-ray result interpretation','X-RAY RESULT INTERPRETATION']
       ],
-     'tb_clinic_visit_type' => [
+      'tb_clinic_visit_type' => [
         ['',''],
         ['Lab analysis','Lab follow-up'],
         ['Follow-up','Follow-up'],
         ['Clinical review (Clinician visit)','Clinical review']
       ],
-     'family_planning_methods' => [
-       ['',''],
-       ['Oral contraceptive pills', 'ORAL CONTRACEPTIVE PILLS'],
-       ['Depo-Provera', 'DEPO-PROVERA'],
-       ['IUD-Intrauterine device/loop', 'INTRAUTERINE CONTRACEPTION'],
-       ['Contraceptive implant', 'CONTRACEPTIVE IMPLANT'],
-       ['Male condoms', 'MALE CONDOMS'],
-       ['Female condoms', 'FEMALE CONDOMS'],
-       ['Rhythm method', 'RYTHM METHOD'],
-       ['Withdrawal', 'WITHDRAWAL'],
-       ['Abstinence', 'ABSTINENCE'],
-       ['Tubal ligation', 'TUBAL LIGATION'],
-       ['Vasectomy', 'VASECTOMY']
+      'family_planning_methods' => [
+        ['',''],
+        ['Oral contraceptive pills', 'ORAL CONTRACEPTIVE PILLS'],
+        ['Depo-Provera', 'DEPO-PROVERA'],
+        ['IUD-Intrauterine device/loop', 'INTRAUTERINE CONTRACEPTION'],
+        ['Contraceptive implant', 'CONTRACEPTIVE IMPLANT'],
+        ['Male condoms', 'MALE CONDOMS'],
+        ['Female condoms', 'FEMALE CONDOMS'],
+        ['Rhythm method', 'RYTHM METHOD'],
+        ['Withdrawal', 'WITHDRAWAL'],
+        ['Abstinence', 'ABSTINENCE'],
+        ['Tubal ligation', 'TUBAL LIGATION'],
+        ['Vasectomy', 'VASECTOMY']
       ],
-     'male_family_planning_methods' => [
-       ['',''],
-       ['Male condoms', 'MALE CONDOMS'],
-       ['Withdrawal', 'WITHDRAWAL'],
-       ['Rhythm method', 'RYTHM METHOD'],
-       ['Abstinence', 'ABSTINENCE'],
-       ['Vasectomy', 'VASECTOMY'],
-       ['Other','OTHER']
+      'male_family_planning_methods' => [
+        ['',''],
+        ['Male condoms', 'MALE CONDOMS'],
+        ['Withdrawal', 'WITHDRAWAL'],
+        ['Rhythm method', 'RYTHM METHOD'],
+        ['Abstinence', 'ABSTINENCE'],
+        ['Vasectomy', 'VASECTOMY'],
+        ['Other','OTHER']
       ],
-     'female_family_planning_methods' => [
-       ['',''],
-       ['Oral contraceptive pills', 'ORAL CONTRACEPTIVE PILLS'],
-       ['Depo-Provera', 'DEPO-PROVERA'],
-       ['IUD-Intrauterine device/loop', 'INTRAUTERINE CONTRACEPTION'],
-       ['Contraceptive implant', 'CONTRACEPTIVE IMPLANT'],
-       ['Female condoms', 'FEMALE CONDOMS'],
-       ['Withdrawal', 'WITHDRAWAL'],
-       ['Rhythm method', 'RYTHM METHOD'],
-       ['Abstinence', 'ABSTINENCE'],
-       ['Tubal ligation', 'TUBAL LIGATION'],
-       ['Emergency contraception', 'EMERGENCY CONTRACEPTION'],
-       ['Other','OTHER']
+      'female_family_planning_methods' => [
+        ['',''],
+        ['Oral contraceptive pills', 'ORAL CONTRACEPTIVE PILLS'],
+        ['Depo-Provera', 'DEPO-PROVERA'],
+        ['IUD-Intrauterine device/loop', 'INTRAUTERINE CONTRACEPTION'],
+        ['Contraceptive implant', 'CONTRACEPTIVE IMPLANT'],
+        ['Female condoms', 'FEMALE CONDOMS'],
+        ['Withdrawal', 'WITHDRAWAL'],
+        ['Rhythm method', 'RYTHM METHOD'],
+        ['Abstinence', 'ABSTINENCE'],
+        ['Tubal ligation', 'TUBAL LIGATION'],
+        ['Emergency contraception', 'EMERGENCY CONTRACEPTION'],
+        ['Other','OTHER']
       ],
-     'drug_list' => [
-          ['',''],
-          ["Rifampicin Isoniazid Pyrazinamide and Ethambutol", "RHEZ (RIF, INH, Ethambutol and Pyrazinamide tab)"],
-          ["Rifampicin Isoniazid and Ethambutol", "RHE (Rifampicin Isoniazid and Ethambutol -1-1-mg t"],
-          ["Rifampicin and Isoniazid", "RH (Rifampin and Isoniazid tablet)"],
-          ["Stavudine Lamivudine and Nevirapine", "D4T+3TC+NVP"],
-          ["Stavudine Lamivudine + Stavudine Lamivudine and Nevirapine", "D4T+3TC/D4T+3TC+NVP"],
-          ["Zidovudine Lamivudine and Nevirapine", "AZT+3TC+NVP"]
+      'drug_list' => [
+        ['',''],
+        ["Rifampicin Isoniazid Pyrazinamide and Ethambutol", "RHEZ (RIF, INH, Ethambutol and Pyrazinamide tab)"],
+        ["Rifampicin Isoniazid and Ethambutol", "RHE (Rifampicin Isoniazid and Ethambutol -1-1-mg t"],
+        ["Rifampicin and Isoniazid", "RH (Rifampin and Isoniazid tablet)"],
+        ["Stavudine Lamivudine and Nevirapine", "D4T+3TC+NVP"],
+        ["Stavudine Lamivudine + Stavudine Lamivudine and Nevirapine", "D4T+3TC/D4T+3TC+NVP"],
+        ["Zidovudine Lamivudine and Nevirapine", "AZT+3TC+NVP"]
       ],
-        'presc_time_period' => [
-          ["",""],
-          ["1 month", "30"],
-          ["2 months", "60"],
-          ["3 months", "90"],
-          ["4 months", "120"],
-          ["5 months", "150"],
-          ["6 months", "180"],
-          ["7 months", "210"],
-          ["8 months", "240"]
+      'presc_time_period' => [
+        ["",""],
+        ["1 month", "30"],
+        ["2 months", "60"],
+        ["3 months", "90"],
+        ["4 months", "120"],
+        ["5 months", "150"],
+        ["6 months", "180"],
+        ["7 months", "210"],
+        ["8 months", "240"]
       ],
-        'continue_treatment' => [
-          ["",""],
-          ["Yes", "YES"],
-          ["DHO DOT site","DHO DOT SITE"],
-          ["Transfer Out", "TRANSFER OUT"]
+      'continue_treatment' => [
+        ["",""],
+        ["Yes", "YES"],
+        ["DHO DOT site","DHO DOT SITE"],
+        ["Transfer Out", "TRANSFER OUT"]
       ],
-        'hiv_status' => [
-          ['',''],
-          ['Negative','NEGATIVE'],
-          ['Positive','POSITIVE'],
-          ['Unknown','UNKNOWN']
+      'hiv_status' => [
+        ['',''],
+        ['Negative','NEGATIVE'],
+        ['Positive','POSITIVE'],
+        ['Unknown','UNKNOWN']
       ],
       'who_stage1' => [
         ['',''],
@@ -480,10 +480,10 @@ class EncountersController < GenericEncountersController
       ],
       'lab_orders' =>{
         "Blood" => ["Full blood count", "Malaria parasite", "Group & cross match", "Urea & Electrolytes", "CD4 count", "Resistance",
-            "Viral Load", "Cryptococcal Antigen", "Lactate", "Fasting blood sugar", "Random blood sugar", "Sugar profile",
-            "Liver function test", "Hepatitis test", "Sickling test", "ESR", "Culture & sensitivity", "Widal test", "ELISA",
-            "ASO titre", "Rheumatoid factor", "Cholesterol", "Triglycerides", "Calcium", "Creatinine", "VDRL", "Direct Coombs",
-            "Indirect Coombs", "Blood Test NOS"],
+          "Viral Load", "Cryptococcal Antigen", "Lactate", "Fasting blood sugar", "Random blood sugar", "Sugar profile",
+          "Liver function test", "Hepatitis test", "Sickling test", "ESR", "Culture & sensitivity", "Widal test", "ELISA",
+          "ASO titre", "Rheumatoid factor", "Cholesterol", "Triglycerides", "Calcium", "Creatinine", "VDRL", "Direct Coombs",
+          "Indirect Coombs", "Blood Test NOS"],
         "CSF" => ["Full CSF analysis", "Indian ink", "Protein & sugar", "White cell count", "Culture & sensitivity"],
         "Urine" => ["Urine microscopy", "Urinanalysis", "Culture & sensitivity"],
         "Aspirate" => ["Full aspirate analysis"],
@@ -589,24 +589,24 @@ class EncountersController < GenericEncountersController
   end
 
 	def is_first_art_visit(patient_id)
-		     session_date = session[:datetime].to_date rescue Date.today
-		     art_encounter = Encounter.find(:first,:conditions =>["voided = 0 AND patient_id = ? AND encounter_type = ? AND DATE(encounter_datetime) < ?",
-		                     patient_id, EncounterType.find_by_name('ART_INITIAL').id, session_date ]) rescue nil
-		    return true if art_encounter.nil?
-		     return false
+    session_date = session[:datetime].to_date rescue Date.today
+    art_encounter = Encounter.find(:first,:conditions =>["voided = 0 AND patient_id = ? AND encounter_type = ? AND DATE(encounter_datetime) < ?",
+        patient_id, EncounterType.find_by_name('ART_INITIAL').id, session_date ]) rescue nil
+    return true if art_encounter.nil?
+    return false
 	end
 
  
 
   def daignosis_details
-				diagnosis = params[:diagnosis_string]
+    diagnosis = params[:diagnosis_string]
 		   
-		    @diagnoses_detail = ConceptName.find(:all, :joins => :concept, 
-		      :conditions => ["concept_name.concept_id IN (?) AND voided = 0",
-		      ConceptSet.find(:all, :conditions => ["concept_set IN (?)", ConceptName.find(:all, :joins => :concept, 
-		              :conditions => ["voided = 0 AND name = ?", diagnosis]).collect{|nom| nom.concept_id}]).collect{|set| 
-		          set.concept_id}]).collect{|term| term.name}.uniq 
-		    render :text => "<li></li><li>" + @diagnoses_detail.join("</li><li>") + "</li>"
+    @diagnoses_detail = ConceptName.find(:all, :joins => :concept,
+      :conditions => ["concept_name.concept_id IN (?) AND voided = 0",
+        ConceptSet.find(:all, :conditions => ["concept_set IN (?)", ConceptName.find(:all, :joins => :concept,
+              :conditions => ["voided = 0 AND name = ?", diagnosis]).collect{|nom| nom.concept_id}]).collect{|set|
+          set.concept_id}]).collect{|term| term.name}.uniq
+    render :text => "<li></li><li>" + @diagnoses_detail.join("</li><li>") + "</li>"
   end
   
   def create_adult_influenza_entry
@@ -676,12 +676,11 @@ class EncountersController < GenericEncountersController
   def create_chronics
     create_influenza_data
   end 
-def presenting_complaints
+  def presenting_complaint
 		search_string = (params[:search_string] || '').upcase
 		filter_list = params[:filter_list].split(/, */) rescue []
 		
 		presenting_complaint = ConceptName.find_by_name("PRESENTING COMPLAINT").concept
-		
 
 		complaint_set = CoreService.get_global_property_value("application_presenting_complaint")
 		complaint_set = "PRESENTING COMPLAINT" if complaint_set.blank?
@@ -705,68 +704,16 @@ def presenting_complaints
 
   #added this to ensure that we are able to get the detailed diagnosis set
   def concept_options
-      concept_name = params[:search_string]
-      options = concept_set(concept_name).flatten.uniq
+    concept_name = params[:search_string]
+    options = concept_set(concept_name).flatten.uniq
       
-      render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
+    render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
   end
-  def life_threatening_condition  
-    search_string = (params[:search_string] || '').upcase
-    
-    aconcept_set = []
-        
-    common_answers = Observation.find_most_common(ConceptName.find_by_name("Life threatening condition").concept, search_string)
-    concept_set("Life threatening condition").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
-    set = (common_answers + aconcept_set.sort).uniq             
-    set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
-    
-    set = set.sort rescue []
-           
-    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
-
- end
-
- def triage_category
-
-    search_string = (params[:search_string] || '').upcase   
-    aconcept_set = []        
-
-        common_answers = Observation.find_most_common(ConceptName.find_by_name("Triage category").concept, search_string)
-    concept_set("Triage category").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
-        set = (common_answers + aconcept_set.sort).uniq             
-      set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
-             
-    set = set.sort rescue []
-           
-    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
- end
- 
- def referal
+  
+  def referal
     @patient = Patient.find(params[:patient_id])
 
     @roles = User.find(session[:user_id]).user_roles.collect{|r| r.role}  rescue []
   end
-  def locations
-    search_string = (params[:search_string] || "").upcase
-    
-    locations = []
-    
-    File.open(RAILS_ROOT + "/public/data/locations.txt", "r").each{ |loc|
-      locations << loc if loc.upcase.strip.match(search_string)
-    }
-    render :text => "<li></li><li " + locations.map{|location| "value=\"#{location}\">#{location}" }.join("</li><li ") + "</li>"
-  end
-  def specialist_clinic
-    search_string = (params[:search_string] || '').upcase   
-    aconcept_set = []  
-    common_answers = Observation.find_most_common(ConceptName.find_by_name("Specialist clinic").concept, search_string)
-    concept_set("Specialist clinic").each{|concept| aconcept_set << concept.uniq.to_s rescue "test"}  
-        set = (common_answers + aconcept_set.sort).uniq             
-    set.map!{|cc| cc.upcase.include?(search_string)? cc : nil}        
-             
-    set = set.sort rescue []           
-    render :text => "<li></li>" + "<li>" + set.join("</li><li>") + "</li>"
-    
- end
   
 end
