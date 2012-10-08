@@ -16,7 +16,7 @@ production:
  logo: mw.gif
 
 development:
- encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges,Inpatient diagnosis:Manage Inpatient diagnosis,Referral:Manage Referral,Referral Diagnosis:Manage Referral diagnosis
+ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
  application_diagnosis_concept: Qech outpatient diagnosis list
  application_generic_medication: OPD Medication
  use.filing.number: false
