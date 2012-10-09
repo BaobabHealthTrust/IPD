@@ -16,5 +16,16 @@ class ClinicController < GenericClinicController
 		]
 		render :layout => false
 	end
+	def administration_tab
+		@reports =  [
+				      ['/clinic/users_tab','User Accounts/Settings'],
+				      ['/clinic/location_management_tab','Location Management'],
+				    ]
+		if current_user.admin?
+		  @reports << ['/clinic/management_tab','Drug Management']
+		end
+		@landing_dashboard = 'clinic_administration'
+		render :layout => false
+	end
   
 end
