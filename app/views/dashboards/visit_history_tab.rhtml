@@ -36,7 +36,7 @@
     <div  style="display: table; width: 99%;">
       <div  style="display: table-row;">
         <div style="display: table-cell; width: 50%; padding: 10px; vertical-align: top;">
-          <ul class="list" style="clear:both; height: 230px;">
+          <ul class="list" style="clear:both; height: 230px; border-radius: 15px;">
             <% for encounter in @encounters.reverse do %>
                 <li class="data <%= cycle('even', 'odd') %>" encounter="<%= encounter.id %>">
                   <div class="void"><img src="/images/cancel_flat_small.png"/></div>
@@ -46,7 +46,7 @@
             </ul>
           </div>
           <div style="display: table-cell; width: 50%; padding: 10px;">
-            <ul id="observations" class="list small" style="height: 230px;">
+            <ul id="observations" class="list small" style="height: 230px; border-radius: 15px;">
             </ul>
           </div>
         </div>
