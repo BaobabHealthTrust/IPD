@@ -47,7 +47,7 @@
 			<% counter += 1%>
 			<%= touch_select_tag "Presenting complaint", @patient, nil,
 				{	:id => "presenting_complaint_#{counter}",
-					:ajaxURL => "/encounters/presenting_complaints?search_string=",
+					:ajaxURL => "/encounters/presenting_complaint?search_string=",
 					:optional => "true",
 				 	:condition => "$('presenting_complaint_#{counter-1}').value != '';",
 				 	:helpText => presenting_label } %>
