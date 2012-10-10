@@ -47,14 +47,14 @@
 %>
   <% 5.times do %>
     <% counter += 1%>
-    <%= touch_select_tag "Presenting complaint", @patient, nil,
+    <%= touch_select_tag "PRESENTING COMPLAINT", @patient, nil,
       {	:id => "presenting_complaint_#{counter}",
       :ajaxURL => "/encounters/presenting_complaints?search_string=",
       :optional => "true",
       :condition => "$('presenting_complaint_#{counter-1}').value != '';",
       :helpText => presenting_label } %>
 
-    <%= touch_select_tag "Detailed additional diagnosis", @patient, nil,
+    <%= touch_select_tag "DETAILED PRESENTING COMPLAINT", @patient, nil,
       {	:id => "detailed_presenting_complaint_#{counter}",
       :parent_concept_name => "Presenting complaint",
       :condition => "complaints_requiring_details.contains($('presenting_complaint_#{counter}').value.toUpperCase())",
@@ -62,7 +62,7 @@
       :tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('presenting_complaint_#{counter}').value);",
       :helpText => "Detailed presenting complaint" } %>
 
-    <%= touch_text_field_tag "Specific presenting complaint", @patient, nil,
+    <%= touch_text_field_tag "SPECIFIC PRESENTING COMPLAINT", @patient, nil,
       {	:id => "specific_presenting_complaint_#{counter}",
       :parent_concept_name => "Presenting complaint",
       :condition => "complaints_requiring_specification.contains($('presenting_complaint_#{counter}').value.toUpperCase())",
@@ -72,13 +72,13 @@
     <% presenting_label = "Additional presenting complaint" %>
   <% end %>
 
-  <%= touch_select_tag "Life threatening condition", @patient, concept_set_options('LIFE THREATENING CONDITION'),
+  <%= touch_select_tag "LIFE THREATENING CONDITION", @patient, concept_set_options('LIFE THREATENING CONDITION'),
     {	:id => "life_threatening_conditions",
     :optional => "true",
     :multiple => "true",
     :helpText => "Select life threatening conditions" } %>
 
-  <%= touch_select_tag "Triage category", @patient, concept_set_options('TRIAGE CATEGORY'),
+  <%= touch_select_tag "TRIAGE CATEGORY", @patient, concept_set_options('TRIAGE CATEGORY'),
     {	:id => "triage_category",
     :condition => 'is_admitted != "true"',
     :helpText => "Triage caegory" } %>
