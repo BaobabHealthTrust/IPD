@@ -114,6 +114,12 @@ class EncountersController < GenericEncountersController
 			complaint_concept_set_id = ConceptName.find_by_name("Presenting complaints requiring details").concept.id
 			complaint_concepts = Concept.find(:all, :joins => :concept_sets, :conditions => ['concept_set = ?', complaint_concept_set_id])	
 			@complaints_requiring_details = complaint_concepts.map{|concept| concept.fullname.upcase}.join(';')
+
+      @is_admitted = false
+      programs = PatientProgram.find(:all,:conditions => ["patient_id = ?",@patient.id])
+      programs.each do |program|
+        @is_admitted = true if program.patient_states.to_s.upcase.include?("ADMITTED")
+      end
 		end
 
 =begin
