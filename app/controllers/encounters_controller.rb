@@ -681,7 +681,7 @@ class EncountersController < GenericEncountersController
 		create_influenza_data
 	end 
 
-	def presenting_complaint
+	def presenting_complaints
 		search_string = (params[:search_string] || '').upcase
 		filter_list = params[:filter_list].split(/, */) rescue []
 	
