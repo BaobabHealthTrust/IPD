@@ -38,42 +38,46 @@
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
-	<%= touch_select_tag "Primary diagnosis", @patient, nil,
+	<%= touch_select_tag "PRIMARY DIAGNOSIS", @patient, nil,
 		{	:id => "primary_diagnosis",
 			:ajaxURL => "/encounters/diagnoses?search_string=",
 		 	:helpText => "Primary Diagnosis" } %>
 
-	<%= touch_select_tag "Detailed primary diagnosis", @patient, nil,
-		{	:id => "primary_diagnosis_details",	 	
+	<%= touch_select_tag "DETAILED PRIMARY DIAGNOSIS", @patient, nil,
+		{	:id => "primary_diagnosis_details",
+                        :parent_concept_name => "PRIMARY DIAGNOSIS",
 		 	:condition => 'diagnoses_requiring_details.contains($("primary_diagnosis").value.toUpperCase())',
 			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("primary_diagnosis").value)',
 		 	:helpText => "Detailed primary diagnosis" } %>
 
-	<%= touch_text_field_tag "Specific primary diagnosis", @patient, nil,
+	<%= touch_text_field_tag "SPECIFIC PRIMARY DIAGNOSIS", @patient, nil,
 		{	:id => "specific_diagnosis",
+                        :parent_concept_name => "PRIMARY DIAGNOSIS",
 		 	:condition => 'diagnoses_requiring_specification.contains($("primary_diagnosis").value.toUpperCase())',
 		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:allowFreeText => 'true',
 			:textCase => "upper",
 		 	:helpText => "Specific primary diagnosis" } %>
 		 	 	
-	<%= touch_select_tag "Secondary Diagnosis", @patient, nil,
+	<%= touch_select_tag "SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "secondary_diagnosis",
 		  :optional => true,
 	 		:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:ajaxURL => "/encounters/diagnoses?search_string=",
 		 	:helpText => "Secondary Diagnosis" } %>
 
-	<%= touch_select_tag "Detailed secondary diagnosis", @patient, nil,
+	<%= touch_select_tag "DETAILED SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "secondary_diagnosis_details",
+                        :parent_concept_name => "SECONDARY DIAGNOSIS",
 		 	:condition => 'diagnoses_requiring_details.contains($("secondary_diagnosis").value.toUpperCase())',
 			:ajaxURL => "/encounters/daignosis_details?search_string=",
 		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("secondary_diagnosis").value)',
 		 	:helpText => "Detailed secondary diagnosis" } %>
 
-	<%= touch_text_field_tag "Specific secondary diagnosis", @patient, nil,
+	<%= touch_text_field_tag "SPECIFIC SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "sec_specific_diagnosis",
+                        :parent_concept_name => "SECONDARY DIAGNOSIS",
 		 	:condition => 'diagnoses_requiring_specification.contains($("secondary_diagnosis").value.toUpperCase())',
 			:allowFreeText => 'true',
 			:textCase => "upper",
@@ -92,22 +96,24 @@
 	<% counter = 0%>
 	<% 4.times do %>
 			<% counter += 1%>
-			<%= touch_select_tag "Additional Diagnosis", @patient, nil,
+			<%= touch_select_tag "ADDITIONAL DIAGNOSIS", @patient, nil,
 				{	:id => "additional_diagnosis_#{counter}",
 					:ajaxURL => "/encounters/diagnoses?search_string=",
 					:optional => "true",
 					:tt_onLoad => "setTimeout(updateNextFinish, 20)",
 				 	:helpText => "Additional Diagnosis" } %>
 
-			<%= touch_select_tag "Detailed additional diagnosis", @patient, nil,
+			<%= touch_select_tag "DETAILED ADDITIONAL DIAGNOSIS", @patient, nil,
 				{	:id => "additional_secondary_diagnosis_details_#{counter}",
+                                        :parent_concept_name => "ADDITIONAL DIAGNOSIS",
 				 	:condition => "diagnoses_requiring_details.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
 					:ajaxURL => "/encounters/daignosis_details?search_string=",
 					:tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('additional_diagnosis_#{counter}').value);",
 				 	:helpText => "Detailed additional diagnosis" } %>
 
-			<%= touch_text_field_tag "Specific additional diagnosis", @patient, nil,
+			<%= touch_text_field_tag "SPECIFIC ADDITIONAL DIAGNOSIS", @patient, nil,
 				{	:id => "additional_specific_diagnosis_#{counter}",
+                                        :parent_concept_name => "ADDITIONAL DIAGNOSIS",
 				 	:condition => "diagnoses_requiring_specification.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
 					:allowFreeText => 'true',
 					:textCase => "upper",
