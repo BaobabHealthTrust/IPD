@@ -14,6 +14,7 @@ module TouchscreenHelper
     content << hidden_field_tag("observations[][value_drug]", nil)  unless kind == 'value_drug'
     content << hidden_field_tag("observations[][accession_number]", options[:accession_number], :id => "#{options[:id]}_#{options[:accession_number]}") if options[:accession_number] 
     content << hidden_field_tag("observations[][obs_group_id]", options[:obs_group_id])
+    content << hidden_field_tag("observations[][parent_concept_name]", options[:parent_concept_name])
     content << hidden_field_tag("observations[][order_id]", options[:order_id])
     content << hidden_field_tag("observations[][concept_name]", concept) 
     content << hidden_field_tag("observations[][patient_id]", patient.id) 
@@ -73,6 +74,8 @@ module TouchscreenHelper
   end
 
   def touch_text_field_tag(concept, patient, value, options={}, time=DateTime.now())
+	#raise options.to_yaml if concept == "Specific presenting complaint"
+
     options = {
       :field_type => 'alpha',
       :allowFreeText => true
@@ -81,6 +84,8 @@ module TouchscreenHelper
     content << text_field_tag("observations[][value_text]", value, options) 
     content << touch_meta_tag(concept, patient, time, 'value_text', options)
     content
+	#raise options.to_yaml if concept == "Specific presenting complaint"
+	#raise content.to_yaml if concept == "Specific presenting complaint"
   end
 
   def touch_location_tag(concept, patient, value, options={}, time=DateTime.now())
@@ -143,9 +148,14 @@ module TouchscreenHelper
   def touch_hidden_tag(concept, patient, value, options={}, time=DateTime.now())
     options = {  
      :allowFreeText => false 
-    }.merge(options)      
+    }.merge(options)
     
-    kind = "value_coded_or_text"
+    if !options[:kind].blank?
+			kind = options[:kind]
+    else
+			kind = "value_coded_or_text"   
+    end
+    
     if options[:value_datetime] 
       kind = "value_datetime"
     elsif options[:multiple]
