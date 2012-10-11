@@ -31,6 +31,9 @@
 			if obs.to_s(["short", "order"]).upcase.include?("RETIRED")
 				display_obs = "<s>#{display_obs}</s>"
 			end
+                        if display_obs.include?("Detailed") || display_obs.include?("Specific")
+                                display_obs = "&nbsp&nbsp&nbsp<i>#{display_obs}</i>"
+                        end
 		%>
 		<div class="encounter"><%= "#{display_obs}" %></div>
 	</li>
