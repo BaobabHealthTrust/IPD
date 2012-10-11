@@ -26,12 +26,12 @@
 	
   function submit()
   {
-      document.forms["outpatient_diagnosis"].submit();
+      document.forms["admission_diagnosis"].submit();
   }
 
 </script>
 
-<form id='outpatient_diagnosis' action="/encounters/create" method='post'>
+<form id='admission_diagnosis' action="/encounters/create" method='post'>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "ADMISSION DIAGNOSIS" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
