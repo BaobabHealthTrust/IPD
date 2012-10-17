@@ -1,6 +1,6 @@
 
 <% for obs in @observations do %>
-	<li class="data <%= cycle('even', 'odd') %>" encounter="<%= @encounter.id %>" observation="<%= obs.id %>">
+	<li class="data <%= cycle('even', 'odd') %>" encounter="<%= obs.encounter_id %>" observation="<%= obs.id %>">
 		<% 
 			if obs.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id 
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
