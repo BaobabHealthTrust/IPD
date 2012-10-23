@@ -1,8 +1,8 @@
 
 <% for obs in @observations do %>
-	<li class="data <%= cycle('even', 'odd') %>" encounter="<%= @encounter.id %>" observation="<%= obs.id %>">
-		<% 
-			if obs.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id 
+	<li class="data <%= cycle('even', 'odd') %>" encounter="<%= obs.encounter_id %>" observation="<%= obs.id %>">
+		<%
+			if obs.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
 			elsif  obs.concept_id == ConceptName.find_by_name("Location of ART initiation").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
@@ -10,7 +10,7 @@
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
 			elsif obs.concept_id == ConceptName.find_by_name("Transfer to").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(obs.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
-			elsif obs.concept_id == ConceptName.find_by_name("HTC serial number").concept_id 
+			elsif obs.concept_id == ConceptName.find_by_name("HTC serial number").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{obs.to_s(["short", "order"]).to_s.split(":")[1].to_i}")
 			elsif "#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}" == '-'
 				concept_name_id  = ConceptName.find_by_name("#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id
@@ -18,20 +18,20 @@
 			elsif "#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}" == "Bloody"
 				concept_name_id  = ConceptName.find_by_name("#{obs.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: Blood-stained")
-			elsif obs.concept_id == ConceptName.find_by_name("TB status").concept_id 
+			elsif obs.concept_id == ConceptName.find_by_name("TB status").concept_id
 				display_obs = (h obs.to_s(["FULLY_SPECIFIED", "order"]))
-			elsif obs.concept_id == ConceptName.find_by_name("Year of occurrence").concept_id 
+			elsif obs.concept_id == ConceptName.find_by_name("Year of occurrence").concept_id
 				display_obs = (h "#{obs.to_s(["short", "order"]).to_s.split(":")[0]}: #{obs.to_s(["short", "order"]).to_s.split(":")[1].to_i}")
 			else
 				display_obs = (h obs.to_s(["short", "order"]))
 			end
-			
-			display_obs = display_obs.gsub('hiv','HIV').gsub('Hiv','HIV')	
-			
+
+			display_obs = display_obs.gsub('hiv','HIV').gsub('Hiv','HIV')
+
 			if obs.to_s(["short", "order"]).upcase.include?("RETIRED")
 				display_obs = "<s>#{display_obs}</s>"
 			end
-            
+
             #if display_obs.include?("Detailed") || display_obs.include?("Specific")
             #   display_obs = "&nbsp&nbsp&nbsp<i>#{display_obs}</i>"
             #end
@@ -40,7 +40,7 @@
 
 		<% 	for child in @child_obs[obs.obs_id] do
 
-				if child.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id 
+				if child.concept_id == ConceptName.find_by_name("Location of HIV test").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(child.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
 				elsif  child.concept_id == ConceptName.find_by_name("Location of ART initiation").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(child.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
@@ -48,7 +48,7 @@
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(child.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
 				elsif child.concept_id == ConceptName.find_by_name("Transfer to").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{Location.find(child.to_s(["short", "order"]).to_s.split(":")[1].to_i).name}")
-				elsif child.concept_id == ConceptName.find_by_name("HTC serial number").concept_id 
+				elsif child.concept_id == ConceptName.find_by_name("HTC serial number").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{child.to_s(["short", "order"]).to_s.split(":")[1].to_i}")
 				elsif "#{child.to_s(["short", "order"]).to_s.split(":")[1].squish}" == '-'
 					concept_name_id  = ConceptName.find_by_name("#{child.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id
@@ -56,25 +56,25 @@
 				elsif "#{child.to_s(["short", "order"]).to_s.split(":")[1].squish}" == "Bloody"
 					concept_name_id  = ConceptName.find_by_name("#{child.to_s(["short", "order"]).to_s.split(":")[1].squish}").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: Blood-stained")
-				elsif child.concept_id == ConceptName.find_by_name("TB status").concept_id 
+				elsif child.concept_id == ConceptName.find_by_name("TB status").concept_id
 					display_obs = (h child.to_s(["FULLY_SPECIFIED", "order"]))
-				elsif child.concept_id == ConceptName.find_by_name("Year of occurrence").concept_id 
+				elsif child.concept_id == ConceptName.find_by_name("Year of occurrence").concept_id
 					display_obs = (h "#{child.to_s(["short", "order"]).to_s.split(":")[0]}: #{child.to_s(["short", "order"]).to_s.split(":")[1].to_i}")
 				else
 					display_obs = (h child.to_s(["short", "order"]))
 				end
-			
-				display_obs = display_obs.gsub('hiv','HIV').gsub('Hiv','HIV')	
-			
+
+				display_obs = display_obs.gsub('hiv','HIV').gsub('Hiv','HIV')
+
 				if child.to_s(["short", "order"]).upcase.include?("RETIRED")
 					display_obs = "<s>#{display_obs}</s>"
 				end
-			
+
 
 				display_obs = "&nbsp&nbsp&nbsp<i>#{display_obs}</i>"
 		%>
 			<div class="encounter"><%= "#{display_obs}" %></div>
-		<%			
+		<%
 			end
 		%>
 	</li>
