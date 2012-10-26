@@ -1442,10 +1442,10 @@ function askFrequency(){
         qtblrow3.appendChild(qtblcell3_1);
     
         var f = 0;
-        for(var freq in frequencies){
+		for(var i = 0; i < frequencies.length; i++){
             var li = document.createElement("li");
-            li.innerHTML = frequencies[freq];
-            li.setAttribute("frequency", freq);
+            li.innerHTML = frequencies[i][1];
+            li.setAttribute("frequency", frequencies[i][0]);
         
             if(f % 2 > 0){
                 li.className = "oddf";
