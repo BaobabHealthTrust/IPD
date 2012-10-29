@@ -1,138 +1,116 @@
-<script type="text/javascript">
-  var tt_cancel_destination = "/encounters/diagnoses_index?patient_id=<%= @patient.id %>"
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+
+  function set_ajaxURL_for_suggestions(value) {
+    url = "/encounters/concept_options?search_string=" + value
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
+    listSuggestions(tstCurrentPage);
+  }
+
+  diagnoses_requiring_details = '<%= "#{@diagnoses_requiring_details}" %>';
+  diagnoses_requiring_specification = '<%= "#{@diagnoses_requiring_specification}"%>';
+
+  function submit() {
+    document.forms["inpatient_diagnosis"].submit();
+  }
+
 </script>
-<script language="javascript" type="text/javascript" src="/javascripts/diagnosis.js"></script>
-<style type="text/css">
-  #space { display:inline; font-size:1.2em; }
-  #helpText0 { width:680px}
-  #savingPopUpBox{
- position: absolute;
- top: 100px;
- left: 345px;
- border: solid 1px #000000;
- background-color: #FFFF99;
- /*visibility: hidden; */
- display:none;
- font-size: 2.4em;
- z-index: 1003;
-}
 
-</style>
- <%= stylesheet_link_tag "diagnosis-style" %>
-<form id='inpatient_diagnosis' action="/encounters/create" method='post'>
+<form id='outpatient_diagnosis' action="/encounters/create" method='post'>
 
-  <%= hidden_field_tag "encounter[encounter_type_name]", "DIAGNOSIS" %>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "ADMISSION DIAGNOSIS" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
-   <input type='text' name='diagnosis_ctrl' tt_onLoad='removeHiddenFormElements("diagnoses");setNextAttribute();createElements();updateInfoBar();updateMainDiagnosis();$("diagnosis-inputbox").focus()' tt_onUnLoad='hideDiagnosisContainer();createHiddenDiagnosis();' tt_pageStyleClass='NoControls' optional /> 
-   
-   <input type='text' name='confirmatory_evidence_ctrl' tt_onLoad='removeHiddenFormElements("tests");createConfirmatoryEvidence();' tt_onUnLoad='hideConfirmatoryContainer();createHiddenConfirmatoryEvidence();' tt_pageStyleClass='NoControls' optional /> 
+  <%= touch_select_tag "PRIMARY DIAGNOSIS", @patient, nil,
+    { :id => "primary_diagnosis",
+    :ajaxURL => "/encounters/diagnoses?search_string=",
+    :helpText => "Primary Diagnosis" } %>
 
-   <%= select_tag("observations[][value_coded_or_text]", options_for_select(["", "LIKELY","UNLIKELY"]), {:id => 'iris_condition',:condition => 'irisConditionAvailable == true', :helpText => 'Are these IRIS conditions', :tt_onUnLoad => "$('savingPopUpBox').style.display='block';"})%>
-   <%= hidden_field_tag("observations[][value_text]", nil) %>
-   <%= hidden_field_tag("observations[][concept_name]", "IRIS CONDITIONS", {}) %>
-  <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+  <%= touch_select_tag "DETAILED PRIMARY DIAGNOSIS", @patient, nil,
+    { :id => "primary_diagnosis_details",
+    :parent_concept_name => "PRIMARY DIAGNOSIS",
+    :condition => 'diagnoses_requiring_details.contains($("primary_diagnosis").value.toUpperCase())',
+    :tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("primary_diagnosis").value)',
+    :helpText => "Detailed primary diagnosis" } %>
 
+  <%= touch_text_field_tag "SPECIFIC PRIMARY DIAGNOSIS", @patient, nil,
+    { :id => "specific_diagnosis",
+    :parent_concept_name => "PRIMARY DIAGNOSIS",
+    :condition => 'diagnoses_requiring_specification.contains($("primary_diagnosis").value.toUpperCase())',
+    :allowFreeText => 'true',
+    :textCase => "upper",
+    :helpText => "Specific primary diagnosis" } %>
 
+  <%= touch_select_tag "SECONDARY DIAGNOSIS", @patient, nil,
+    { :id => "additional_diagnosis_0",
+    :optional => true,
+    :ajaxURL => "/encounters/diagnoses?search_string=",
+    :helpText => "Secondary Diagnosis" } %>
 
+  <%= touch_select_tag "DETAILED SECONDARY DIAGNOSIS", @patient, nil,
+    { :id => "secondary_diagnosis_details",
+    :parent_concept_name => "SECONDARY DIAGNOSIS",
+    :condition => 'diagnoses_requiring_details.contains($("additional_diagnosis_0").value.toUpperCase())',
+    :ajaxURL => "/encounters/daignosis_details?search_string=",
+    :tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("additional_diagnosis_0").value)',
+    :helpText => "Detailed secondary diagnosis" } %>
+
+  <%= touch_text_field_tag "SPECIFIC SECONDARY DIAGNOSIS", @patient, nil,
+    { :id => "sec_specific_diagnosis",
+	  :parent_concept_name => "SECONDARY DIAGNOSIS",
+	  :condition => 'diagnoses_requiring_specification.contains($("additional_diagnosis_0").value.toUpperCase())',
+	  :allowFreeText => 'true',
+	  :textCase => "upper",
+	  :ajaxURL => "/encounters/daignosis_details?search_string=",
+	  :helpText => "Specific secondary diagnosis" } %>
+
+  <% counter = 0
+
+  4.times do %>
+    <% counter += 1%>
+    <%= touch_select_tag "ADDITIONAL DIAGNOSIS", @patient, nil,
+      { :id => "additional_diagnosis_#{counter}",
+      :ajaxURL => "/encounters/diagnoses?search_string=",
+	  :condition => "$('additional_diagnosis_#{counter-1}').value != '';",
+      :optional => "true",
+      :helpText => "Additional Diagnosis" } %>
+
+    <%= touch_select_tag "DETAILED ADDITIONAL DIAGNOSIS", @patient, nil,
+      { :id => "additional_secondary_diagnosis_details_#{counter}",
+      :parent_concept_name => "ADDITIONAL DIAGNOSIS",
+      :condition => "diagnoses_requiring_details.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
+      :ajaxURL => "/encounters/daignosis_details?search_string=",
+      :tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('additional_diagnosis_#{counter}').value);",
+      :helpText => "Detailed additional diagnosis" } %>
+
+    <%= touch_text_field_tag "SPECIFIC ADDITIONAL DIAGNOSIS", @patient, nil,
+      { :id => "additional_specific_diagnosis_#{counter}",
+      :parent_concept_name => "ADDITIONAL DIAGNOSIS",
+      :condition => "diagnoses_requiring_specification.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
+      :allowFreeText => 'true',
+      :textCase => "upper",
+      :helpText => "Additional specific secondary diagnosis" } %>
+  <% end %>
+
+  <%= touch_text_area_tag "CLINICAL NOTES CONSTRUCT", @patient, nil,
+		{
+		:id => "clinical_notes",
+		:optional => true,
+		:helpText => "Clinical notes (optional)"
+		}
+  %>
+
+  <% if @retrospective %>
+    <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+      <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+  <% else %>
+    <%= hidden_field_tag "filter[provider]", nil %>
+  <% end %>
   <%= submit_tag "Finish" %>
-
 </form>
-<div id='subDiagnosisPopUpDiv' class='diagnosisBarDiv'>
-<div id='subDiagnosisPopUp' class='diagnosisBar'>
-</div> 
-<div>
-  <button onmousedown='hidePopUp("diagnosis");'><span>Cancel</span></button>
-  </div>
-</div>
-
-<div id='subSubDiagnosisPopUpDiv' class='diagnosisBarDiv'>
-<div id='subSubDiagnosisPopUp' class='diagnosisBar'>
-</div> 
-<div>
-  <button onmousedown='hidePopUp("diagnosis");'><span>Cancel</span></button>
-  </div>
-</div>
-
-<div id='synonymsPopUpDiv' class='diagnosisBarDiv'>
-<div id='synonymsPopUp' class='diagnosisBar'>
-</div> 
-<div>
-  <button onmousedown='hidePopUp("synonyms");'><span>Cancel</span></button>
-  </div>
-</div>
-
-<div id='multiSelectPopUpDiv' class='diagnosisBarDiv' style='background-color: Yellow'>
-<div id='multiSelectPopUp' class='diagnosisBar' style='background-color: Yellow'>
-</div> 
-<div>
-  <button onmousedown='hidePopUp("multiSelect");'><span>Done</span></button>
-  </div>
-</div>
-
-<div id='otherDiagnosisPopUpDiv' class='diagnosisBarDiv'>
-  <div id='otherDiagnosisPopUp' class='diagnosisBar'>
-   <input type='text' name='other-diagnosis-inputbox' class='diagnosis-inputbox' id='other-diagnosis-inputbox' value="OTHER" /> 
-  </div> 
-<div>
-  <button onmousedown='hidePopUp("otherDiagnosis");activeInputBox="diagnosis-inputbox";'><span>Done</span></button><span style='display:inline-block;width:180px;'> </span>
-  <button onmousedown='$("other-diagnosis-inputbox").value="";'><span>Clear</span></button><span style='display:inline-block;width:180px;'> </span>
-  <button onmousedown='$("otherDiagnosisPopUpDiv").style.display = "none";activeInputBox="diagnosis-inputbox";'><span>Cancel</span></button>
-  </div>
-</div>
-
-<div id='testResultPopUpDiv' class='diagnosisBarDiv'>
-<div id='testResultPopUp' class='diagnosisBar'>
-</div> 
-<div>
-  <button onmousedown='hidePopUp("testResult");'><span>Cancel</span></button>
-  </div>
-</div>
-
-
-
-<div id="savingPopUpBox"  align="center">
-  <p id="p1">Saving to database</p>
-  <p id="p2"><blink>Please wait......</blink></p>
-</div>
-
-<div id='duplicateWarning' class='messageBar' style='display:none'>
-  A similar entry has already been made <br />
-  <button onmousedown="$('duplicateWarning').style.display='none'"><span>OK</span></button>
-</div> 
-
-<div id='invalidDiagnosis' class='messageBar' style='display:none'>
-  This action could create an ambiguous diagnosis<br />
-  <button onmousedown="$('invalidDiagnosis').style.display='none'"><span>OK</span></button>
-</div> 
-
-<script type='text/javascript'>
-var finalAnswers = [<%= DiagnosisTree.diagnosis_data.to_json %>];
-var finalTests = [<%= DiagnosisTree.confirmatory_evidence.to_json %>];  
-var mainDataArray = [];
-var tempDataArray = [];
-var confirmatoryEvidenceData = {};
-var allDiagnoses = [];
-var patientIdValue = '<%=@patient.id%>';
-var obsDatetimeValue = '<%=Time.now()%>';
-var subDiagnosisPopupData = "";
-var subSubDiagnosisPopupData = "";
-var allTests = {};
-var irisConditions = <%= DiagnosisTree.iris_conditions.to_json %>;  
-var irisConditionAvailable = false;
-var synonyms = <%=DiagnosisTree.synonyms.to_json %>
-var stringfiedArray = "";
-var diagnosesHash = <%= DiagnosisTree.diagnosis_data.to_json %>;
-var multiSelectDiagnoses = <%=DiagnosisTree.multi_select_diagnosis.to_json %>
-var multiSelectSession = false;
-var activeInputBox = 'diagnosis-inputbox';
-var synonymString = '';
-var allTestResults = [];
-var finalTestResults = <%=DiagnosisTree.test_results.to_json%>;
-var inpatientDiagnoses = <%= DiagnosisTree.inpatient_diagnoses.to_json %>;  
-var back = false;
-</script>
 
