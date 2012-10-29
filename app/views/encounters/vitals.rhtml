@@ -141,7 +141,7 @@
 			:validationMessage => "You must enter a number between 0 and 9 (for example: 154<b>.6</b>)",
 			:tt_pageStyleClass => "Numeric NumbersWithUnknownAndDecimal" } %>
 
-	<%= text_field_tag "BLOOD OXYGEN SATURATION", nil,
+	<%= touch_text_field_tag "BLOOD OXYGEN SATURATION", @patient, nil,
 		{	:id => "oxygen",
 			:helptext => 'Blood Oxygen Saturation (%)',
 			:field_type => 'number',
