@@ -75,7 +75,6 @@
   <%= touch_select_tag "LIFE THREATENING CONDITION", @patient, concept_set_options('LIFE THREATENING CONDITION'),
     {	:id => "life_threatening_conditions",
     :optional => "true",
-    :multiple => "true",
     :helpText => "Select life threatening conditions" } %>
 
   <%= touch_select_tag "TRIAGE CATEGORY", @patient, concept_set_options('TRIAGE CATEGORY'),
