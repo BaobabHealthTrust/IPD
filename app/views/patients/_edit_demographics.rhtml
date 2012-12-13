@@ -51,16 +51,16 @@
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
 
 <%when 'current_village'%>
-  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/search/village?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/person_names/village?search_string=', :allowFreeText => false }%>
 
 <%when 'current_ta'%>
-  <%= select_tag "person[addresses][county_district]", options_for_select(@traditional_authorities, params[:county_district]), {:helpText => 'Traditional Authority'}%>
+  <%= text_field_tag "person[addresses][county_district]", params[:county_district], {:helpText => 'Traditional Authority' , :ajaxURL => '/person_names/ta?search_string=', :allowFreeText => true }%>
 
 <%when 'current_district'%>
-  <%= text_field_tag "person[addresses][state_province]",  params[:state_province], {:field_type => 'alpha', :helpText => 'District', :ajaxURL => '/search/district?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][state_province]",  params[:state_province], {:field_type => 'alpha', :helpText => 'District', :ajaxURL => '/person_names/district?search_string=', :allowFreeText => true }%>
 
 <%when 'home_district'%>
-  <%= select_tag "person[addresses][address2]", options_for_select(@districts, params[:address2]), {:helpText => 'Home district'}%>
+  <%= text_field_tag "person[addresses][address2]", params[:address2], {:helpText => 'Home district', :ajaxURL => '/person_names/district?search_string=', :allowFreeText => false}%>
 
 <%when 'primary_phone'%>
   <%= text_field_tag "person[attributes][cell_phone_number]",  nil, :field_type => 'number', :helpText => 'Cell Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{9}$|Unknown|Not Available", :validationMessage => "Not a valid phone number"%>
