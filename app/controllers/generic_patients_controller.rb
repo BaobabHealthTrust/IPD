@@ -632,7 +632,7 @@ class GenericPatientsController < ApplicationController
 
    def get_previous_encounters(patient_id)
     previous_encounters = Encounter.find(:all,
-              :conditions => ["encounter.voided = ? and patient_id = ?", 0, patient_id],
+              :conditions => ["patient_id = ?", patient_id],
               :include => [:observations]
             )
 
@@ -640,7 +640,7 @@ class GenericPatientsController < ApplicationController
   end
 
   def past_visits_summary
-    @previous_visits  = get_previous_encounters(params[:patient_id])
+    @previous_visits  = get_previous_encounters(params[:patient_id] || params[:id])
 
     @encounter_dates = @previous_visits.map{|encounter| encounter.encounter_datetime.to_date}.uniq.reverse.first(6) rescue []
 
@@ -649,8 +649,9 @@ class GenericPatientsController < ApplicationController
     @encounter_dates.each do |encounter|
       @past_encounter_dates << encounter if encounter < (session[:datetime].to_date rescue Date.today.to_date)
     end
-
-    render :template => 'dashboards/past_visits_summary_tab', :layout => false
+    @patient_bean = PatientService.get_patient(@patient.person)
+    #render :layout => "menu"
+    render :template => 'dashboards/past_visits_summary_tab', :layout => "menu"
   end
 
   def treatment_dashboard
