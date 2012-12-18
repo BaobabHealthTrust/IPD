@@ -56,7 +56,6 @@
 			:condition => 'diagnoses_requiring_specification.contains($("primary_diagnosis").value.toUpperCase())',
 			:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:allowFreeText => 'true',
-			:textCase => "upper",
 			:helpText => "Specific primary diagnosis" } %>
 
 	<%= touch_select_tag "SECONDARY DIAGNOSIS", @patient, nil,
@@ -80,7 +79,6 @@
 			:parent_concept_name => "SECONDARY DIAGNOSIS",
 			:condition => 'diagnoses_requiring_specification.contains($("secondary_diagnosis").value.toUpperCase())',
 			:allowFreeText => 'true',
-			:textCase => "upper",
 			:ajaxURL => "/encounters/daignosis_details?search_string=",
 			:helpText => "Specific secondary diagnosis" } %>
 
