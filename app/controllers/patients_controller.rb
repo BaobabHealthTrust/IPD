@@ -104,7 +104,8 @@ class PatientsController < GenericPatientsController
 
     @links << ["Visit Summary (Print)","/patients/dashboard_print_opd_visit/#{patient.id}"]
     @links << ["National ID (Print)","/patients/dashboard_print_national_id/#{patient.id}"]
-    @links << ["Demographics (Edit)","/patients/edit_demographics/#{patient.id}"]
+    @links << ["Demographics (Edit)","/patients/edit_demographics?patient_id=#{patient.id}"]
+    @links << ["Past Visits (View)","/patients/past_visits_summary/#{patient.id}"]
     if use_filing_number and not PatientService.get_patient_identifier(patient, 'Filing Number').blank?
       @links << ["Filing Number (Print)","/patients/print_filing_number/#{patient.id}"]
     end 
