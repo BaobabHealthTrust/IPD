@@ -60,7 +60,7 @@
         <select id="tabs">
           <option value='/patients/overview?patient_id=<%= @patient.id %>'>Overview</option>
           <option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
-          <option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
+          <!--<option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>-->
           <option value="/patients/past_diagnoses?patient_id=<%=@patient.patient_id%>">Medical History</option>
           <%  if @spine_clinician  %>
             <option value="/patients/influenza_info?patient_id=<%=@patient.patient_id%>"> Influenza </option>
@@ -74,7 +74,7 @@
 
         <select id="links">
           <option value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>'>Inpatient Diagnosis</option>
-          <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Presenting complaints</option>
+          <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Complaints</option>
           <option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
           <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
 
