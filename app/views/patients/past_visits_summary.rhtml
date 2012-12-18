@@ -1,0 +1,82 @@
+<%= javascript_include_tag "touchscreen" %>
+<%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+
+<script type="text/javascript">
+  tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
+  tt_cancel_show = "/patients/show/<%= @patient.patient_id%>";
+</script>
+
+
+<style type="text/css">
+
+  .patient-data { -moz-user-select:none }
+
+  .visit-summary-header{
+    text-align: left;
+    font-size:  1em;
+    color:      #FFFFFF;
+    background: #808080;
+    -moz-user-select: none;
+  }
+
+  .visit-summary{
+    text-align: left;
+    font-size:  1em;
+    -moz-user-select: none;
+  }
+
+  .no-visit-summary{
+    text-align: left;
+    font-size:  1em;
+    -moz-user-select: none;
+  }
+
+</style>
+
+<base>
+    <div class="patient-data" style="margin: 15px; font-size: 1.1em;">
+      <b>Name:</b>&nbsp;<%=@patient_bean.name%>&nbsp;(<%=@patient_bean.sex%>)<br />
+      <b>Age:</b>&nbsp;<%=@patient_bean.age%><br />
+      <b>National ID:</b>&nbsp;<%=@patient_bean.national_id_with_dashes%><br />
+      <b>Address:</b>&nbsp;<%=@patient_bean.address%>
+    </div>
+    <div id="previous-visits" style="border-style: solid; border-width: 1px 0px 1px 0px; margin: 15px; width: 95%; height: 30em; overflow: auto; ">
+        <table width="100%">
+          <% @past_encounter_dates.each{|encounter_date|
+            header = true
+            previous_encounter = ""
+            i = 0
+            for encounter in @previous_visits do
+              i += 1
+
+              if (encounter.encounter_datetime.to_date == encounter_date.to_date) %>
+                <% if encounter.name == previous_encounter
+                  header = false
+                   end
+                %>
+                <%if header == true %>
+                  <%header_title = ( encounter_date.strftime("%d-%b-%Y").to_s + " - ").humanize.titleize %>
+                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                <%end%>
+                <% previous_encounter = encounter.name %>
+                <% header = false%>
+                <tr>
+                  <td class="visit-summary">
+                    <b><%= ( encounter.name.to_s + ": " ).humanize.titleize.upcase rescue nil %></b><br /> <%= encounter.to_s  rescue nil %> <br />
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+              <%end
+            end
+          }%>
+        <% if @past_encounter_dates.blank? %>
+          <div class="no-visit-summary"><b>There are no previous visits for this patient</b></div>
+      <% end %>
+        </table>
+      </div>
+      <div id="graph">
+        <div id="choices" style="padding-top:5px;"> </div>
+        <div id="simplegraphholder" class="gadget-cell"></div>
+      </div>
+</base>
