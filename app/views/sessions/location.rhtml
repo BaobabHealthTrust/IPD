@@ -35,6 +35,9 @@
 
 <form id='sessions' action="/sessions/update" method='post'>
     <label for="location">Location</label>
-    <%= text_field_tag(:location, nil, :helpText => "Workstation location", :field_type => "number", :tt_onLoad => "inform();") %><br>
+    <%= text_field_tag(:location, nil, 
+      :helpText => "Workstation location",
+      :field_type => "number",
+      :tt_onLoad => "inform();document.getElementById('keyboard').style.display = 'none'") %><br>
     <%= submit_tag :value => "Submit" %>
 </form>
