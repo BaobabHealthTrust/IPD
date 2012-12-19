@@ -8,6 +8,12 @@
   .tt_controls_next_appointment_date #keyboard{
     top:80px;
   }
+  #tt_page_time_until_next_appointment .inputPage .inputFrameClass{
+    height: 25em;
+  }
+  #tt_page_time_until_next_appointment .inputPage .inputFrameClass .options{
+    height: 17em;
+  }
 </style>
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
@@ -37,7 +43,10 @@
                                                               ["3 months", 12],
                                                               ["4 months", 16],
                                                               ["5 months", 20],
-                                                              ["6 months", 24]]), {:helpText => 'Time Until Next Appointment'}) %>
+                                                              ["6 months", 24]]),
+                  {
+                    :helpText => 'Time Until Next Appointment',
+                    :tt_onLoad => "document.getElementById('keyboard').style.display = 'none'"}) %>
 
 
   <label for='next_appointment_date'>Next Appointment Date</label>
