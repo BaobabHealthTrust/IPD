@@ -31,6 +31,7 @@ development:
  show.enroll.in.program.button: false
  show.dispense.button: false
  logo: mw.gif
+ statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes
