@@ -40,7 +40,15 @@
   }
   
 </script>
+<style>
+  #tt_page_select_vital_signs .inputFrameClass {
+    height: 30em;
+  }
 
+  #tt_page_select_vital_signs .inputFrameClass #viewport{
+    height: 17em;
+  }
+</style>
 <form action="/encounters/create/vitals">
 	<%= hidden_field_tag "encounter[encounter_type_name]", "VITALS" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
