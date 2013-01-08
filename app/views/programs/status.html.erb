@@ -1,5 +1,47 @@
+<script type="text/javascript">
+  
+  function voidingState(node) {
+    confirmYesNo("Void this item?", function() {
+      hideConfirmation();
+      //alert(node.parent().attr('state'))
+      $.post('/programs/void/?state=' + node.parent().attr('state'), {}, function(data, status) {
+        if (status == 'success'){
+          document.getElementById('states').innerHTML = '';
+          node.parent().remove();
+        }
+      })
+    }, function() { hideConfirmation();});
+	setTimeout("window.location='';",2000);
+  }
+
+  function voidingProgram(node) {
+    confirmYesNo("Void this item?", function() {
+      hideConfirmation();
+      node = node.parent();
+      $.post('/programs/void/?program=' + node.attr('program'), {}, function(data, status) {
+        if (status == 'success'){
+          document.getElementById('states').innerHTML = '';
+          node.remove();
+        }
+      })
+    }, function() { hideConfirmation();});
+	setTimeout("window.location='';",2000);
+  }
+  
+  jQuery(document).ready(function($) {
+    //$('#states li.data div.void').click(function() {voiding($(this)); return false; });
+    $('#states li.data div.void').click(function() {voidingState($(this)); return false;});
+    $('#programs li.data div.void').click(function() { voidingProgram($(this)); return false; });
+  })
+</script>
+
+
+
 <% for patient_state in @program.patient_states do %>
   <li class="data <%= cycle('even', 'odd') %>" program="<%= @program.id %>" state="<%= patient_state.id %>">
+    <% if @program.patient_states.count > 1 %>
+     <div class="void"><img src="/images/cancel_flat_small.png"/></div>
+    <% end %>
     <div class="state"><%=h patient_state.to_s %></div>
   </li>  
 <% end %>
