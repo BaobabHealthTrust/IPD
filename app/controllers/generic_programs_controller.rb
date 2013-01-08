@@ -56,8 +56,16 @@ class GenericProgramsController < ApplicationController
   end
   
   def void
-    @program = PatientProgram.find(params[:id])
-    @program.void
+    if params[:program]
+      program = params[:program]
+      @program = PatientProgram.find(program)
+      @program.void
+    end
+    if params[:state]
+      state = params[:state]
+      @patient_state = PatientState.find(state)
+      @patient_state.void
+    end
     head :ok
   end  
   
