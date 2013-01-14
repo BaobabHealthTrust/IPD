@@ -133,7 +133,7 @@ class GenericPropertiesController < ApplicationController
 
 		Role.find(:all).each do | role |
 			@role_privileges[role.role] = RolePrivilege.find(:all, :conditions =>["role = ?", role.role]).collect{ | rp |
-				rp.privilege.privilege
+				rp.privilege.privilege rescue ''
 			}.join(',')
 		end
 
