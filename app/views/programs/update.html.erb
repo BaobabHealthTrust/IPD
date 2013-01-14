@@ -111,6 +111,11 @@
        :optional => false,
        :condition => "current_state_input_box.value.toUpperCase() == 'PATIENT TRANSFERRED OUT'",
        :helpText => "Transfer within responsibility (e.g. District)" } %>
+  
+  <%= touch_select_tag "ADMIT TO WARD",@patient, options_for_select(@ipd_wards),
+      {	:helpText => "Admit to ward",
+      :condition => "current_state_input_box.value.toUpperCase() == 'TRANSFERRED INTERNALLY'",
+      } %>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "TRANSFER OUT" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>

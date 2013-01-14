@@ -109,8 +109,16 @@ class GenericProgramsController < ApplicationController
 
   def update
     flash[:error] = nil
-
+    
+    ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
+			@ipd_wards = []
+			@ipd_wards = LocationTagMap.all.collect { | ltm |
+				[ltm.location.name] if ltm.location_tag.name == ipd_wards_tag
+			}
+			@ipd_wards = @ipd_wards.compact.sort
+      
     if request.method == :post
+      #raise params[:observations].inspect
       patient_program = PatientProgram.find(params[:patient_program_id])
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
 
@@ -126,8 +134,9 @@ class GenericProgramsController < ApplicationController
       if patient_state.save
 		    # Close and save current_active_state if a new state has been created
 		   current_active_state.save
-
-        if patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED OUT' 
+       #raise patient_state.program_workflow_state.concept.fullname.upcase.inspect
+        if patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED OUT' ||
+            patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED INTERNALLY'
           encounter = Encounter.new(params[:encounter])
           encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
           encounter.save
