@@ -652,6 +652,19 @@ class GenericEncountersController < ApplicationController
 
 	def void
 		@encounter = Encounter.find(params[:id])
+    @patient = @encounter.patient
+    if @encounter.name.upcase == 'DISCHARGE PATIENT'
+      
+      @program_id = Program.find_by_name('IPD program').id
+      @ipd_program = @patient.patient_programs.local.select{|program|program.program_id == @program_id}.last rescue ''
+      @ipd_program.date_completed = nil
+      @ipd_program.save!
+      @ipd_program.patient_states.each { | state|
+        next if state.name.upcase != 'DISCHARGED'
+        state.void
+      }
+      
+    end
 		@encounter.void
 		head :ok
 	end
