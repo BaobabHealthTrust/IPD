@@ -10,11 +10,6 @@
       tstUsername = "<%= current_user.username unless current_user.nil? %>";
       tstCurrentDate = "<%= Time.now.strftime("%Y-%m-%d") %>";
     </script>
-    <%#= stylesheet_link_tag "mateme" %>
-    <%#= stylesheet_link_tag fancy_or_high_contrast_touch %>
-    <%#= javascript_include_tag "preload" %>
-    <%#= javascript_include_tag "touchscreenToolkit" %>
-    <%#= javascript_include_tag "dateselector" %>
   </head>
   <body id="container">  
     <div id="content">
@@ -28,19 +23,18 @@
             Login using the sample login "demo", password "demo" and location "7".
           <% end %>  
         </div>
-        <% unless flash[:notice].nil? %>
-          <p id="flash_notice" style="color: green"><%= flash[:notice] %></p>
-        <% end %>
+
+         <% unless flash[:notice].nil? %>
+-          <p id="flash_notice" style="color: green"><%= flash[:notice] %></p>
+         <% end %>
+
         <% unless flash[:error].nil? %>
-          <p id="flash_error" style="color: red"><%= flash[:error] %></p>
+          <p id="flash_error"><%= flash[:error] %></p>
         <% end %>
-        <% unless flash[:error].nil? %>
-          <p id="flash_alert" style="color: green"><%= flash[:alert] %></p>
-        <% end %>
+          
         <%= yield %>  
         <div id="footer">
         </div>    
       </div>  
-    </div>
   </body>
 </html>
