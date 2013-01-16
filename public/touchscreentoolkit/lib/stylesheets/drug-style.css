@@ -7,6 +7,10 @@
     left: 0px;
 }
 
+div {
+    -moz-user-select:none;
+}
+
 .diagnosis-columns{
     height: 55%;
     position: absolute;

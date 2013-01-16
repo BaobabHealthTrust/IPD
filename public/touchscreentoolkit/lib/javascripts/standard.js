@@ -4046,7 +4046,7 @@ function showCategory(category){
     cat.style.left = (pos[3] + (pos[0] - 378)) + "px";
     cat.style.top = (pos[2] + 5) + "px";
     cat.style.width = "350px";
-    cat.style.height = "45px";
+    cat.style.minHeight = "45px";
     cat.style.fontSize = "36px";
     cat.style.padding = "10px";
     cat.style.backgroundColor = "#9e9";
@@ -4795,4 +4795,10 @@ function deselectSection(group){
 function subtract(string){
     var result = __$("touchscreenInput" + tstCurrentPage).value.replace(string, "");
     return result
+}
+
+function hideCategory(){
+    if(__$("category")){
+        document.body.removeChild(__$("category"));
+    }
 }
