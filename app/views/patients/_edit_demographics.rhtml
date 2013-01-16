@@ -57,12 +57,9 @@
      :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
 <%when 'gender'%>
-  Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, 
-   {:id => 'gender',
-    :helpText => 'Gender',
-    :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1',
-    :tt_onLoad => 'seen(tstCurrentPage);' } %>
-
+<%= select_tag "person[gender]", options_for_select([['',''], ['Male', 'M'], ['Female','F']], params[:gender]),
+    {:helpText => 'Select gender',
+     :tt_onLoad => "document.getElementById('keyboard').style.display = 'none' "}%>
 <%when 'birthdate'%>
   <%= text_field_tag "person[birth_year]", nil, 
     {:helpText => 'Year of Birth',

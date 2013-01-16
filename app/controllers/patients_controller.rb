@@ -345,14 +345,17 @@ class PatientsController < GenericPatientsController
   end
   
   def update_demographics
-    person = Person.find(params['person_id'])
-    birth_month = params[:person][:birth_month]
-    birth_day = params[:person][:birth_day]
-    birth_year = params[:person][:birth_year]
-    birth_params = (birth_day + '-' + birth_month + '-' + birth_year).to_date
+
+    person = Person.find(params['person_id']) rescue ''
+    birth_month = params[:person][:birth_month] rescue ''
+    birth_day = params[:person][:birth_day] rescue ''
+    birth_year = params[:person][:birth_year] rescue ''
+    birth_params = (birth_day + '-' + birth_month + '-' + birth_year).to_date rescue ''
+    if birth_year != nil
     if birth_params > Date.today
       flash[:error] = 'The date you have entered is invalid. Try again'
       redirect_to(:action => 'modify_demographics', :patient_id => person.patient.patient_id, :field => 'birthdate') and return
+    end
     end
    update_demo_graphics(params)
    redirect_to :action => 'edit_demographics', :patient_id => params['person_id'] and return
