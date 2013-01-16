@@ -37,40 +37,107 @@
       when 'first_name'
 %>
 
-  <%= text_field_tag "person[names][given_name]", params[:given_name], {:id => 'given_name', :field_type => 'alpha', :helpText => 'First name', :ajaxURL => '/person_names/given_names?search_string=', :allowFreeText => true, :condition => '$("given_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+  <%= text_field_tag "person[names][given_name]", params[:given_name],
+    {:id => 'given_name',
+     :field_type => 'alpha',
+     :helpText => 'First name',
+     :ajaxURL => '/person_names/given_names?search_string=',
+     :allowFreeText => true,
+     :condition => '$("given_name").value == "" || skipped[tstCurrentPage] == 1',
+     :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
 <%when 'last_name'%>
-  <%= text_field_tag "person[names][family_name]", params[:family_name], {:id => 'family_name', :field_type => 'alpha', :helpText => 'Last name', :ajaxURL => '/person_names/family_names?search_string=', :allowFreeText => true, :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+  <%= text_field_tag "person[names][family_name]", params[:family_name],
+    {:id => 'family_name',
+     :field_type => 'alpha',
+     :helpText => 'Last name',
+     :ajaxURL => '/person_names/family_names?search_string=',
+     :allowFreeText => true,
+     :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1',
+     :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
 <%when 'gender'%>
-  Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, {:id => 'gender', :helpText => 'Gender', :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+  Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, 
+   {:id => 'gender',
+    :helpText => 'Gender',
+    :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1',
+    :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
 <%when 'birthdate'%>
-  <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);',:validationJS => "setDOB();" }  %>
+  <%= text_field_tag "person[birth_year]", nil, 
+    {:helpText => 'Year of Birth',
+     :field_type => 'number',
+     :absoluteMin => "1890",
+     :min => "1940",
+     :absoluteMax => Date.today.year,
+     :tt_pageStyleClass => "Numeric NumbersOnly",
+     :tt_onLoad => 'seen(tstCurrentPage);',
+     :validationJS => "setDOB();" }  %>
 
-  <%= select_tag "person[birth_month]", month_name_options, {:helpText => 'Month of Birth', :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date'}%>
+  <%= select_tag "person[birth_month]", month_name_options, 
+    {:helpText => 'Month of Birth',
+     :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
+     :validationJS => "validateDOB();",
+     :validationMessage => 'Please enter a valid date'}%>
 
-  <%= text_field_tag "person[age_estimate]", nil, {:helpText => 'Age Estimate', :absoluteMin => 1, :absoluteMax => age_limit, :field_type => 'number', :condition => '$("person_birth_year").value == "Unknown"', :tt_onLoad => "$('nextButton').style.display = 'block';", :tt_pageStyleClass => "Numeric NumbersOnly"} %> 
+  <%= text_field_tag "person[age_estimate]", nil,
+    {:helpText => 'Age Estimate',
+     :absoluteMin => 1,
+     :absoluteMax => age_limit,
+     :field_type => 'number',
+     :condition => '$("person_birth_year").value == "Unknown"',
+     :tt_onLoad => "$('nextButton').style.display = 'block';",
+     :tt_pageStyleClass => "Numeric NumbersOnly"} %>
 
-  <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
+  <%= text_field_tag "person[birth_day]",  nil, 
+     :field_type => 'number',
+     :helpText => 'Birth Day',
+     :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
+     :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,
+     :validationJS => "validateDOB()",
+     :validationMessage => 'Please enter a valid date'%>
 
 <%when 'current_village'%>
-  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/person_names/village?search_string=', :allowFreeText => false }%>
+  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], 
+    {:field_type => 'alpha',
+     :helpText => 'Current Village (residence)',
+     :ajaxURL => '/person_names/village?search_string=',
+     :allowFreeText => false }%>
 
 <%when 'current_ta'%>
-  <%= text_field_tag "person[addresses][county_district]", params[:county_district], {:helpText => 'Traditional Authority' , :ajaxURL => '/person_names/ta?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][county_district]", params[:county_district], 
+    {:helpText => 'Traditional Authority',
+    :ajaxURL => '/person_names/ta?search_string=',
+    :allowFreeText => true }%>
 
 <%when 'current_district'%>
-  <%= text_field_tag "person[addresses][state_province]",  params[:state_province], {:field_type => 'alpha', :helpText => 'District', :ajaxURL => '/person_names/district?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][state_province]",  params[:state_province],
+    {:field_type => 'alpha', 
+     :helpText => 'District',
+     :ajaxURL => '/person_names/district?search_string=',
+     :allowFreeText => true }%>
 
 <%when 'home_district'%>
-  <%= text_field_tag "person[addresses][address2]", params[:address2], {:helpText => 'Home district', :ajaxURL => '/person_names/district?search_string=', :allowFreeText => false}%>
+  <%= text_field_tag "person[addresses][address2]", params[:address2],
+    {:helpText => 'Home district',
+     :ajaxURL => '/person_names/district?search_string=',
+     :allowFreeText => false}%>
 
 <%when 'primary_phone'%>
-  <%= text_field_tag "person[attributes][cell_phone_number]",  nil, :field_type => 'number', :helpText => 'Cell Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{9}$|Unknown|Not Available", :validationMessage => "Not a valid phone number"%>
+  <%= text_field_tag "person[attributes][cell_phone_number]",  nil,
+     :field_type => 'number',
+     :helpText => 'Cell Phone Number',
+     :allowFreeText => "true", 
+     :validationRule => "^0\\d{9}$|Unknown|Not Available",
+     :validationMessage => "Not a valid phone number"%>
 
 <%when 'secondary_phone'%>
-  <%= text_field_tag "person[attributes][home_phone_number]",  nil, :field_type => 'number', :helpText => 'Ground Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$", :validationMessage => "Not a valid phone number"%>
+  <%= text_field_tag "person[attributes][home_phone_number]",  nil,
+    :field_type => 'number',
+    :helpText => 'Ground Phone Number',
+    :allowFreeText => "true",
+    :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$",
+    :validationMessage => "Not a valid phone number"%>
 
 <%when 'occupation'%>
   <%= select_tag "person[attributes][occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]), params[:occupation]), {:helpText => 'Occupation',
