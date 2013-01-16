@@ -78,7 +78,8 @@
     {:helpText => 'Month of Birth',
      :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
      :validationJS => "validateDOB();",
-     :validationMessage => 'Please enter a valid date'}%>
+     :validationMessage => 'Please enter a valid date',
+     :tt_onLoad => "document.getElementById('keyboard').style.display = 'none' "}%>
 
   <%= text_field_tag "person[age_estimate]", nil,
     {:helpText => 'Age Estimate',
