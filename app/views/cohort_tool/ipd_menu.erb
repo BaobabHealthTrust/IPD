@@ -1,0 +1,86 @@
+<%= javascript_include_tag "prototype" %>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<link href="/stylesheets/opd_cohort.css" media="screen" rel="stylesheet" type="text/css" />
+<script>
+<%#= raise @report_name.to_yaml %>
+  jQuery(document).ready(function($) {
+<% if @report_name.upcase == "DISAGGREGATED_DIAGNOSIS" %>
+	  document.forms[0].action = "disaggregated_diagnosis"
+<% elsif @report_name.upcase == "DIAGNOSIS_REPORT" %>
+	  document.forms[0].action = "diagnosis_report"
+<% elsif @report_name.upcase == "DIAGNOSIS_REPORT_GRAPH" %>
+	  document.forms[0].action = "diagnosis_report_graph"
+<% elsif @report_name.upcase == "DIAGNOSIS_BY_ADDRESS" %>
+	  document.forms[0].action = "diagnosis_by_address"
+<% elsif @report_name.upcase == "TOTAL_REGISTERED" %>
+	  document.forms[0].action = "total_registration"
+<% elsif @report_name.upcase == "TOTAL_REGISTERED_GRAPH" %>
+	  document.forms[0].action = "total_registration_graph"
+<% elsif @report_name.upcase == "SPECIFIC_HIV_RELATED_DATA" %>
+	  document.forms[0].action = "specific_hiv_related_data"
+<% elsif @report_name.upcase == "DISCHARGE_BY_WARD" %>
+	  document.forms[0].action = "discharge_by_ward"
+<% elsif @report_name.upcase == "DISCHARGE_DIAGNOSIS_REPORT" %>
+	  document.forms[0].action = "discharge_diagnosis_report"
+<% elsif @report_name.upcase == "ADMISSIONS" %>
+	  document.forms[0].action = "admissions"
+<% elsif @report_name.upcase == "RE_ADMISSIONS" %>
+	  document.forms[0].action = "re_admissions"
+ <% elsif @report_name.upcase == "REFERALS_GRAPH" %>
+	  document.forms[0].action = "referals_graph"
+<% else %>
+	  document.forms[0].action = "deaths"
+<% end %>
+  });
+        
+</script>
+<style>
+
+  .tt_controls_start_month .keyboard{display:none;}
+  #tt_page_start_month .options{height:515px;}
+  #tt_page_start_month .options li{font-size:30px;}
+
+  .tt_controls_end_month .keyboard{display:none;}
+  #tt_page_end_month .options{height:515px;}
+  #tt_page_end_month .options li{font-size:30px;}
+
+  #tt_page_select_age_group_s .options{height:515px;}
+
+  .tt_controls_start_day #Unknown { display:none; }
+  .tt_controls_end_day #Unknown { display:none; }
+
+</style>
+
+<form name='opd_report' method='post' >
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+  <% if  @report_name.upcase == "SHIFT_REPORT" %>
+    <input type="text" field_type="date" id="start_date" name="shift_date" value="" helpText="Select Shift Date" />
+	<%= select_tag "shift_type", options_for_select(@shifts), {:helpText => 'Shift Type', :validationMessage => 'Please Select a Shift'}%>
+	<input type="text" field_type="advancedTime" id="start_time" name="start_time" value="" helpText="Select Shift Start Time" condition="$('shift_type').value == 'specific'"/>
+	<input type="text" field_type="advancedTime" id="end_time" name="end_time" value="" helpText="Select Shift End Time" condition="$('shift_type').value == 'specific'"/>
+
+  <%else%>
+
+	<%= text_field_tag "start_year", nil, {:helpText => 'Start Year', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly",:validationJS => "setDOB();" }  %>
+	<%= select_tag "start_month", month_names, {:helpText => 'Start Month',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date',:tt_onLoad => "__$('keyboard').style.display = 'none'"}%>
+	<%= text_field_tag "start_day",  nil, :field_type => 'number', :helpText => "Start Day" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
+
+	<%= text_field_tag "end_year", nil, {:helpText => 'End Year', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly",:validationJS => "setDOB();" }  %>
+	<%= select_tag "end_month", month_names, {:helpText => 'End Month',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date', :tt_onLoad => "__$('keyboard').style.display = 'none'"}%>
+	<%= text_field_tag "end_day",  nil, :field_type => 'number', :helpText => "End Day" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
+
+	<% if ["TOTAL_REGISTERED", "ADMISSIONS", "DIAGNOSIS_BY_ADDRESS", "PATIENT_LEVEL_DATA","DISCHARGE_BY_WARD","DISCHARGE_DIAGNOSIS_REPORT", "DIAGNOSIS_REPORT","DIAGNOSIS_REPORT_GRAPH", "RE_ADMISSIONS", "SPECIFIC_HIV_RELATED_DATA"].include?(@report_name.upcase) %>
+	  <%= select_tag "age_groups", options_for_select(["", "< 6 months",
+		  "6 months to < 1 yr", "1 to < 5", "5 to 14", "> 14 to < 20", "20 to < 30", "30 to < 40", "40 to < 50", "ALL"]),
+		{	:helpText => 'Select Age Group (s)',
+		:id => "age_groups",
+		:multiple => true } %>
+
+	<% end
+	end
+	%>
+
+  <%= hidden_field_tag "report_name", @report_name %>
+</form>
+

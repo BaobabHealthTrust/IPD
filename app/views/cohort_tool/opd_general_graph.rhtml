@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<script language="javascript" type="text/javascript" src="/javascripts/flotr2.min.js"></script>
+		<script>
+		function chartTypeButton() {
+		
+			var button = document.getElementById("buttons");
+			var type = document.createElement("button")
+			var finish = document.getElementById("finishButton")
+			finish.setAttribute("class","red")
+			finish.setAttribute("onClick","window.location='/clinic'")
+			type.innerHTML="<span>Back</span>"
+			type.setAttribute("id", "type")
+			type.setAttribute("class","blue")
+			type.setAttribute("onclick", "window.location= '/cohort_tool/opd_report_index_graph'")
+			button.appendChild(type)
+
+		}
+		setTimeout("chartTypeButton();",300)
+		
+		
+		function drawBarChart() {
+
+			var d2 = [], markers = [], i = 0, highest=0;
+				
+			var container = document.getElementById('barChart'),graph,d1 = [];
+	
+		 	<% @details.each do |key,value| %>
+				<% if value.to_i > 0 %>
+					d1.push([i,<%= value.to_json %>])
+					d2.push([i,"D"+i])
+					markers.push(<%= key.to_json %>)
+					i++;
+					if (<%= value.to_i.to_json %> > highest)
+							highest = <%= value.to_i.to_json %>
+					
+				<%end%>
+			<% end %>
+		
+		    // Draw Graph
+      graph = Flotr.draw(container,[d1],{title: "OPD General Report Graph", bars: {show:true, barWidth:0.5}, xaxis: { ticks: d2, min:0, max: d1.length, title: "Diagnosis"}, yaxis:{min:0, max:highest+20}, mouse: {track: true}});
+				
+				//fill up the legend
+
+				var legend = document.getElementById("legend");
+				var string = "";
+				for (x=0; x < markers.length; x++)
+						string = string +"D" +x +"=" + markers[x] + "<br>"
+						
+				legend.innerHTML =  string		
+				
+      };
+		setTimeout("drawBarChart();",300)      
+
+		</script>
+
+
+	</head>
+	
+	
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br />
+<div style= " position:absolute;top:30px; left:150px">
+
+		<b><%= @current_location_name %><br />
+    OPD General Report Type: <%=@report_type.titleize %>
+    <br /> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> 
+    <br/>Group (s) : <%= "#{@start_age.to_s} to #{@end_age.to_s}" %>  </b><br>
+
+</div>
+
+<div style = "border: 1px solid; height: 480px; width:80%; margin-left:20px; overflow:auto;" id="barChart">
+		
+</div>
+
+<div  style = "border:1px solid; height:480px; width:15%; overflow:none; position: relative; top:-482px; left: 83%;">
+	<b>Legend</b>
+	<div id = "legend" style= "overflow:auto; height: 450px">
+	
+	</div>	
+
+</div>
+
+
+
+	</body>
+</html>

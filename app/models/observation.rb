@@ -2,6 +2,7 @@ class Observation < ActiveRecord::Base
   set_table_name :obs
   set_primary_key :obs_id
   include Openmrs
+  belongs_to :person, :conditions => {:voided => 0}
   belongs_to :encounter, :conditions => {:voided => 0}
   belongs_to :order, :conditions => {:voided => 0}
   belongs_to :concept, :conditions => {:retired => 0}

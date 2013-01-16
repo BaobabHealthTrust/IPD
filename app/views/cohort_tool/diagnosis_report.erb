@@ -1,0 +1,268 @@
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+    <script>
+      jQuery(document).ready(function($) {
+          $('#table_id').dataTable({
+            "bAutoWidth": true,
+            "bPaginate": false,
+            "bProcessing": true,
+            "sScrollY": "400px",
+            "bInfo": true,
+            "bPaginate": false
+          });
+    search_box = $('#table_id').dataTable()
+    search = document.getElementsByTagName("input")[0];
+    search.setAttribute("id","search");
+    document.getElementById('search').setAttribute("onclick","showKeyboard();");
+    document.getElementById("find").innerHTML = "<span>Back</span>";
+    document.getElementById("find").style.cssFloat = "left";
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    keyboard = document.getElementsByClassName("keypad")[0]
+    function getCharButtonSetID(character,id){
+      return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
+    }
+    function getButtonString(id,string){
+      return "<button \
+                            onMouseDown='press(this.id);' \
+                            class='keyboardButton' \
+                            id='"+id+"'>"+
+        string +
+        "</button>";
+    }
+
+    function getButtons(chars){
+      var buttonLine = "";
+      for(var i=0; i<chars.length; i++){
+        character = chars.substring(i,i+1)
+        buttonLine += getCharButtonSetID(character,character)
+      }
+      return buttonLine;
+    }
+
+    showAlphaKeypad();
+
+    function showAlphaKeypad(){
+      document.getElementById("keypad").style.height = "280";
+      keyboard.innerHTML= getButtons("0123456789") + "</br>"
+      keyboard.innerHTML+= getButtons("QWERTYUIOP") + "</br>"
+      keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>"
+      keyboard.innerHTML+= getButtons("ZXCVBNM,.?")
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('Space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+    }
+
+    function showNumericKeypad(){
+      document.getElementById("keypad").style.height = "145";
+      keyboard.innerHTML = getButtons("123")
+      keyboard.innerHTML+= getButtons("456")
+      keyboard.innerHTML+= getButtons("7890")
+      keyboard.innerHTML+= getButtonString('space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('abc','<span>abc</span>')
+      keyboard.innerHTML+= getButtonString('dash','<span>-</span>')
+      keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
+    }
+
+    data_table_length =document.getElementsByName('table_id_length')[0];
+    data_table_length.setAttribute("style","font-size:20px;");
+
+    table_length = document.getElementById("table_id_length");
+    table_length.setAttribute("style","width:100px;");
+
+  })
+    </script>
+
+    <script>
+
+      function showKeyboard(){
+        key = document.getElementById("keypad")
+        if(key.style.display == 'none' || key.style.display == ""){
+          key.style.display = "inline";
+          return
+        }
+
+        key.style.display = "none";
+      }
+
+      function press(pressedChar){
+        switch (pressedChar) {
+          case 'backspace':
+            search.value = search.value.substring(0,search.value.length-1);
+            search_box.fnFilter(search.value)
+            return;
+          case 'Space':
+            search.value+= " "
+            search_box.fnFilter(search.value)
+            return
+          case 'clear':
+            search.value = ""
+            search_box.fnFilter(search.value)
+            return
+          case 'num':
+            showNumericKeypad();
+            return
+          case 'slash':
+            search.value+= "/"
+            search_box.fnFilter(search.value)
+            return
+          case 'dash':
+            search.value+= "-"
+            search_box.fnFilter(search.value)
+            return
+          case 'abc':
+            showAlphaKeypad();
+            return
+        }
+        search.value+= pressedChar
+        search_box.fnFilter(search.value)
+      }
+      //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    </script>
+
+    <style>
+#backspace{
+        position:absolute;
+        left:100px;
+        bottom:2px;
+      }
+
+      #Space{
+        position:absolute;
+        left:220px;
+        bottom:2px;
+        width:200px;
+      }
+
+      #clear{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+      }
+       #num{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+        width:200px;
+      }
+      #keypad{
+        background-color: #FFFFFF;
+        border: 2px solid #9999FF;
+        border-radius: 15px 15px 15px 15px;
+        display: none;
+        height: 304px;
+        padding: 5px;
+        position: absolute;
+        right: 13px;
+        top: 194px;
+        width: 672px;
+      }
+    </style>
+    <style>
+        div {
+        -moz-user-select: none;
+      }
+      .basic_span {
+        position:relative;
+        width:50%;
+        display:block;
+        float:left;
+      }
+
+      .logo {
+        float:left
+      }
+
+      #table_id {
+        width: 100%;
+      }
+
+      #table_id_filter{
+        position:absolute;
+        top:0px;
+        right:1%;
+        margin-top:-40px;
+      }
+
+      #table_id_filter input{
+        padding:0.5em;
+      }
+
+
+      .dataTables_length select {
+        font-size: 25px;
+      }
+      .horizontal_line hr{
+        position:absolute;
+        bottom:104px;
+      }
+      #table_id_info{
+        left: 10px;
+        position: absolute;
+        top: 476px;
+        font-weight:bold;
+      }
+      #table_id_length{
+        display:none;
+      }
+       #table_id_paginate{
+        display:none;
+      }
+      #num{ display:none; }
+      #char{ display:none; }
+
+    </style>
+  </head>
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
+
+    <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+
+
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> </b>
+
+    
+      <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br /><br />
+    
+
+    <div>
+      <table  id="table_id" class="display" >
+        <thead>
+          <tr  style="background-color:gray">
+            <th align="left">DIAGNOSIS<p />
+            </th>
+            <th>									 Total  <p />
+            </th>
+        </thead>
+        <tbody>
+          <% @diagnosis_report_paginated.each do |diagnosis,total| %>
+            <tr>
+              <td width="50%"> <span style="display:block; width:90%;"> <%= "#{diagnosis}" %> </span> </td>
+              <td align="center" > <%= "<span > #{total} </span> " %> </td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div>
+    <div class="horizontal_line">
+      <hr width="100%" color="gray"/>
+    </div>
+    <div id="keypad">
+      <span class="keypad">
+      </span>
+    </center>
+
+  </div>
+
+</body>
+</html>

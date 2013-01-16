@@ -1,0 +1,22 @@
+<script>
+  var tt_cancel_destination = "/clinic" // '/reportdata_cleaning';
+</script>
+
+<style>
+  .tt_controls_arv_start_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_arv_end_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+</style>
+
+<form method='POST' action="reports" >
+<%if 'out_of_range_arv_number' == @report_type  then%>
+ <%= text_field_tag :arv_start_number, params[:arv_start_number], {:field_type => 'number', :helpText => 'ARV Start Number', :allowFreeText => false }%>
+ <%= text_field_tag :arv_end_number, params[:arv_end_number], {:field_type => 'number', :helpText => 'ARV End Number', :allowFreeText => false }%>
+ 
+<%end%>
+Quarter: <%= select_tag :report, options_for_select(@cohort_quarters), {:helpText => "Select Quarter"} %>
+<%= hidden_field_tag :report_type, "#{@report_type}" %>
+
+</form>
+
+

@@ -1,0 +1,148 @@
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="/javascripts/flotr2.min.js"></script>		
+		
+		<script type="text/javascript">
+		
+		function drawBarChat(){
+		
+			var graph;
+			var container = document.getElementById("barChart");
+			var data = [],markers =[], x=1;
+			
+			 <% @referral_locations.each do |referral,total| %>
+          
+            data.push([x,<%= "#{referral}".to_json %>])  ;
+            markers.push([x,<%= "#{total}".to_json %> ]);
+          	x++;
+        <% end  %>
+     			
+			graph = flotr.draw(container,data, bars: {show:true, barWidth:0.5}, xaxis: { min:0, max: data.length}, yaxis:{min:0, max:1000}, mouse: {track: true}});
+		};
+		setTimeout("drawBarChart();",300)
+		</script>
+    
+    <style>
+
+      #backspace{
+        position:absolute;
+        left:100px;
+        bottom:2px;
+      }
+
+      #Space{
+        position:absolute;
+        left:220px;
+        bottom:2px;
+        width:200px;
+      }
+
+      #clear{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+      }
+
+      #keypad{
+        background-color: #FFFFFF;
+        border: 2px solid #9999FF;
+        border-radius: 15px 15px 15px 15px;
+        padding: 5px;
+        position:absolute;
+        width:670px;
+        right:510px;
+        height:260px;
+        display:none;
+        right:4px;
+        top:270px;
+      }
+    </style>
+    <style>
+      div {
+        -moz-user-select: none;
+      }
+      .basic_span {
+        position:relative;
+        width:50%;
+        display:block;
+        float:left;
+      }
+
+      .logo {
+        float:left
+      }
+
+      #table_id {
+        width: 100%;
+      }
+
+      #table_id_filter{
+        position:absolute;
+        top:0px;
+        right:1%;
+        margin-top:-40px;
+      }
+
+      #table_id_filter input{
+        padding:0.5em;
+      }
+
+
+      .dataTables_length select {
+        font-size: 25px;
+      }
+      .horizontal_line hr{
+        position:absolute;
+        bottom:104px;
+      }
+      #table_id_info{
+        overflow:hidden;
+        position:fixed;
+        left:250px;
+        top:696px;
+      }
+      .pagination{
+        display:none;
+      }
+      #num{ display:none; }
+      #char{ display:none; }
+      .prev_page,.next_page {
+      }
+
+      .prev_page:hover, .next_page:hover
+      { }
+      .disabled { }
+
+      .disabled:hover {}
+
+
+
+    </style>
+  </head>
+  <body>
+  
+  <div>
+    <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
+      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.upcase == "REFERRAL" ? "Referal In" : "Transfer Out" %></b><br />
+
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%></b>
+</div>
+
+<div style = "border: 1px solid;position:relative;top:70px;left:-130px; height: 480px; width:80%;  overflow:auto;" id="barChart">
+
+</div>
+
+<div id = "legend" style = "border:1px solid; height:480px; width:15%; overflow:auto; position: relative; top:-414px; left: 83%;">
+
+</div>
+    
+</body>
+</html>

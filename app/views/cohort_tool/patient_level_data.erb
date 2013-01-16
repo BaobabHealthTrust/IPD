@@ -1,0 +1,375 @@
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+    <script>
+      var names = '<%= @report_name.upcase %>';
+      var prev_link;
+      var next_link;
+      jQuery(document).ready(function($) {
+        if (( names != "TOTAL_REGISTERED") && ( names != "PATIENT_LEVEL_DATA")) {
+          $('#table_id').dataTable({
+            "bAutoWidth": true,
+            "bPaginate": false,
+            "bProcessing": true,
+            "bFilter": true,
+            "sScrollY": "400px",
+            "bInfo": false
+          });
+        }
+        else {
+          $('#table_id').dataTable({
+            "bAutoWidth": true,
+            "bPaginate": false,
+            "bProcessing": true,
+            "sScrollY": "400px",
+            "bInfo": false
+          });
+        }
+<% if @report_name.upcase == "TOTAL_REGISTERED" || @report_name.upcase == "PATIENT_LEVEL_DATA" %>
+      var  buttondiv = document.getElementById("buttons");
+      buttondiv.innerHTML+= ' <%= will_paginate @page, :page_links => false %>'
+      if (document.getElementsByClassName('disabled prev_page').length == 1){
+        next_link = document.getElementsByClassName('next_page')[0].getAttribute('href') + "&report_name=" + '<%= @report_name %>' + "&start_date=" + '<%= @start_date %>' + "&end_date=" + '<%= @end_date %>';
+        prev_link = null
+        buttondiv.innerHTML+= "<button id='nextButton' class='blue'><span>Next</span></button>"
+        buttondiv.innerHTML+= "<button id='disabled prev_page' class='gray'><span>Previous</span></button>"
+      }
+      else if (document.getElementsByClassName('disabled next_page').length == 1){
+        prev_link = document.getElementsByClassName('prev_page')[0].getAttribute('href') + "&report_name=" + '<%= @report_name %>'+ "&start_date=" + '<%= @start_date %>' + "&end_date=" + '<%= @end_date %>';
+        next_link = null
+        buttondiv.innerHTML+= "<button id='disabled next_page' class='gray'><span>Next</span></button>"
+        buttondiv.innerHTML+= "<button id='prevButton' class='blue'><span>Previous</span></button>"
+      }
+      else if (document.getElementsByClassName('next_page').length == 1 && document.getElementsByClassName('prev_page').length == 1) {
+        prev_link = document.getElementsByClassName('prev_page')[0].getAttribute('href') + "&report_name=" + '<%= @report_name %>'+ "&start_date=" + '<%= @start_date %>' + "&end_date=" + '<%= @end_date %>';
+        next_link = document.getElementsByClassName('next_page')[0].getAttribute('href') + "&report_name=" + '<%= @report_name %>'+ "&start_date=" + '<%= @start_date %>' + "&end_date=" + '<%= @end_date %>';
+        buttondiv.innerHTML+= "<button id='nextButton' class='blue'><span>Next</span></button>"
+        buttondiv.innerHTML+= "<button id='prevButton' class='blue'><span>Previous</span></button>"
+      }
+<%end%>
+    search_box = $('#table_id').dataTable()
+    search = document.getElementsByTagName("input")[0];
+    search.setAttribute("id","search");
+    document.getElementById('search').setAttribute("onclick","showKeyboard();");
+    document.getElementById("find").innerHTML = "<span>Back</span>";
+    document.getElementById("find").style.cssFloat = "left";
+
+    $('#find').click(function() {
+      window.location = '/cohort_tool/opd_menu?report_name=<%=@report_name%>'; // /report/data_cleaning';
+    })
+    $('#logout').click(function() {
+      window.location = '/clinic'; // /';
+    })
+    $('#nextButton').click(function() {
+      window.location = next_link;
+    })
+    $('#prevButton').click(function() {
+      window.location = prev_link;
+    })
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    keyboard = document.getElementsByClassName("keypad")[0]
+    function getCharButtonSetID(character,id){
+      return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
+    }
+    function getButtonString(id,string){
+      return "<button \
+                            onMouseDown='press(this.id);' \
+                            class='keyboardButton' \
+                            id='"+id+"'>"+
+        string +
+        "</button>";
+    }
+
+    function getButtons(chars){
+      var buttonLine = "";
+      for(var i=0; i<chars.length; i++){
+        character = chars.substring(i,i+1)
+        buttonLine += getCharButtonSetID(character,character)
+      }
+      return buttonLine;
+    }
+
+    showAlphaKeypad();
+
+    function showAlphaKeypad(){
+      document.getElementById("keypad").style.height = "280";
+      keyboard.innerHTML = getButtons("QWERTYUIOP") + "</br>"
+      keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>"
+      keyboard.innerHTML+= getButtons("ZXCVBNM,.?")
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('Space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+
+    }
+
+    function showNumericKeypad(){
+      document.getElementById("keypad").style.height = "145";
+      keyboard.innerHTML = getButtons("123")
+      keyboard.innerHTML+= getButtons("456")
+      keyboard.innerHTML+= getButtons("7890")
+      keyboard.innerHTML+= getButtonString('space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('abc','<span>abc</span>')
+      keyboard.innerHTML+= getButtonString('dash','<span>-</span>')
+      keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
+    }
+
+    data_table_length =document.getElementsByName('table_id_length')[0];
+    data_table_length.setAttribute("style","font-size:20px;");
+
+    table_length = document.getElementById("table_id_length");
+    table_length.setAttribute("style","width:100px;");
+
+
+<%if @disaggregated_diagnosis != nil && @disaggregated_diagnosis.length > 100 %>
+      var elements = <%=@disaggregated_diagnosis.length%>
+      var x = 200
+      while(x < elements){
+        data_table_length.innerHTML+="<option value='" + x + "'>" + x + "</option>";
+        x+=100
+      }
+      data_table_length.innerHTML+="<option value='" + x + "'>" + x + "</option>";
+<% end %>$("div").removeClass("content");
+
+
+  })
+    </script>
+
+    <script>
+
+      function showKeyboard(){
+        key = document.getElementById("keypad")
+        if(key.style.display == 'none' || key.style.display == ""){
+          key.style.display = "inline";
+          return
+        }
+
+        key.style.display = "none";
+      }
+
+      function press(pressedChar){
+        switch (pressedChar) {
+          case 'backspace':
+            search.value = search.value.substring(0,search.value.length-1);
+            search_box.fnFilter(search.value)
+            return;
+          case 'Space':
+            search.value+= " "
+            search_box.fnFilter(search.value)
+            return
+          case 'clear':
+            search.value = ""
+            search_box.fnFilter(search.value)
+            return
+          case 'num':
+            showNumericKeypad();
+            return
+          case 'slash':
+            search.value+= "/"
+            search_box.fnFilter(search.value)
+            return
+          case 'dash':
+            search.value+= "-"
+            search_box.fnFilter(search.value)
+            return
+          case 'abc':
+            showAlphaKeypad();
+            return
+        }
+        search.value+= pressedChar
+        search_box.fnFilter(search.value)
+      }
+      //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    </script>
+
+    <style>
+
+      #backspace{
+        position:absolute;
+        left:100px;
+        bottom:2px;
+      }
+
+      #Space{
+        position:absolute;
+        left:220px;
+        bottom:2px;
+        width:200px;
+      }
+
+      #clear{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+      }
+
+      #keypad{
+        background-color: #FFFFFF;
+        border: 2px solid #9999FF;
+        border-radius: 15px 15px 15px 15px;
+        padding: 5px;
+        position:absolute;
+        width:670px;
+        right:510px;
+        height:260px;
+        display:none;
+        right:4px;
+        top:270px;
+      }
+    </style>
+    <style>
+      div {
+        -moz-user-select: none;
+      }
+      .basic_span {
+        position:relative;
+        width:50%;
+        display:block;
+        float:left;
+      }
+
+      .logo {
+        float:left
+      }
+
+      #table_id {
+        width: 100%;
+      }
+
+      #table_id_filter{
+        position:absolute;
+        top:0px;
+        right:1%;
+        margin-top:-40px;
+      }
+
+      #table_id_filter input{
+        padding:0.5em;
+      }
+
+
+      .dataTables_length select {
+        font-size: 25px;
+      }
+      .horizontal_line hr{
+        position:absolute;
+        bottom:104px;
+      }
+      #table_id_info{
+        overflow:hidden;
+        position:fixed;
+        left:250px;
+        top:696px;
+      }
+      .pagination{
+        display:none;
+      }
+      #num{ display:none; }
+      #char{ display:none; }
+      .prev_page,.next_page {
+      }
+
+      .prev_page:hover, .next_page:hover
+      { }
+      .disabled { }
+
+      .disabled:hover {}
+
+
+
+    </style>
+  </head>
+  <body >
+  <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
+   
+      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+   
+
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> </b>
+      <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{session[:groups].join(' , ').to_s}" %> </b><br /><br />
+
+
+    <div>
+      <table  id="table_id" class="display" >
+        <thead>
+          <tr  style="background-color:gray">
+            <th align="left"> Name <p />
+            </th>
+            <th align="left"> Birthdate  <p />
+            </th>
+            <th align="left"> Gender  <p />
+            </th>
+            <th align="left"> Primary Diagnosis <p />
+            </th>
+            <th align="left"> Secondary Diagnosis  <p />
+            </th>
+            <th  align="left"> Treatment <p />
+            </th>
+            <th align="left"> Visit Date  <p />
+            </th>
+          </tr>
+
+        </thead>
+        <tbody>
+          <%
+          primary_diagnosis = "PRIMARY DIAGNOSIS"
+          secondary_diagnosis = "SECONDARY DIAGNOSIS"
+          treatment = "TREATMENT"
+        %>
+          <% @patient_level_data.each do |date,data_hash_by_gender| %>
+
+            <% data_hash_by_gender.each do |gender, data_hash_by_id| %>
+
+              <% data_hash_by_id.each do |id, data_hash_by_name| %>
+
+                <% data_hash_by_name.each do |name, data_hash_by_birthdate| %>
+
+                  <% data_hash_by_birthdate.each do |birthdate, data_hash_by_data| %>
+                    <tr>
+                      <td> <span style="display:block; width:90%;"> <%= "#{name}" %> </span> </td>
+                      <td align="left" > <%= "<span > #{birthdate} </span> " %> </td>
+                      <td align="center" > <%= "<span class='basic_span' > #{gender} </span> " %> </td>
+                      <td align="left" > <%= "<span class='basic_span' > #{data_hash_by_data[primary_diagnosis]} </span> " %> </td>
+                      <td align="left" > <%= "<span class='basic_span' > #{data_hash_by_data[secondary_diagnosis]} </span> " %> </td>
+                      <td align="left" > <%= "<span class='basic_spuan' > #{data_hash_by_data[treatment]} </span> " %> </td>
+                      <td align="left" > <%= "<span class='basic_span' > #{date} </span> " %> </td>
+                    </tr>
+                  <% end %>
+
+                <% end %>
+
+              <% end %>
+
+            <% end %>
+
+          <% end %>
+
+
+        </tbody>
+      </table>
+    </div>
+    <div class="horizontal_line">
+      <hr width="100%" color="gray"/>
+    </div>
+
+
+
+
+
+    <div id="keypad">
+      <span class="keypad">
+      </span>
+    </center>
+
+  </div>
+
+</body>
+</html>

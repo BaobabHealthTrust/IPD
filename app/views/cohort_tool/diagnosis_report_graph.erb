@@ -1,0 +1,68 @@
+<html>
+	<head>
+		<script language="javascript" type="text/javascript" src="/javascripts/flotr2.min.js"></script>
+		<script type="text/javascript">
+	function drawBarChart() {
+
+	var d2 = [], markers = [], i = 0, highest=0;
+				
+	var container = document.getElementById('barChart'),graph,d1 = [];
+	
+		 <% @diagnosis_report_paginated.each do |diagnosis,total| %>
+		          d2.push([i,<%= "#{total}".to_json %>]);
+		          if ( highest < <%= "#{total}".to_i.to_json %>)
+		              		highest = <%= "#{total}".to_i.to_json %> ;
+		          
+		          markers.push([<%= "#{diagnosis}".to_json %>]);
+		          d1.push([i,"D"+i]);
+		          i +=1;
+		  <% end %>
+          // Draw Graph
+          graph = Flotr.draw(container,[d2],{title:"Diagnosis Report", bars: {show:true, barWidth:0.5}, xaxis: { ticks: d1, min:0, max: d2.length}, yaxis:{min:0, max:highest*15}, mouse: {track: true}});
+				
+				//fill up the legend
+
+				var legend = document.getElementById("legend");
+				var string = "";
+				for (x=0; x < markers.length; x++)
+						string = string +"D" +x +"=" + markers[x] + "<br>"
+						
+				legend.innerHTML =  string		
+				
+      };
+		setTimeout("drawBarChart();",300)      
+		
+		
+</script >
+
+	</head>
+	
+	
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br />
+<div style= " position:absolute;top:30px; left:150px">
+<%= @diagnosis_report_paginated.to_yaml %>
+		<b><%= @current_location_name %><br />
+    <%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %>
+    <br /> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> 
+    <br/>Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br>
+  
+</div>
+
+<div style = "border: 1px solid; height: 480px; width:80%; margin-left:30px; overflow:auto;" id="barChart">
+
+</div>
+
+<div  style = "border:1px solid; height:480px; width:15%; overflow:none; position: relative; top:-482px; left: 83%;">
+	<b>Legend</b>
+	<div id = "legend" style= "overflow:auto; height: 450px">
+	
+	</div>	
+
+</div>
+
+
+
+	</body>
+</html>
