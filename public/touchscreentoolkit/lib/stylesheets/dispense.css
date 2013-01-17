@@ -5,10 +5,6 @@
     border: 4px outset #eee;
 }
 
-div {
-    -moz-user-select:none;
-}
-
 .no-selection {
     -moz-user-select: none;
 }

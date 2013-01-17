@@ -427,11 +427,7 @@ function checkCtrl(obj){
     return Array(w, h, t, l);
 }
 
-function showKeyboard(id, showFullKey){
-
-    if(typeof(showFullKey) == "undefined"){
-        showFullKey = false;
-    }
+function showKeyboard(id){
 
     if($("divMenu")){
         document.body.removeChild($("divMenu"));
@@ -460,7 +456,7 @@ function showKeyboard(id, showFullKey){
     var row1 = ["Q","W","E","R","T","Y","U","I","O","P"];
     var row2 = ["A","S","D","F","G","H","J","K","L",":"];
     var row3 = ["Z","X","C","V","B","N","M",",",".","?"];
-    var row4 = ["cap","space","clear",(full_keyboard?"enter":""), (showFullKey ? (full_keyboard?"basic":"full") : "")];
+    var row4 = ["cap","space","clear",(full_keyboard?"enter":""),(full_keyboard?"basic":"full")];
     var row5 = ["1","2","3","4","5","6","7","8","9","0"];
     var row6 = ["_","-","@","(",")","+",";","=","\\","/"];
 

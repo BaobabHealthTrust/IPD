@@ -363,7 +363,7 @@ function createCalendar(control, target, date, selected, startweekdate, endweekd
             targetControl.getAttribute("helpText").substring(0,14) + "..." : 
             targetControl.getAttribute("helpText")) : "");
 
-        // bannerrow.appendChild(bannerrowcell2);
+        bannerrow.appendChild(bannerrowcell2);
         
         var bannerrowcell3 = document.createElement("div");
         bannerrowcell3.className = "cCell";

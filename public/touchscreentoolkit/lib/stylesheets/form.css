@@ -23,12 +23,11 @@ body{
 #content {
   background:#FFFFFF;
   position:absolute;
-  /*left:50%;*/
+  left:50%;
   top:50%;
-  width:99%;
+  width:1000px;
   height:750px;
-  margin-left:0.5%;
-  margin-right:0.5%;
+  margin-left:-500px;
   margin-top:-380px;
 
 }
