@@ -1,5 +1,4 @@
 <style>
-
   .tt_controls_year_of_birth #qwerty { display:none; }
   .tt_controls_age_estimate #qwerty { display:none; }
   .tt_controls_cell_phone_number #qwerty { display:none; }
@@ -15,7 +14,9 @@
   .tt_controls_region_of_origin .keyboard{display:none;}
   .tt_controls_current_region .keyboard{display:none;}
 
-  .tt_controls_month_of_birth .keyboard{display:none;}
+  .tt_controls_month_of_birth .keyboard{display:none!important;}
+    .tt_controls_region_of_origin .keyboard{display:none!important;}
+   .tt_controls_current_region .keyboard{display:none!important;}
   #tt_page_month_of_birth .options{height:570px;}
   #tt_page_month_of_birth .options li{font-size:30px;}
 
@@ -152,6 +153,41 @@
   function hideKeyboard(){
     document.getElementById('keyboard').style.display = 'none'
   }
+
+  function validateDate() {
+   selectYear = parseInt(document.getElementsByName('person[birth_year]')[0].value);
+   selectDay = parseInt(document.getElementsByName('person[birth_day]')[0].value);
+   date = new Date
+   currYear = date.getFullYear();
+   currDay = date.getDate();
+   availableMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+   
+     if (selectYear == currYear){
+       currentMonth = [];
+       numOfloops = ((new Date).getMonth() + 1);
+       for(var i = 0; i < numOfloops; i++){
+         currentMonth.push(availableMonths[i]);
+       }
+       rule = currentMonth.join("|");
+       rule = rule + "|Unknown";
+       return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',rule);
+     }
+     if (selectYear != currYear) {
+     rule = availableMonths.join("|");
+     rule = rule + "|Unknown";
+     return $('touchscreenInput'+tstCurrentPage).setAttribute('validationRule',a);
+     }
+  }
+
+  function validateDay(){
+    date = new Date
+    currYear = date.getFullYear();
+    currDay = date.getDate();
+    selectYear = parseInt(document.getElementsByName('person[birth_year]')[0].value);
+    if (selectYear == currYear) {
+      return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+     }
+  }
 </script>
 
 <% form_for :person, @person, :url => { :action => "create" } do |f| %>
@@ -185,9 +221,8 @@
   <%= select_tag "person[birth_month]", month_name_options, {
     :helpText => 'Month of Birth',
     :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',
-    :validationJS => "validateDOB();",
     :validationMessage => 'Please enter a valid date',
-    :tt_onLoad => "document.getElementById('keyboard').style.display = 'none'"}%>
+    :tt_onLoad => "validateDate()"}%>
 
   <%= text_field_tag "person[age_estimate]", nil, {
     :helpText => 'Age Estimate',
@@ -202,7 +237,7 @@
     :field_type => 'number',
     :helpText => 'Birth Day',
     :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")',
-    :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,
+    :tt_onLoad => "validateDay();getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,
     :validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
 
   <p><label for="region_region_name">Region of Origin</label></br>
