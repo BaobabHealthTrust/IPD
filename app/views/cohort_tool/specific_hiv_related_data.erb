@@ -170,6 +170,7 @@
         div {
         -moz-user-select: none;
       }
+      
       .basic_span {
         position:relative;
         width:50%;
@@ -247,7 +248,8 @@
           <% @specific_hiv_related_data_summary.each do |ward,total| %>
             <tr>
               <td width="50%"> <span style="display:block; width:90%;"> <%= "#{ward}" %> </span> </td>
-              <td align="center" > <span ><%= link_to "#{total}", "/cohort_tool/specific_hiv_related_data_patient_details?ward=#{ward}&age_groups=#{@age_groups}&start_date=#{@formated_start_date}&end_date=#{@formated_end_date}" %></span>  </td>
+              <td style = "text-align:center;"><%= button_to("#{total}",{:action => 'specific_hiv_related_data_patient_details',:ward => "#{ward}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}"},{:class =>'link'})%></td>
+              
             </tr>
           <% end %>
 

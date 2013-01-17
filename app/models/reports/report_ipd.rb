@@ -123,7 +123,7 @@ class Reports::ReportIpd
 =begin
     discharge_by_wards = Observation.find_by_sql("
       SELECT ward,  admission_date, patients_in_wards.patient_id, outcome, discharge_date
-FROM ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
+FROM ( SELECT persondef report1_id AS patient_id, DATE ( obs_datetime ) AS admission_date
 	            , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS ward
 	     FROM obs
 	     LEFT OUTER JOIN ( SELECT  encounter_id , DATE (#{ start_date }) AS visit_start_date,
@@ -149,7 +149,7 @@ GROUP BY ward
   def admissions_average_time(period={})
     avg_by_ward = {}
     ActiveRecord::Base.connection.select_all("SELECT obs_visit.ward, AVG(visit_datediff.datedif) as avg_time FROM (SELECT admissions.encounter_id, admissions.ward, visit_encounters.visit_id FROM(SELECT obs.encounter_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward FROM obs WHERE obs.concept_id=(SELECT concept_id FROM concept_name where name = 'ADMIT TO WARD' ) and obs.voided = 0) as admissions INNER JOIN visit_encounters on visit_encounters.encounter_id=admissions.encounter_id) as obs_visit INNER JOIN (SELECT visit_id, DATEDIFF(end_date,start_date) as datedif FROM visit WHERE start_date BETWEEN DATE('#{period['start_date']}') and DATE('#{period['end_date']}')) as visit_datediff on obs_visit.visit_id = visit_datediff.visit_id group by obs_visit.ward").map{|h| avg_by_ward[h['ward']]=h['avg_time']} rescue []
-    return avg_by_ward
+    return avg_by_wadef report1rd
 
   end
   
@@ -435,7 +435,7 @@ GROUP BY ward
   end
   
   def dead_patients_statistic_per_ward(start_date, end_date)
-
+=begin
       report_data = Observation.find_by_sql("   
                   SELECT ward , SUM(dead_patients) AS total_dead , SUM(dead_with_24) AS total_dated_in_24hrs, SUM(dead_with_24_72) AS dead_btn_24_and_72hrs , SUM(dead_with_7_7dys) AS dead_btn_3_and_7dys , SUM(dead_above_7dys) AS dead_after_7dys, 
                   SUM(CASE 
@@ -541,6 +541,7 @@ GROUP BY ward
                      ON patients_death_statistic .patient_id = patients_hiv_status.patient_id
 		     WHERE DATE(outcome_date) >= DATE('#{start_date}') AND DATE(outcome_date) <= DATE('#{end_date}')
                      GROUP BY ward ") #rescue []
+=end
   end
   
   def specific_hiv_related_data_patient_details(start_date, end_date)

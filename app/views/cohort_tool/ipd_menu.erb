@@ -13,8 +13,8 @@
 	  document.forms[0].action = "diagnosis_report_graph"
 <% elsif @report_name.upcase == "DIAGNOSIS_BY_ADDRESS" %>
 	  document.forms[0].action = "diagnosis_by_address"
-<% elsif @report_name.upcase == "TOTAL_REGISTERED" %>
-	  document.forms[0].action = "total_registration"
+<% elsif @report_name.upcase == "TOTAL_REGISTERED_REPORT" %>
+	  document.forms[0].action = "total_registration_report"
 <% elsif @report_name.upcase == "TOTAL_REGISTERED_GRAPH" %>
 	  document.forms[0].action = "total_registration_graph"
 <% elsif @report_name.upcase == "SPECIFIC_HIV_RELATED_DATA" %>
@@ -70,7 +70,7 @@
 	<%= select_tag "end_month", month_names, {:helpText => 'End Month',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date', :tt_onLoad => "__$('keyboard').style.display = 'none'"}%>
 	<%= text_field_tag "end_day",  nil, :field_type => 'number', :helpText => "End Day" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
 
-	<% if ["TOTAL_REGISTERED", "ADMISSIONS", "DIAGNOSIS_BY_ADDRESS", "PATIENT_LEVEL_DATA","DISCHARGE_BY_WARD","DISCHARGE_DIAGNOSIS_REPORT", "DIAGNOSIS_REPORT","DIAGNOSIS_REPORT_GRAPH", "RE_ADMISSIONS", "SPECIFIC_HIV_RELATED_DATA"].include?(@report_name.upcase) %>
+	<% if ["TOTAL_REGISTERED_REPORT", "ADMISSIONS", "DIAGNOSIS_BY_ADDRESS", "PATIENT_LEVEL_DATA","DISCHARGE_BY_WARD","DISCHARGE_DIAGNOSIS_REPORT", "DIAGNOSIS_REPORT","DIAGNOSIS_REPORT_GRAPH", "RE_ADMISSIONS", "SPECIFIC_HIV_RELATED_DATA"].include?(@report_name.upcase) %>
 	  <%= select_tag "age_groups", options_for_select(["", "< 6 months",
 		  "6 months to < 1 yr", "1 to < 5", "5 to 14", "> 14 to < 20", "20 to < 30", "30 to < 40", "40 to < 50", "ALL"]),
 		{	:helpText => 'Select Age Group (s)',

@@ -246,8 +246,8 @@
         <tbody>
           <% @diagnosis_report_paginated.each do |diagnosis,total| %>
             <tr>
-              <td width="50%"> <span style="display:block; width:90%;"> <%= "#{diagnosis}" %> </span> </td>
-              <td align="center" > <%= "<span > #{total} </span> " %> </td>
+              <td width="50%"> <span style="display:block; width:90%;"> <%= "#{diagnosis}" %> </span> </td>            
+              <td align="center"><%= button_to("#{total}",{:action => 'diagnosis_by_address_patient_details',:field => "#{diagnosis}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :category => 'all_diagnosis'},{:class =>'link'})%></td> 
             </tr>
           <% end %>
 

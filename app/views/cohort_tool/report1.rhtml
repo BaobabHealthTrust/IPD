@@ -215,19 +215,19 @@
       <th>Death > 7 days</th>
       <th>Total No. deaths HIV+</th>
     </tr>
-    <%@dead_patients_statistic_per_ward.reverse.each do |ward|%>
+    <%# @dead_patients_statistic_per_ward.reverse.each do |ward|%>
     <tr>
       <td></td>
-      <th><%=ward.ward.to_s%></th>
-      <td><%=ward.total_dead.to_s%></td>
-      <td><%=((ward.total_dead.to_i*100)/@total_patient_admission_per_ward[ward.ward.to_s]) rescue 0%></td>
-      <td><%=ward.total_dated_in_24hrs.to_s%></td>
-      <td><%=ward.dead_btn_24_and_72hrs.to_s%></td>
-      <td><%=ward.dead_btn_3_and_7dys.to_s%></td>
-      <td><%=ward.dead_after_7dys.to_s%></td>
-      <td><%=ward.dead_patients_hiv_positive.to_s%></td>
+      <th><%#=ward.ward.to_s%></th>
+      <td><%#=ward.total_dead.to_s%></td>
+      <td><%#=((ward.total_dead.to_i*100)/@total_patient_admission_per_ward[ward.ward.to_s]) rescue 0%></td>
+      <td><%#=ward.total_dated_in_24hrs.to_s%></td>
+      <td><%#=ward.dead_btn_24_and_72hrs.to_s%></td>
+      <td><%#=ward.dead_btn_3_and_7dys.to_s%></td>
+      <td><%#=ward.dead_after_7dys.to_s%></td>
+      <td><%#=ward.dead_patients_hiv_positive.to_s%></td>
     </tr>
-    <%end%>
+    <%#end%>
 </table>
 
 <table>

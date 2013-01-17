@@ -8,9 +8,10 @@
     <%=javascript_include_tag "jquery.table2CSV.min" %>
     <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
     <script>
-      jQuery(document).ready(function($) {
+      jQuery(document).ready(function($) {     
           $('#table_id').dataTable({
             "bAutoWidth": true,
+            "bPaginate": false,
             "bProcessing": true,
             "sScrollY": "400px",
             "bInfo": true,
@@ -167,7 +168,7 @@
       }
     </style>
     <style>
-      div {
+       div {
         -moz-user-select: none;
       }
       .basic_span {
@@ -207,7 +208,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 476px;
+        top: 455px;
         font-weight:bold;
       }
       #table_id_length{
@@ -224,38 +225,59 @@
   <body >
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
-      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
-   
-    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> </b>
 
-          <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br /><br />
+      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name %></b><br />
+
+
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Registered: #{@total_registered.length}" %>
+    (Total Male: <%= @total_male_registered %>, Total Female: <%= @total_female_registered %>)</b>
+
+      <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br /><br />
+
 
     <div>
       <table  id="table_id" class="display" >
-        <thead>
-          <tr  style="background-color:gray">
-            <th align="left"> Diagnosis <p />
+        <thead><tr>
+            <th>
+                  <u>Name</u> <p />
             </th>
-            <th align="left">
-              Address  <p />
+            <th>
+                  <u> Birthdate </u> <p />
             </th>
-            <th align="center">
-              Total  <p />
+            <th>
+                  <u>Gender </u> <p />
+            </th>
+            <th>
+                  <u> Date Registered </u> <p />
+            </th>
+            <th>
+                  <u> Address </u> <p />
+            </th>
+            <th>
+                  <u> T.A </u> <p />
             </th>
           </tr>
+
         </thead>
         <tbody>
-          <% diagnosis =0
-         village=1
-         total=2
-      %>
-        <% @diagn_address.each do |address| %>
-      <tr>
-        <td width="35%"> <span style="display:block; width:90%;"> <%= address[diagnosis] %> </span> </td>
-        <td width="35%" align="left" > <%= "<span class='basic_span' > #{ address[village]} </span> " %> </td>
-        <td width="30%" align="center"><%= button_to("#{address[total]}",{:action => 'diagnosis_by_address_patient_details',:field => "#{address[diagnosis]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :category => 'diagnosis_by_address', :address => "#{ address[village]}" },{:class =>'link'})%></td>
-      </tr>
-    <% end %>
+          <%
+          name=0
+          birthdate=1
+          gender=2
+          date_registered=3
+          address=4
+          t_a=5
+        %>
+          <% @registered.each do |record| %>
+            <tr>
+              <td> <span style="display:block; width:90%;"> <%= "#{record[name]}" %> </span> </td>
+              <td align="center" > <%= "<span > #{record[birthdate]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[gender] == 'F' ? "Female" : "Male"} </span> " %> </td>
+              <td align="right" > <%= "<span class='basic_span' > #{record[date_registered]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[address]} </span> " %> </td>
+              <td align="left" > <%= "<span class='basic_spuan' > #{record[t_a]} </span> " %> </td>
+            </tr>
+          <% end %>
         </tbody>
       </table>
     </div>
@@ -266,8 +288,6 @@
       <span class="keypad">
       </span>
     </center>
-
   </div>
-
 </body>
 </html>

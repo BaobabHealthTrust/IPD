@@ -8,7 +8,7 @@
     <%=javascript_include_tag "jquery.table2CSV.min" %>
     <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
     <script>
-      jQuery(document).ready(function($) {     
+      jQuery(document).ready(function($) {
           $('#table_id').dataTable({
             "bAutoWidth": true,
             "bPaginate": false,
@@ -129,8 +129,7 @@
     </script>
 
     <style>
-
-      #backspace{
+#backspace{
         position:absolute;
         left:100px;
         bottom:2px;
@@ -168,7 +167,7 @@
       }
     </style>
     <style>
-       div {
+        div {
         -moz-user-select: none;
       }
       .basic_span {
@@ -208,7 +207,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 455px;
+        top: 476px;
         font-weight:bold;
       }
       #table_id_length{
@@ -226,58 +225,54 @@
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
 
-      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+    <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
 
 
-    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Registered: #{@total_registered.length}" %>
-    (Total Male: <%= @total_male_registered %>, Total Female: <%= @total_female_registered %>)</b>
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> </b>
 
+    
       <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br /><br />
-
+    
 
     <div>
       <table  id="table_id" class="display" >
-        <thead><tr>
-            <th>
-                  <u>Name</u> <p />
+        <thead>
+          <tr  style="background-color:gray">
+            <th align="left"><p />
             </th>
-            <th>
-                  <u> Birthdate </u> <p />
+            <th>									 Total Patients <p />
             </th>
-            <th>
-                  <u>Gender </u> <p />
+            <th>									 Total Females  <p />
             </th>
-            <th>
-                  <u> Date Registered </u> <p />
+            <th>									 Total Males  <p />
             </th>
-            <th>
-                  <u> Address </u> <p />
-            </th>
-            <th>
-                  <u> T.A </u> <p />
-            </th>
-          </tr>
-
         </thead>
         <tbody>
-          <%
-          name=0
-          birthdate=1
-          gender=2
-          date_registered=3
-          address=4
-          t_a=5
-        %>
-          <% @total_re_admitted_patients.each do |record| %>
             <tr>
-              <td> <span style="display:block; width:90%;"> <%= "#{record[name]}" %> </span> </td>
-              <td align="center" > <%= "<span > #{record[birthdate]} </span> " %> </td>
-              <td> <%= "<span class='basic_span' > #{record[gender] == 'F' ? "Female" : "Male"} </span> " %> </td>
-              <td align="right" > <%= "<span class='basic_span' > #{record[date_registered]} </span> " %> </td>
-              <td> <%= "<span class='basic_span' > #{record[address]} </span> " %> </td>
-              <td align="left" > <%= "<span class='basic_spuan' > #{record[t_a]} </span> " %> </td>
+              <td width="40%"><span> Total Patients Admitted </span> </td>
+              <td width="20%" align="center"><span><%= "#{@admitted_patients.length}" %></span></td> 
+              <td width="20%" align="center"><span><%= "#{@total_admitted_female.length}" %> </span> </td>
+              <td width="20%" align="center"><span><%= "#{@total_admitted_male.length}" %></span></td> 
             </tr>
-          <% end %>
+            <tr>
+              <td width="40%"><span> Total Patients Re_admitted </span> </td>
+              <td width="20%" align="center"><span><%= "#{@patient_readmissions.length}" %></span></td> 
+              <td width="20%" align="center"><span><%= "#{@total_re_admitted_female.length}" %> </span> </td>
+              <td width="20%" align="center"><span><%= "#{@total_re_admitted_male.length}" %></span></td> 
+            </tr>
+            <tr>
+              <td width="40%"> <span>Total Re-admitted Patients within the previous 3 months </span> </td>
+              <td width="20%" align="center" ><span><%= "#{@readmission_in_three_months.length}" %></span></td> 
+              <td width="20%" align="center"><span><%= "#{@readmission_in_three_months_female.length}" %> </span> </td>
+              <td width="20%" align="center"><span><%= "#{@readmission_in_three_months_male.length}" %></span></td> 
+            </tr>
+          <tr>
+              <td width="40%"><span> Total Re-admitted Patients within the previous 6 months </span> </td>
+              <td width="20%" align="center"><span><%= "#{@readmission_in_six_months.length}" %></span></td> 
+              <td width="20%" align="center"><span><%= "#{@readmission_in_six_months_female.length}" %> </span> </td>
+              <td width="20%" align="center"><span><%= "#{@readmission_in_six_months_male.length}" %></span></td> 
+            </tr>
+
         </tbody>
       </table>
     </div>
@@ -288,6 +283,8 @@
       <span class="keypad">
       </span>
     </center>
+
   </div>
+
 </body>
 </html>
