@@ -1090,6 +1090,1377 @@ class CohortToolController < ApplicationController
     patients.sort { |a,b| a[1]['adherence'].to_i <=> b[1]['adherence'].to_i }
   end
   
+ def discharge_by_ward
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @patients_discharged_by_wards = report.discharges_by_ward(@start_date, @end_date)
+    
+    @admission_discharge_summary = []
+    
+    admissions = {}
+    Observation.find(:all, 
+                            :select => "count(*) total_patients, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
+                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ?", 
+                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD")],  
+                            :group => "ward"
+        ).map{|o| admissions[o.ward] = o.total_patients}
+
+    @patients_discharged_by_wards.each do |ward|
+      if admissions.include?(ward.ward)
+        @admission_discharge_summary << [ward.ward, ward.total_patients_discharged, admissions[ward.ward]]
+      end
+    end
+     #@admission_discharge_summary.to_yaml
+
+    
+=begin    
+    admitted_patients = []
+    
+
+    @patients_in_wards.each do  |patient|
+      person = Person.find(patient.patient_id)
+
+      if (@age_groups.include?("< 6 MONTHS"))
+        if (PatientService.age_in_months(person).to_i < 6 )
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+        if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("1 TO < 5"))
+        if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("5 TO 14"))
+        if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("> 14 TO < 20"))
+        if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("20 TO < 30"))
+        if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("30 TO < 40"))
+        if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("40 TO < 50"))
+        if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("ALL"))
+            admitted_patients << person
+      end
+    end
+    
+    @total_patients_in_wards = @patients_in_wards
+    @total_admitted_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @patients_in_wards.each do | patient |
+      person = Person.find(patient.patient_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_admitted_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    patient.ward,
+                                    patient.admission_date.to_date]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+=end
+    render :layout => "report"  
+  end
+  
+  def ipd_menu
+	  @shifts =[
+			["Day","day"],
+			["Night","night"],
+			["24 Hours","24_hour"],
+			["Specific","specific"]
+		]
+
+		@report_name = params[:report_name]
+  end
+  
+  def admissions
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    
+    report = Reports::ReportIpd.new()
+    @patients_in_wards = report.admissions_by_ward(@start_date, @end_date)
+   
+    @admission_summary = []
+    
+    @patients = Observation.find(:all, 
+                            :select => "count(*) total_patients, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
+                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ?", 
+                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD")],  
+                            :group => "ward"
+        )
+
+    @patients.each do |ward|
+      @admission_summary << [ward.ward, ward.total_patients]
+    end
+    
+    render :layout => "report"
+  end
+  
+  def admissions_patient_list
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @patients_in_wards = report.patients_in_wards(@start_date, @end_date)
+    admitted_patients = []
+
+    @patients_in_wards.each do  |patient|
+      person = Person.find(patient.person_id)
+
+      if (@age_groups.include?("< 6 MONTHS"))
+        if (PatientService.age_in_months(person).to_i < 6 )
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+        if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("1 TO < 5"))
+        if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("5 TO 14"))
+        if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("> 14 TO < 20"))
+        if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("20 TO < 30"))
+        if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("30 TO < 40"))
+        if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("40 TO < 50"))
+        if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("ALL"))
+            admitted_patients << person
+      end
+    end
+    
+    @total_patients_in_wards = @patients_in_wards
+    @total_admitted_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @patients_in_wards.each do | patient |
+      person = Person.find(patient.person_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_admitted_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    patient.ward,
+                                    patient.admission_date.to_date]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+    render :layout => "report"
+  end
+
+  def re_admissions
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name = Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @patient_readmissions = report.re_admissions(@start_date, @end_date)
+
+    re_admitted_patients = []
+
+    @patient_readmissions.each do  |patient|
+      person = Person.find(patient.patient_id)
+
+      if (@age_groups.include?("< 6 MONTHS"))
+        if (PatientService.age_in_months(person).to_i < 6 )
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+        if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("1 TO < 5"))
+        if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("5 TO 14"))
+        if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+            admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("> 14 TO < 20"))
+        if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("20 TO < 30"))
+        if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("30 TO < 40"))
+        if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("40 TO < 50"))
+        if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+            re_admitted_patients << person
+        end
+      end
+
+      if (@age_groups.include?("ALL"))
+            re_admitted_patients << person
+      end
+    end
+    
+    @total_patients_re_admitted = @patient_readmissions
+    @total_re_admitted_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @patient_readmissions.each do | patient |
+      person = Person.find(patient.patient_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+
+      @total_re_admitted_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+                                    
+                                    
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+    render :layout => "report"
+  end
+
+def specific_hiv_related_data
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    
+    report = Reports::ReportIpd.new()
+    @specific_hiv_related_data = report.specific_hiv_related_data(@start_date, @end_date)
+
+    @specific_hiv_related_data_summary = []
+
+    @specific_hiv_related_data.each do |ward|
+
+      @specific_hiv_related_data_summary << [ward.ward, ward.total_admitted]
+    end
+    
+    render :layout => "report"
+  end
+
+  def specific_hiv_related_data_patient_details
+
+    @report_name = params[:ward] + " (HIV Reactive patients)"
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name = Location.current_health_center.name
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = start_date.to_date
+    @end_date = end_date.to_date
+    @total_registered = []
+    @people = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @specific_hiv_related_data = report.specific_hiv_related_data_patient_details(@start_date, @end_date)
+    
+    @specific_hiv_related_data.each do |obs|
+          if obs.ward == params[:ward]
+            person = Person.find(obs.person_id)
+
+            if (PatientService.age_in_months(person).to_i < 6 )
+                @people << person
+             end
+
+            if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+              if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("1 TO < 5"))
+              if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("5 TO 14"))
+              if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("> 14 TO < 20"))
+              if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("20 TO < 30"))
+              if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("30 TO < 40"))
+              if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("40 TO < 50"))
+              if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+               @people << person
+              end
+            end
+
+            if (@age_groups.include?("ALL"))
+               @people << person
+            end
+         end
+        end
+
+    @diagnosis_report_patients = @patients
+    @total_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @people.each do | person |
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+    render :layout => "report"
+  end
+
+	def total_registration
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = params[:age_groups].map{|g|g.upcase}
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    
+    people = Person.find(:all,:include =>{:patient=>{:encounters=>{:type=>{}}}},
+        :conditions => ["patient.patient_id IS NOT NULL AND encounter_type.name IN (?)
+        AND person.date_created >= TIMESTAMP(?)
+        AND person.date_created  <= TIMESTAMP(?)", ["TREATMENT","OUTPATIENT DIAGNOSIS"],
+        @start_date.strftime('%Y-%m-%d 00:00:00'),
+        @end_date.strftime('%Y-%m-%d 23:59:59')])
+        peoples = []
+
+        people.each do  |person|
+
+          if (@age_groups.include?("< 6 MONTHS"))
+            if (PatientService.age_in_months(person).to_i < 6 )
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+            if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("1 TO < 5"))
+            if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("5 TO 14"))
+            if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("> 14 TO < 20"))
+            if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("20 TO < 30"))
+            if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("30 TO < 40"))
+            if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("40 TO < 50"))
+            if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+                peoples << person
+            end
+          end
+
+          if (@age_groups.include?("ALL"))
+                peoples << person
+          end
+
+        end
+    @total_registered = peoples
+      @registered = []
+      @total_female_registered = 0
+      @total_male_registered = 0
+
+      peoples.each do | person_id |
+        person = Person.find(person_id)
+        name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+        @registered << [name, person.birthdate, person.gender,
+        person.date_created.to_date,
+        person.addresses.first.city_village,
+        person.addresses.first.county_district]
+        
+        if(PatientService.sex(person) == 'Female')
+          @total_female_registered += 1
+        else
+          @total_male_registered += 1
+        end
+
+      end
+
+    render :layout => "report"
+  end
+
+  def diagnosis_by_address
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @diagnosis_by_address = {}
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+      
+    concept_ids = ConceptName.find(:all, :conditions => ["name IN (?)",
+      ["Additional diagnosis","Diagnosis", "primary diagnosis",
+      "secondary diagnosis"]]).map(&:concept_id)
+    discharge_diagnosis_encounter_id = EncounterType.find_by_name("DISCHARGE DIAGNOSIS").encounter_type_id
+     
+      observation = Observation.find(:all, :include=>{:person=>{}},
+                    :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)",
+                    @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
+                    concept_ids])
+
+      observation.each do | obs|
+        next if obs.answer_concept.nil?
+          if (@age_groups.include?("< 6 MONTHS"))
+            if (PatientService.age_in_months(obs.person).to_i < 6 )
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+            if (PatientService.age_in_months(obs.person).to_i >= 6 && PatientService.age(obs.person).to_i < 1)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("1 TO < 5"))
+            if (PatientService.age(obs.person).to_i >= 1 && PatientService.age(obs.person).to_i < 5)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("5 TO 14"))
+            if (PatientService.age(obs.person).to_i >= 5 && PatientService.age(obs.person).to_i < 14)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("> 14 TO < 20"))
+            if (PatientService.age(obs.person).to_i >= 14 && PatientService.age(obs.person).to_i < 20)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("20 TO < 30"))
+            if (PatientService.age(obs.person).to_i >= 20 && PatientService.age(obs.person).to_i < 30)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("30 TO < 40"))
+            if (PatientService.age(obs.person).to_i >= 30 && PatientService.age(obs.person).to_i < 40)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("40 TO < 50"))
+            if (PatientService.age(obs.person).to_i >= 40 && PatientService.age(obs.person).to_i < 50)
+              diagnosis_name = obs.answer_concept.fullname rescue ''
+              @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+              @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+            end
+          end
+
+          if (@age_groups.include?("ALL"))
+            diagnosis_name = obs.answer_concept.fullname rescue ''
+            @diagnosis_by_address[diagnosis_name] = {} if @diagnosis_by_address[diagnosis_name].nil?
+            @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] = 0 if @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district].nil?
+            @diagnosis_by_address[diagnosis_name][obs.person.addresses.first.county_district] += 1
+          end
+      end
+    @diagn_address = []
+    @diagnosis_by_address.each { |diagn|
+      diagnosis = diagn[0]
+      address_total = diagn[1]
+      address_total.each { |address,total|
+        @diagn_address << [diagnosis,address,total]
+      }
+    }
+    render :layout => "report"
+  end
+
+	def total_registration_graph
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = 0
+    @total_female_registered = 0
+    @total_male_registered = 0
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    people = Person.find(:all,:include =>{:patient=>{:encounters=>{:type=>{}}}},
+        :conditions => ["patient.patient_id IS NOT NULL AND encounter_type.name IN (?)
+        AND person.date_created >= TIMESTAMP(?)
+        AND person.date_created  <= TIMESTAMP(?)", ["TREATMENT","OUTPATIENT DIAGNOSIS"],
+        @start_date.strftime('%Y-%m-%d 00:00:00'),
+        @end_date.strftime('%Y-%m-%d 23:59:59')])
+        @peoples = Hash.new(0)
+        people.each do  |person|
+
+
+            if (PatientService.age_in_months(person).to_i < 6 )
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under6M'] +=1
+                else
+	                @peoples['Under6F'] +=1
+                end
+
+            end
+
+            if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under12MM'] +=1
+                else
+	                @peoples['Under12MF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under5YM'] +=1
+                else
+	                @peoples['Under5YF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under14YM'] +=1
+                else
+	                @peoples['Under14YF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under20YM'] +=1
+                else
+	                @peoples['Under20YF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under30YM'] +=1
+                else
+	                @peoples['Under30YF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under40YM'] +=1
+                else
+	                @peoples['Under40YF'] +=1
+                end
+
+            end
+
+            if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Under50YM'] +=1
+                else
+	                @peoples['Under50YF'] +=1
+                end
+
+            end
+						
+						if (PatientService.age(person).to_i >= 50)
+                if(PatientService.sex(person) == 'Male')
+                	@peoples['Over50YM'] +=1
+                else
+	                @peoples['Over50YF'] +=1
+                end
+
+            end
+            
+            if(PatientService.sex(person) == 'Female')
+              @total_female_registered += 1
+            else
+              @total_male_registered += 1
+            end
+    		@total_registered +=1
+    		
+        end    
+
+    render :layout => "report"
+  end
+
+  def diagnosis_report 
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @disaggregated_diagnosis = {}
+    @diagnosis_by_address = {}
+    @diagnosis_name = {}
+    @diagnosis_report = Hash.new(0)
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    concept_ids = ConceptName.find(:all,
+    :conditions => ["name IN (?)",["Additional diagnosis","Diagnosis",
+    "primary diagnosis","secondary diagnosis"]]).map(&:concept_id)
+
+      observation = Observation.find(:all, :include => {:person =>{}},
+        :conditions => ["obs.obs_datetime >= TIMESTAMP(?) AND obs.obs_datetime
+        <= TIMESTAMP(?) AND obs.concept_id IN (?)",
+        @start_date.strftime('%Y-%m-%d 00:00:00'),
+        @end_date.strftime('%Y-%m-%d 23:59:59'),concept_ids])
+
+        observation.each do |obs|
+          next if obs.answer_concept.blank?
+          diagnosis_name = obs.answer_concept.fullname rescue ''
+           if (PatientService.age_in_months(obs.person).to_i < 6 )
+              @diagnosis_report[diagnosis_name]+=1
+           end
+
+          if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+            if (PatientService.age_in_months(obs.person).to_i >= 6 && PatientService.age(obs.person).to_i < 1)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("1 TO < 5"))
+            if (PatientService.age(obs.person).to_i >= 1 && PatientService.age(obs.person).to_i < 5)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("5 TO 14"))
+            if (PatientService.age(obs.person).to_i >= 5 && PatientService.age(obs.person).to_i < 14)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("> 14 TO < 20"))
+            if (PatientService.age(obs.person).to_i >= 14 && PatientService.age(obs.person).to_i < 20)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("20 TO < 30"))
+            if (PatientService.age(obs.person).to_i >= 20 && PatientService.age(obs.person).to_i < 30)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("30 TO < 40"))
+            if (PatientService.age(obs.person).to_i >= 30 && PatientService.age(obs.person).to_i < 40)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("40 TO < 50"))
+            if (PatientService.age(obs.person).to_i >= 40 && PatientService.age(obs.person).to_i < 50)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("ALL"))
+            @diagnosis_report[diagnosis_name]+=1
+          end
+        end
+
+      @diagnosis_report_paginated = []
+      @diagnosis_report.each { | diag, value |
+        @diagnosis_report_paginated << [diag, value]
+      }
+    render :layout => "report"
+  end
+
+  def discharge_diagnosis_report 
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @disaggregated_diagnosis = {}
+    @diagnosis_by_address = {}
+    @diagnosis_name = {}
+    @diagnosis_report_patients = []
+    @diagnosis_report = Hash.new(0)
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    concept_ids = ConceptName.find(:all,
+    :conditions => ["name IN (?)",["Additional diagnosis","Diagnosis",
+    "primary diagnosis","secondary diagnosis"]]).map(&:concept_id)
+
+    discharge_diagnosis_encounter_id = EncounterType.find_by_name("DISCHARGE DIAGNOSIS").encounter_type_id
+     
+    observation = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "INNER JOIN encounter ON encounter.encounter_id = obs.encounter_id",
+                    :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)
+                    AND encounter.encounter_type = ?",
+                    @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
+                    concept_ids,discharge_diagnosis_encounter_id])
+
+        observation.each do |obs|
+          next if obs.answer_concept.blank?
+          diagnosis_name = obs.answer_concept.fullname rescue ''
+           if (PatientService.age_in_months(obs.person).to_i < 6 )
+              @diagnosis_report[diagnosis_name]+=1
+           end
+
+          if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+            if (PatientService.age_in_months(obs.person).to_i >= 6 && PatientService.age(obs.person).to_i < 1)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("1 TO < 5"))
+            if (PatientService.age(obs.person).to_i >= 1 && PatientService.age(obs.person).to_i < 5)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("5 TO 14"))
+            if (PatientService.age(obs.person).to_i >= 5 && PatientService.age(obs.person).to_i < 14)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("> 14 TO < 20"))
+            if (PatientService.age(obs.person).to_i >= 14 && PatientService.age(obs.person).to_i < 20)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("20 TO < 30"))
+            if (PatientService.age(obs.person).to_i >= 20 && PatientService.age(obs.person).to_i < 30)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("30 TO < 40"))
+            if (PatientService.age(obs.person).to_i >= 30 && PatientService.age(obs.person).to_i < 40)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("40 TO < 50"))
+            if (PatientService.age(obs.person).to_i >= 40 && PatientService.age(obs.person).to_i < 50)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("ALL"))
+            @diagnosis_report[diagnosis_name] += 1
+
+            @diagnosis_report_patients << [obs.person_id, diagnosis_name]#, @diagnosis_report]
+
+          end
+        end
+
+      @diagnosis_report_paginated = []
+      @diagnosis_report.each { | diag, value |
+        @diagnosis_report_paginated << [diag, value]
+      }
+    render :layout => "report"
+  end
+
+  def discharge_diagnosis_patient_details
+    @report_name = params[:field]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = start_date.to_date
+    @end_date = end_date.to_date
+    @disaggregated_diagnosis = {}
+    @diagnosis_by_address = {}
+    @diagnosis_name = {}
+    @diagnosis_report_patients = []
+    @diagnosis_report = Hash.new(0)
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    
+    concept_ids = ConceptName.find(:all,
+    :conditions => ["name IN (?)",["Additional diagnosis","Diagnosis",
+    "primary diagnosis","secondary diagnosis"]]).map(&:concept_id)
+
+    discharge_diagnosis_encounter_id = EncounterType.find_by_name("DISCHARGE DIAGNOSIS").encounter_type_id
+     
+    observation = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "INNER JOIN encounter ON encounter.encounter_id = obs.encounter_id",
+                    :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)
+                    AND encounter.encounter_type = ?",
+                    @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
+                    concept_ids,discharge_diagnosis_encounter_id])
+    @patients = []
+
+        observation.each do |obs|
+          next if obs.answer_concept.blank?
+          diagnosis_name = obs.answer_concept.fullname rescue ''
+          
+          if diagnosis_name == params[:field]
+            patient = Patient.find(obs.person_id)
+            if (PatientService.age_in_months(obs.person).to_i < 6 )
+                @patients << patient
+             end
+
+            if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+              if (PatientService.age_in_months(obs.person).to_i >= 6 && PatientService.age(obs.person).to_i < 1)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("1 TO < 5"))
+              if (PatientService.age(obs.person).to_i >= 1 && PatientService.age(obs.person).to_i < 5)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("5 TO 14"))
+              if (PatientService.age(obs.person).to_i >= 5 && PatientService.age(obs.person).to_i < 14)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("> 14 TO < 20"))
+              if (PatientService.age(obs.person).to_i >= 14 && PatientService.age(obs.person).to_i < 20)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("20 TO < 30"))
+              if (PatientService.age(obs.person).to_i >= 20 && PatientService.age(obs.person).to_i < 30)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("30 TO < 40"))
+              if (PatientService.age(obs.person).to_i >= 30 && PatientService.age(obs.person).to_i < 40)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("40 TO < 50"))
+              if (PatientService.age(obs.person).to_i >= 40 && PatientService.age(obs.person).to_i < 50)
+               @patients << patient
+              end
+            end
+
+            if (@age_groups.include?("ALL"))
+               @patients << patient
+            end
+         end
+        end
+
+    @diagnosis_report_patients = @patients
+    @total_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @patients.each do | patient |
+
+      person = Person.find(patient.patient_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+		render :layout => 'report'
+  end
+
+  def discharge_by_ward_patient_details
+    @report_name = params[:ward] + " (Patients #{params[:field]})"
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = start_date.to_date
+    @end_date = end_date.to_date
+    @disaggregated_diagnosis = {}
+    @diagnosis_by_address = {}
+    @diagnosis_name = {}
+    @diagnosis_report_patients = []
+    @diagnosis_report = Hash.new(0)
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    report = Reports::ReportIpd.new()
+
+    if params[:field].upcase == "DISCHARGED"
+      @patients = report.discharge_by_ward_patient_list(@start_date, @end_date)
+    else
+      @patients = Observation.find(:all, 
+                            :select => "person_id AS patient_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
+                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ? AND voided = 0", 
+                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD")])
+    end
+#raise @patients.to_yaml
+    @admission_discharge_summary = []
+        
+    @people = []
+    @patients.each do |obs|
+      if obs.ward == params[:ward]
+        person = Person.find(obs.patient_id)
+
+        if (PatientService.age_in_months(person).to_i < 6 )
+          @people << person
+        end
+
+        if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+          if (PatientService.age_in_months(operson).to_i >= 6 && PatientService.age(person).to_i < 1)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("1 TO < 5"))
+          if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("5 TO 14"))
+          if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("> 14 TO < 20"))
+          if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("20 TO < 30"))
+          if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("30 TO < 40"))
+          if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("40 TO < 50"))
+          if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
+            @people << person
+          end
+        end
+
+        if (@age_groups.include?("ALL"))
+          @people << person
+        end        
+        
+      end
+    end
+    
+    @diagnosis_report_patients = @patients
+    @total_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @people.each do | person |
+
+      person = Person.find(person.person_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+		render :layout => 'report'
+  end
+
+  def diagnosis_report_graph
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    age_groups = params[:age_groups]
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+
+    @age_groups = age_groups.map{|g|g.upcase}
+    @required = ["TREATMENT","OUTPATIENT DIAGNOSIS"]
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @disaggregated_diagnosis = {}
+    @diagnosis_by_address = {}
+    @diagnosis_name = {}
+    @diagnosis_report = Hash.new(0)
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    concept_ids = ConceptName.find(:all,
+    :conditions => ["name IN (?)",["Additional diagnosis","Diagnosis",
+    "primary diagnosis","secondary diagnosis"]]).map(&:concept_id)
+1974
+      observation = Observation.find(:all, :include => {:person =>{}},
+        :conditions => ["obs.obs_datetime >= TIMESTAMP(?) AND obs.obs_datetime
+        <= TIMESTAMP(?) AND obs.concept_id IN (?)",
+        @start_date.strftime('%Y-%m-%d 00:00:00'),
+        @end_date.strftime('%Y-%m-%d 23:59:59'),concept_ids])
+
+        observation.each do |obs|
+          next if obs.answer_concept.blank?
+          diagnosis_name = obs.answer_concept.fullname rescue ''
+           if (PatientService.age_in_months(obs.person).to_i < 6 )
+              @diagnosis_report[diagnosis_name]+=1
+           end
+
+          if (@age_groups.include?("6 MONTHS TO < 1 YR"))
+            if (PatientService.age_in_months(obs.person).to_i >= 6 && PatientService.age(obs.person).to_i < 1)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("1 TO < 5"))
+            if (PatientService.age(obs.person).to_i >= 1 && PatientService.age(obs.person).to_i < 5)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("5 TO 14"))
+            if (PatientService.age(obs.person).to_i >= 5 && PatientService.age(obs.person).to_i < 14)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("> 14 TO < 20"))
+            if (PatientService.age(obs.person).to_i >= 14 && PatientService.age(obs.person).to_i < 20)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("20 TO < 30"))
+            if (PatientService.age(obs.person).to_i >= 20 && PatientService.age(obs.person).to_i < 30)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("30 TO < 40"))
+            if (PatientService.age(obs.person).to_i >= 30 && PatientService.age(obs.person).to_i < 40)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("40 TO < 50"))
+            if (PatientService.age(obs.person).to_i >= 40 && PatientService.age(obs.person).to_i < 50)
+              @diagnosis_report[diagnosis_name]+=1
+            end
+          end
+
+          if (@age_groups.include?("ALL"))
+            @diagnosis_report[diagnosis_name]+=1
+          end
+        end
+
+      @diagnosis_report_paginated = []
+      @diagnosis_report.each { | diag, value |
+        @diagnosis_report_paginated << [diag, value]
+      }
+
+  	@ara = Array.new
+  	@ara = [[0, 3], [4, 8], [8, 5], [9, 13],[2,8],[5,12],[7,15],[1,16]]
+
+    render :layout => 'report'
+  end
+
   def ipd_report_index
     @reports = ['Report 1','Report 2']
   end
@@ -1116,6 +2487,7 @@ class CohortToolController < ApplicationController
     @total_age_female = 0
     report = Reports::ReportIpd.new()
     @patients_registered = report.patients_registered(start_date, end_date)
+    #raise report.dead_patients_statistic_per_ward(start_date, end_date).to_yaml
 
     @patients_registered.each do|patient|
       if patient.gender == 'M'
@@ -1133,9 +2505,9 @@ class CohortToolController < ApplicationController
     @patients_in_wards.each do |ward|
         @admissions[ward.ward] = {} if !@admissions[ward.ward]
         if ward.gender == 'M'
-             @admissions[ward.ward]["total_male"] =  ward.total
+             @admissions[ward.ward]["total_male"] =  ward.gender
         else
-             @admissions[ward.ward]["total_female"] = ward.total
+             @admissions[ward.ward]["total_female"] = ward.gender
         end
      end
 

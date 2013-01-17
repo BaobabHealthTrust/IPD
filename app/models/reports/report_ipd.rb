@@ -32,11 +32,10 @@ class Reports::ReportIpd
   end
 
   def patients_in_wards(start_date, end_date)
-      patients_in_wards = Observation.find_by_sql("
+      patients_in_wards = Observation.find_by_sql("                                  
                                       SELECT ward
                                            , gender
-                                           , COUNT( gender ) 
-                                      AS     total, admission_date
+                                      AS     gender, admission_date, person_id,person.birthdate
                                         FROM ( SELECT person_id
 	                                       AS     patient_id
 	                                            , DATE ( obs_datetime )
@@ -44,21 +43,15 @@ class Reports::ReportIpd
 	                                            , IFNULL ( value_text
 			                                      , ( SELECT name
 			                                             FROM concept_name
-			                                            WHERE concept_id = value_coded ) )
+			                                            WHERE concept_id = value_coded LIMIT 1) )
 	                                       AS     ward
-	                                            , visit_start_date
-	                                            , visit_end_date
-	                                            , visit_id
 	                                         FROM obs
-	                                         LEFT OUTER JOIN ( SELECT visit.visit_id
-				                                        , encounter_id
-				                                        , DATE ( start_date )
+	                                         LEFT OUTER JOIN ( SELECT  encounter_id
+				                                        , DATE (#{ start_date })
 			                                           AS     visit_start_date
-				                                        , DATE ( end_date )
+				                                        , DATE ( #{end_date} )
 			                                           AS     visit_end_date
-			                                             FROM visit_encounters
-			                                             LEFT OUTER JOIN visit
-			                                               ON visit_encounters.visit_id = visit.visit_id )
+			                                             FROM encounter)
 	                                       AS     v1
 	                                           ON v1.encounter_id = obs.encounter_id
 	                                        WHERE concept_id = ( SELECT concept_id
@@ -68,26 +61,94 @@ class Reports::ReportIpd
                                       AS     patients_in_wards
                                         LEFT OUTER JOIN person
                                           ON patients_in_wards.patient_id = person_id
-                                      WHERE  DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}')
-                                       GROUP BY ward
-	                                      , gender
-                                                                                       ") rescue []
+                                      WHERE  DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}') ")
   end
 
   def admissions_by_ward(start_date, end_date)
     admissions = {}
-    Observation.active.find(:all, 
-                            :select => "count(*) total_patients, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded)) as ward", 
-                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ?", 
+    Observation.find(:all, 
+                            :select => "count(*) total_patients, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
+                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ? AND voided = 0", 
                              start_date, end_date, Concept.find_by_name("ADMIT TO WARD")],  
                             :group => "ward"
         ).map{|o| admissions[o.ward] = o.total_patients}
     return admissions
   end
+  
+  def discharge_by_ward_patient_list(start_date,end_date)
+    Observation.find_by_sql("SELECT ward,patients_in_wards.patient_id, outcome
+        FROM (SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
+	                    , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS ward
+	             FROM obs
+	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE ('2013-01-01') AS visit_start_date,
+	                                        DATE ( '2013-01-31') AS     visit_end_date
+			                           FROM encounter) AS  v1 ON v1.encounter_id = obs.encounter_id
+	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' )
+	             AND voided = 0 ) AS patients_in_wards
+        LEFT OUTER JOIN ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS discharge_date
+	                    , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS outcome
+	             FROM obs
+	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE(encounter_datetime) AS discharge_date
+			                           FROM encounter
+			                           WHERE encounter_type = (SELECT encounter_type_id FROM encounter_type
+			                                                   WHERE name = 'DISCHARGE PATIENT')) AS  v1 ON v1.encounter_id = obs.encounter_id
+	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' )
+	             AND voided = 0 ) AS discharged_patients ON patients_in_wards.patient_id = discharged_patients.patient_id
+        WHERE  DATE(admission_date) >= DATE('2013-01-01') AND DATE(admission_date) <= DATE('2013-01-31') AND outcome != ''")
+  end
+  
+  def discharges_by_ward(start_date, end_date)
+    discharge_by_wards = Observation.find_by_sql("
+            SELECT ward,  count(outcome) as total_patients_discharged
+        FROM ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
+	                    , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS ward
+	             FROM obs
+	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE ('2013-01-01') AS visit_start_date,
+	                                        DATE ( '2013-01-31') AS     visit_end_date
+			                           FROM encounter) AS  v1 ON v1.encounter_id = obs.encounter_id
+	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' )
+	             AND voided = 0 ) AS patients_in_wards
+        LEFT OUTER JOIN ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS discharge_date
+	                    , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS outcome
+	             FROM obs
+	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE(encounter_datetime) AS discharge_date
+			                           FROM encounter
+			                           WHERE encounter_type = (SELECT encounter_type_id FROM encounter_type
+			                                                   WHERE name = 'DISCHARGE PATIENT')) AS  v1 ON v1.encounter_id = obs.encounter_id
+	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' )
+	             AND voided = 0 ) AS discharged_patients ON patients_in_wards.patient_id = discharged_patients.patient_id
+        WHERE  DATE(admission_date) >= DATE('2013-01-01') AND DATE(admission_date) <= DATE('2013-01-31') AND outcome != ''
+        GROUP BY ward
+    ")
+=begin
+    discharge_by_wards = Observation.find_by_sql("
+      SELECT ward,  admission_date, patients_in_wards.patient_id, outcome, discharge_date
+FROM ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
+	            , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS ward
+	     FROM obs
+	     LEFT OUTER JOIN ( SELECT  encounter_id , DATE (#{ start_date }) AS visit_start_date,
+	                                DATE ( #{end_date} ) AS     visit_end_date
+			                   FROM encounter) AS  v1 ON v1.encounter_id = obs.encounter_id
+	     WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' )
+	     AND voided = 0 ) AS patients_in_wards
+LEFT OUTER JOIN ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS discharge_date
+	            , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS outcome
+	     FROM obs
+	     LEFT OUTER JOIN ( SELECT  encounter_id , DATE(encounter_datetime) AS discharge_date
+			                   FROM encounter
+			                   WHERE encounter_type = (SELECT encounter_type_id FROM encounter_type
+			                                           WHERE name = 'DISCHARGE PATIENT')) AS  v1 ON v1.encounter_id = obs.encounter_id
+	     WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' )
+	     AND voided = 0 ) AS discharged_patients ON patients_in_wards.patient_id = discharged_patients.patient_id
+WHERE  DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}') AND outcome != ''
+GROUP BY ward
+      ")
+=end
+  end
 
   def admissions_average_time(period={})
     avg_by_ward = {}
-    ActiveRecord::Base.connection.select_all("SELECT obs_visit.ward, AVG(visit_datediff.datedif) as avg_time FROM (SELECT admissions.encounter_id, admissions.ward, visit_encounters.visit_id FROM(SELECT obs.encounter_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded)) as ward FROM obs WHERE obs.concept_id=(SELECT concept_id FROM concept_name where name = 'ADMIT TO WARD' ) and obs.voided = 0) as admissions INNER JOIN visit_encounters on visit_encounters.encounter_id=admissions.encounter_id) as obs_visit INNER JOIN (SELECT visit_id, DATEDIFF(end_date,start_date) as datedif FROM visit WHERE start_date BETWEEN DATE('#{period['start_date']}') and DATE('#{period['end_date']}')) as visit_datediff on obs_visit.visit_id = visit_datediff.visit_id group by obs_visit.ward").map{|h| avg_by_ward[h['ward']]=h['avg_time']} rescue []
+    ActiveRecord::Base.connection.select_all("SELECT obs_visit.ward, AVG(visit_datediff.datedif) as avg_time FROM (SELECT admissions.encounter_id, admissions.ward, visit_encounters.visit_id FROM(SELECT obs.encounter_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward FROM obs WHERE obs.concept_id=(SELECT concept_id FROM concept_name where name = 'ADMIT TO WARD' ) and obs.voided = 0) as admissions INNER JOIN visit_encounters on visit_encounters.encounter_id=admissions.encounter_id) as obs_visit INNER JOIN (SELECT visit_id, DATEDIFF(end_date,start_date) as datedif FROM visit WHERE start_date BETWEEN DATE('#{period['start_date']}') and DATE('#{period['end_date']}')) as visit_datediff on obs_visit.visit_id = visit_datediff.visit_id group by obs_visit.ward").map{|h| avg_by_ward[h['ward']]=h['avg_time']} rescue []
     return avg_by_ward
 
   end
@@ -99,8 +160,8 @@ class Reports::ReportIpd
                                             (
                                             SELECT *
                                             FROM 
-                                            (SELECT person_id as patient_id, DATE(obs_datetime) as admission_date, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded)) as ward, visit_start_date, visit_end_date,visit_id 
-                                            FROM obs left outer join (SELECT visit.visit_id,encounter_id, DATE(start_date) as visit_start_date, DATE(end_date)as visit_end_date FROM visit_encounters left outer join visit on visit_encounters.visit_id = visit.visit_id) as v1 on v1.encounter_id=obs.encounter_id 
+                                            (SELECT person_id as patient_id, DATE(obs_datetime) as admission_date, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward, visit_start_date, visit_end_date,obs.encounter_id 
+                                            FROM obs left outer join (SELECT encounter_id, DATE(#{start_date}) as visit_start_date, DATE(#{end_date})as visit_end_date FROM encounter ) as v1 on v1.encounter_id=obs.encounter_id 
                                             WHERE concept_id=(SELECT concept_id FROM concept_name where name = 'ADMIT TO WARD' ) and voided = 0) AS patients_in_wards
                                             WHERE EXISTS (
                                             SELECT * 
@@ -116,7 +177,7 @@ class Reports::ReportIpd
                                             ) readmission_patients_with_last_date_of_admission
                                           WHERE  DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}')
                                           GROUP BY patient_id
-      ") rescue []
+      ") #rescue []
   end
 
   def total_patients_with_primary_diagnosis_equal_to_secondary(start_date, end_date)
@@ -242,7 +303,7 @@ class Reports::ReportIpd
 	                        , IFNULL ( value_text
 			                  , ( SELECT name
 			                         FROM concept_name
-			                        WHERE concept_id = value_coded ) )
+			                        WHERE concept_id = value_coded LIMIT 1) )
 	                   AS     ward
 	                        , visit_start_date
 	                        , visit_end_date
@@ -259,24 +320,22 @@ class Reports::ReportIpd
 				                    , visit_start_date ) END
 	                   AS     Date_Diff
 	                     FROM obs
-	                     LEFT OUTER JOIN ( SELECT visit.visit_id
+	                     LEFT OUTER JOIN ( SELECT encounter_id AS visit_id
 				                    , encounter_id
-				                    , DATE ( start_date )
+				                    , DATE ( #{start_date} )
 			                       AS     visit_start_date
-				                    , DATE ( end_date )
+				                    , DATE ( #{end_date} )
 			                       AS     visit_end_date
-			                         FROM visit_encounters
-			                         LEFT OUTER JOIN visit
-			                           ON visit_encounters.visit_id = visit.visit_id )
+			                         FROM encounter)
 	                   AS     v1
 	                       ON v1.encounter_id = obs.encounter_id
 	                    WHERE concept_id = ( SELECT concept_id
 			                           FROM concept_name
-			                          WHERE name = 'ADMIT TO WARD' )
+			                          WHERE name = 'OUTCOME' )
 	                      AND voided = 0 )
                   AS     admission_and_discharges
 		  WHERE DATE(visit_start_date) >= DATE('#{start_date}') AND DATE(visit_start_date) <= DATE('#{end_date}')
-                   GROUP BY ward") rescue []
+                   GROUP BY ward") #rescue []
   end
   
   def statistic_of_top_ten_primary_diagnosis_and_hiv_status(start_date, end_date)
@@ -424,15 +483,12 @@ class Reports::ReportIpd
                        , visit_id
                        ,  obs.obs_datetime as outcome_date
                     FROM obs
-                    LEFT OUTER JOIN ( SELECT visit.visit_id
-			                   , encounter_id
-			                   , DATE ( start_date )
+                    LEFT OUTER JOIN ( SELECT  encounter_id AS visit_id
+			                   , DATE ( #{start_date} )
 		                      AS     visit_start_date
-			                   , DATE ( end_date )
+			                   , DATE ( #{end_date} )
 		                      AS     visit_end_date
-		                        FROM visit_encounters
-		                        LEFT OUTER JOIN visit
-		                          ON visit_encounters.visit_id = visit.visit_id )
+		                        FROM encounter )
                   AS     v1
                       ON v1.encounter_id = obs.encounter_id
                    WHERE concept_id = ( SELECT concept_id
@@ -453,15 +509,12 @@ class Reports::ReportIpd
                        , visit_end_date
                        , visit_id
                     FROM obs
-                    LEFT OUTER JOIN ( SELECT visit.visit_id
-			                   , encounter_id
-			                   , DATE ( start_date )
+                    LEFT OUTER JOIN ( SELECT encounter_id AS visit_id
+			                   , DATE ( #{start_date} )
 		                      AS     visit_start_date
-			                   , DATE ( end_date )
+			                   , DATE ( #{end_date} )
 		                      AS     visit_end_date
-		                        FROM visit_encounters
-		                        LEFT OUTER JOIN visit
-		                          ON visit_encounters.visit_id = visit.visit_id )
+		                        FROM encounter)
                   AS     v1
                       ON v1.encounter_id = obs.encounter_id
                    WHERE concept_id = ( SELECT concept_id
@@ -487,14 +540,99 @@ class Reports::ReportIpd
                      AND voided = 0) patients_hiv_status
                      ON patients_death_statistic .patient_id = patients_hiv_status.patient_id
 		     WHERE DATE(outcome_date) >= DATE('#{start_date}') AND DATE(outcome_date) <= DATE('#{end_date}')
-                     GROUP BY ward ") rescue []
+                     GROUP BY ward ") #rescue []
   end
   
+  def specific_hiv_related_data_patient_details(start_date, end_date)
+   report_data = Observation.find_by_sql("
+                                          SELECT person_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward 
+                                          FROM obs 
+                                          WHERE (DATE(obs_datetime) >= '#{start_date}' AND DATE(obs_datetime) <= '#{end_date}' AND concept_id= ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' ))
+                                          AND (obs.voided = 0)
+                                          AND person_id IN (SELECT DISTINCT person_id
+                                                            FROM obs 
+                                                            WHERE (obs.concept_id = (SELECT concept_id FROM concept_name WHERE name = 'HIV STATUS') 
+                                                                   AND obs.value_coded = (SELECT concept_id FROM concept_name WHERE name = 'POSITIVE')AND obs.voided = 0)
+                                                            OR (obs.concept_id = (SELECT concept_id FROM concept_name WHERE name = 'ON ART?') 
+                                                                AND obs.value_coded = (SELECT concept_id FROM concept_name WHERE name = 'YES')
+                                                                AND obs.voided = 0)
+                                                            AND (DATE(obs_datetime) >= '#{start_date}' AND DATE(obs_datetime) <= '#{end_date}'))
+                                          GROUP BY ward, person_id ")
+  end 
+  
   def specific_hiv_related_data(start_date, end_date)
+   report_data = Observation.find_by_sql("
+                                          SELECT COUNT(*) as total_admitted, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward 
+                                          FROM obs 
+                                          WHERE (DATE(obs_datetime) >= '#{start_date}' AND DATE(obs_datetime) <= '#{end_date}' AND concept_id= ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' ))
+                                          AND (obs.voided = 0)
+                                          AND person_id IN (SELECT DISTINCT person_id
+                                                            FROM obs 
+                                                            WHERE (obs.concept_id = (SELECT concept_id FROM concept_name WHERE name = 'HIV STATUS') 
+                                                                   AND obs.value_coded = (SELECT concept_id FROM concept_name WHERE name = 'POSITIVE')AND obs.voided = 0)
+                                                            OR (obs.concept_id = (SELECT concept_id FROM concept_name WHERE name = 'ON ART?') 
+                                                                AND obs.value_coded = (SELECT concept_id FROM concept_name WHERE name = 'YES')
+                                                                AND obs.voided = 0)
+                                                            AND (DATE(obs_datetime) >= '#{start_date}' AND DATE(obs_datetime) <= '#{end_date}'))
+                                          GROUP BY ward ")
+                                         
+=begin                                         
+                                         
+                                         
+                                         SELECT DISTINCT patient_id, DATE(encounter_datetime) AS admission_date
+                                          FROM encounter 
+                                          LEFT JOIN obs ON obs.encounter_id = encounter.encounter_id
+                                          WHERE (DATE(encounter.encounter_datetime) >= DATE('#{start_date}') 
+                                          AND DATE(encounter.encounter_datetime) <= DATE('#{end_date}'))
+                                          AND encounter.encounter_type = (SELECT encounter_type_id FROM encounter_type 
+                                                                          WHERE name = 'ADMIT PATIENT')
+                                          AND encounter.voided = 0 AND obs.voided = 0
+                                          AND encounter.patient_id IN (SELECT DISTINCT person_id
+                                                                        FROM obs 
+                                                                        WHERE (obs.concept_id = (SELECT concept_id 
+                                                                                                 FROM concept_name 
+                                                                                                 WHERE name = 'HIV STATUS') 
+                                                                               AND obs.value_coded = (SELECT concept_id 
+                                                                                                      FROM concept_name 
+                                                                                                      WHERE name = 'POSITIVE')
+                                                                               AND obs.voided = 0)
+                                                                        OR (obs.concept_id = (SELECT concept_id 
+                                                                                              FROM concept_name 
+                                                                                              WHERE name = 'ON ART?') 
+                                                                            AND obs.value_coded = (SELECT concept_id 
+                                                                                                   FROM concept_name 
+                                                                                                   WHERE name = 'YES')
+                                                                            AND obs.voided = 0))")
+=begin
+SELECT patient_id, ward, gender , admission_date
+FROM ( SELECT DISTINCT person_id AS patient_id, concept_id, DATE ( obs_datetime ) AS  admission_date
+			 , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) 
+		  AS ward, visit_start_date, visit_end_date
+		FROM obs
+		 LEFT OUTER JOIN ( SELECT encounter_id, DATE ( 2013-01-01 ) AS visit_start_date, DATE ( 2013-01-31 ) AS  visit_end_date FROM encounter) AS v1
+		                             ON v1.encounter_id = obs.encounter_id
+		WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' ) 
+		AND voided = 0 
+		AND person_id IN ( SELECT DISTINCT person_id
+                        FROM obs o
+                        WHERE (o.concept_id = (SELECT concept_id FROM concept_name WHERE name = 'HIV STATUS') 
+                                AND o.value_coded = (SELECT concept_id FROM concept_name WHERE name = 'POSITIVE')
+                                AND o.voided = 0)
+                        OR (o.concept_id = (SELECT concept_id from concept_name 
+                                            WHERE name = 'ON ART?') 
+                                            AND o.value_coded = (SELECT concept_id FROM concept_name 
+                                                                 WHERE name = 'YES')
+                                            AND o.voided = 0))  ) AS patients_in_wards
+LEFT OUTER JOIN person ON patients_in_wards.patient_id = person_id
+=end
+  end
+
+  def total_specific_hiv_related_data
+
       report_data = Observation.find_by_sql("   
                     SELECT COUNT( gender )
                     AS     total_admissions
-                         , SUM( CASE WHEN hiv_status = 'REACTIVE'
+                         , SUM( CASE WHEN hiv_status = 'POSITIVE'
                             THEN '1' ELSE '0' END )
                     AS     patient_admission_hiv_status
                          , SUM( CASE WHEN on_art = 1
@@ -523,17 +661,14 @@ class Reports::ReportIpd
 		                         AS     ward
 			                      , visit_start_date
 			                      , visit_end_date
-			                      , visit_id
 		                           FROM obs
-		                           LEFT OUTER JOIN ( SELECT visit.visit_id
-					                          , encounter_id
-					                          , DATE ( start_date )
+		                           LEFT OUTER JOIN ( SELECT encounter_id
+					                          , DATE ( #{start_date} )
 				                             AS     visit_start_date
-					                          , DATE ( end_date )
+					                          , DATE ( #{end_date} )
 				                             AS     visit_end_date
-				                               FROM visit_encounters
-				                               LEFT OUTER JOIN visit
-				                                 ON visit_encounters.visit_id = visit.visit_id )
+				                               FROM encounter
+				                                )
 		                         AS     v1
 		                             ON v1.encounter_id = obs.encounter_id
 		                          WHERE concept_id = ( SELECT concept_id
@@ -570,6 +705,6 @@ class Reports::ReportIpd
 	                             AND voided = 0 )
                     AS     patients_on_art
                         ON patient_admission_and_hiv_status.patient_id = patients_on_art.patient_id
-		    WHERE DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}') ") rescue []
+		    WHERE DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}') ") #rescue []
   end
 end

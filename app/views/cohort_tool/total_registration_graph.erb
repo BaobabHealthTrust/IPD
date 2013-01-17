@@ -1,0 +1,139 @@
+<html>
+  <head>
+  		<script language="javascript" type="text/javascript" src="/javascripts/flotr2.min.js"></script>
+		<script type="text/javascript">
+	function drawBarChart() {
+
+	var d1 = [],d2 = [], markers = [0,1,2,4,6,8,10,12,14,16], i = 0, highest=0;
+				
+	var container = document.getElementById('barChart'),graph,series;
+
+				//fill retrieve the data
+				d1.push([0.5, <%= @peoples['Under6M'].to_json %>]);
+				d2.push([1, <%= @peoples['Under6F'].to_json %>]);
+				d1.push([2, <%= @peoples['Under12MM'].to_json %>]);
+				d2.push([2.5, <%= @peoples['Under12MF'].to_json %>]);
+				d1.push([4, <%= @peoples['Under5YM'].to_json %>]);
+				d2.push([4.5, <%= @peoples['Under5YF'].to_json %>]);
+				d1.push([6, <%= @peoples['Under14YM'].to_json %>]);
+				d2.push([6.5, <%= @peoples['Under14YF'].to_json %>]);
+				d1.push([8, <%= @peoples['Under20YM'].to_json %>]);
+				d2.push([8.5, <%= @peoples['Under20YF'].to_json %>]);
+				d1.push([10, <%= @peoples['Under30YM'].to_json %>]);
+				d2.push([10.5, <%= @peoples['Under30YF'].to_json %>]);
+				d1.push([12, <%= @peoples['Under40YM'].to_json %>]);
+				d2.push([12.5, <%= @peoples['Under40YF'].to_json %>]);
+				d1.push([14, <%= @peoples['Under50YM'].to_json %>]);
+				d2.push([14.5, <%= @peoples['Under50YF'].to_json %>]);
+				d1.push([16, <%= @peoples['Over50YM'].to_json %>]);
+				d2.push([16.5, <%= @peoples['Over50YF'].to_json %>]);
+	
+		 				series =[{label: "Males", data:d1},{label:"Females", data:d2}]
+          // Draw Graph
+          graph = Flotr.draw(container,series,{title:"Total Registered Bar Chart", bars: {show:true, barWidth:0.5}, xaxis: {ticks:markers ,min:0, max: 18}, yaxis:{min:0, max:<%= @total_registered.to_json %> *0.3},legend:{show:true,position:"left"}, mouse: {track: true}});
+								
+				
+      };
+		setTimeout("drawBarChart();",300)      
+		
+		function drawPieChart(){
+					
+			
+		var container = document.getElementById('barChart'),graph;
+	
+		 				
+          // Draw Graph
+      graph = Flotr.draw(container,[{data:[[0,<%=@peoples['Under6M']%>]],label:"Male under 6 months"}, {data:[[1,<%=@peoples['Under6F']%>]], label: 'Female Under 6 months'},{data:[[2,<%=@peoples['Under12MM']%>]],label:"Male 6-12 months"}, {data:[[3,<%=@peoples['Under12MF']%>]], label: 'Female 6-12 months'},{data:[[4,<%=@peoples['Under5YM']%>]],label:"Male 1-5"}, {data:[[5,<%=@peoples['Under5YF']%>]], label: 'Female 1-5'},{data:[[6,<%=@peoples['Under14YM']%>]],label:"Male 5-14"}, {data:[[7,<%=@peoples['Under14YF']%>]], label: 'Female 5-14'},{data:[[8,<%=@peoples['Under20YM']%>]],label:"Male 14-20"}, {data:[[9,<%=@peoples['Under20YF']%>]], label: 'Female 14-20'},{data:[[10,<%=@peoples['Under30YM']%>]],label:"Male 20-30"}, {data:[[11,<%=@peoples['Under30YF']%>]], label: 'Female 20-30'},{data:[[12,<%=@peoples['Under40YM']%>]],label:"Male 30-40"}, {data:[[13,<%=@peoples['Under40YF']%>]], label: 'Female 30-40'},{data:[[14,<%=@peoples['Under50YM']%>]],label:"Male 40-50"}, {data:[[15,<%=@peoples['Under50YF']%>]], label: 'Female 40-50'},{data:[[16,<%=@peoples['Over50YM']%>]],label:"Male Over 50"}, {data:[[17,<%=@peoples['Over50YF']%>]], label: 'Female Over 50'}], {
+        HtmlText: false,
+        title:"Total Registered Pie Chart",
+        HtmlText:true,
+        fontSize: 15,
+        grid: {
+            verticalLines: false,
+            horizontalLines: false
+        }
+        ,
+        xaxis: {
+            showLabels: false
+        },
+        yaxis: {
+            showLabels: false
+        },
+        pie: {
+            show: true,
+        		labelFormatter:function(slice){return ""},
+            explode: 70,            
+        },
+        mouse: {
+            track: true
+        },
+        legend: {
+            position: 'sw',
+            backgroundColor: '#D2E8FF'
+        }
+    });
+				
+
+		};
+		
+		function chartType() {
+			var chart = document.getElementById("type");
+			
+			if (type.innerHTML == "<span>Pie Chart</span>")
+			{
+				type.innerHTML = "<span>Bar Chart</span>"
+				drawPieChart();
+			}
+			else
+			{
+				type.innerHTML = "<span>Pie Chart</span>"
+				drawBarChart();
+			
+			}			
+		
+		}
+		
+		function chartTypeButton() {
+		
+			var button = document.getElementById("buttons");
+			var type = document.createElement("button")
+			type.innerHTML="<span>Pie Chart</span>"
+			type.setAttribute("id", "type")
+			type.setAttribute("class","blue")
+			type.setAttribute("onclick", "chartType()")
+			button.appendChild(type)
+
+		}
+		setTimeout("chartTypeButton();",300)
+</script >
+
+  
+  </head>
+  <body >
+
+    <%= image_tag(@logo, :class => "logo")%>
+
+<div style= " position:absolute;top:10px; left:190px">
+    <br /><b ><%= @current_location_name %></b><br />
+      <b><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+
+<b > Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Registered: #{@total_registered}" %>
+(Total Male: <%= @total_male_registered %>, Total Female: <%= @total_female_registered %>) </b>
+
+ </b>
+</div>
+
+<div style = "border: 1px solid; height: 480px; width:80%; margin:30px; overflow:none;" id="barChart">
+
+</div>
+<div style = "border:1px solid; height:480px; width:15%; overflow:none; position: relative; top:-512px; left: 83%;">	
+	<b>Legend</b>
+	<div id = "legend" style= "overflow:auto; height: 450px">
+		1 = Under 6 Months<br>2 = 6-12 Months<br>4 = 1-5 Years<br>6 = 5-14 Years<br>8 = 14-20 Years<br>10 = 20-30 Years<br>
+12 = 30-40 Years<br>14 = 40-50 Years<br>16 = Over 50 Years<br>
+
+	</div>	
+</div>
+
+</body>
+</html>

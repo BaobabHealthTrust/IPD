@@ -1,0 +1,73 @@
+<script >
+    tt_cancel_destination = "/Report/data_cleaning";
+</script>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+
+<style>
+    .phone_type {
+        position:relative;
+        float:left;
+        padding-left:20px;
+        width:180px;  
+    }
+
+    .phone_colon {
+        position:relative;
+        float:left;
+        padding-right:15px;    
+    }
+
+    .phone_number {
+        position:relative;
+        float:left;    
+    }
+</style>
+
+<h1 align='center'><u><%=params[:check_type]-%></u></h1>
+<table id='summary'>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>ARV Number</th>
+            <th>Name</th>
+            <th>National ID</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>DOB</th>
+            <th>Phone Number</th>
+            <th>Date Started</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% session[:mastercard_ids] = [] %>
+        <% session[:mastercard_counter] = 0 %>
+        <% @report.each do |data_row| %>
+            <% session[:mastercard_ids] << data_row['person_id'] %>
+
+            <tr>
+                <td align='center'><%= link_to_onmousedown "#{data_row['person_id']}",{:controller =>"patients", :action => 'mastercard', 
+                                 :patient_id => "#{data_row['person_id']}" ,:source =>"out_of_range_arv_number", :quarter => "#{@report_quarter}",
+                                 :arv_start_number => "#{params[:arv_start_number]}",:arv_end_number => "#{params[:arv_end_number]}"}%></td>
+                <td align='center'><%= data_row['arv_number'] %></td>
+                <td><%= data_row['name'] %></td>
+                <td align='center'><%= data_row['national_id'] %></td>
+                <td align='center'><%= data_row['gender']%></td>
+                <td align='center'><%= data_row['age'] %></td>
+                <td align='center'><%= data_row['birthdate']%></td>    
+                <%
+                phone_numbers = ""
+                data_row['phone'].map do |phone_type, phone_number|
+                    phone_numbers += '<span class="phone_type" >' + phone_type.to_s.humanize  +  '</span>' + "<span class='phone_colon' > : </span>" +'<span class="phone_number">' + phone_number.to_s + '</span>' + "<br />" if !phone_number.to_s.blank?
+                end
+                %>
+                <td align='left'><%= phone_numbers%></td>
+                <td align='center'><%= data_row['date_created']%></td>
+            </tr>
+        <%end%>
+        <script>
+            insertBlankRow ();
+        </script>
+    <tbody>
+</table>
+
