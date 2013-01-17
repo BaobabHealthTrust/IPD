@@ -85,10 +85,10 @@ end -%>
     var tt_cancel_destination = "/clinic"
 <% end %>
 
-  function changeNextButtonText(text, pos){
+  function changeNextButtonText(text, pos , person_id){
     __$('nextButton').innerHTML = "<span>" + text + "</span>";
-    
-    if(pos){
+   
+    if(pos && (person_id == 0)){
       document.forms[0].action = "create";
       __$('nextButton').onmousedown = function(){
         document.forms[0].submit();
@@ -118,78 +118,21 @@ end -%>
     
       createControlAndAssignValue("remote", "remote", "true");
     
-      for(var i = 0; i < fields.length; i++){
-        switch(fields[i]){
-          case "identifier":
-            createControlAndAssignValue("identifier", "person[identifiers]",
-            remote_people[pos]["person"]["data"]["patient"]["identifiers"]["diabetes_number"]);
-            break;
-          case "gender":
-            createControlAndAssignValue("gender", "person[gender]", 
-            remote_people[pos]["person"]["gender"]);
-            break;
-          case "given_name":
-            createControlAndAssignValue("given_name", "person[names][given_name]", 
-            remote_people[pos]["person"]["given_name"]);
-            break;
-          case "family_name":
-            createControlAndAssignValue("family_name", "person[names][family_name]", 
-            remote_people[pos]["person"]["family_name"]);
-            break;
-          case "family_name2":
-            break;
-          case "address2":
-            createControlAndAssignValue("address2", "person[addresses][address2]",
-            remote_people[pos]["person"]["data"]["addresses"]["address2"]);
-            break;
-          case "relation":
-            break;
-          case "birthdate":
-            try{
-              var birthdate = new Date(remote_people[pos]["person"]["data"]["birthdate"]);
-              
-              if(birthdate){
-                createControlAndAssignValue("person_birth_year", "person[birth_year]",
-                birthdate.getFullYear());
-              
-                createControlAndAssignValue("person_birth_month", "person[birth_month]",
-                birthdate.getMonth() + 1);
-              
-                createControlAndAssignValue("person_birth_day", "person[birth_day]",
-                birthdate.getDate());
-              }
-            } catch(e){}
-            break;
-          case "birthdate_estimated":
-            createControlAndAssignValue("birthdate_estimated", "person[age_estimate]",
-            remote_people[pos]["person"]["data"]["birthdate_estimated"]);
-            break;
-          case "state_province":
-            createControlAndAssignValue("state_province", "person[addresses][state_province]",
-            remote_people[pos]["person"]["data"]["addresses"]["state_province"]);
-            break;
-          case "city_village":
-            createControlAndAssignValue("city_village", "person[addresses][city_village]",
-            remote_people[pos]["person"]["data"]["addresses"]["city_village"]);
-            break;
-          case "county_district":
-            createControlAndAssignValue("county_district", "person[addresses][county_district]",
-            remote_people[pos]["person"]["data"]["addresses"]["county_district"]);
-            break;
-          case "occupation":
-            createControlAndAssignValue("occupation", "person[occupation]",
-            remote_people[pos]["person"]["data"]["attributes"]["occupation"]);
-            break;
-          case "cell_phone_number":
-            createControlAndAssignValue("cellphone", "person[cell_phone_number]",
-            remote_people[pos]["person"]["data"]["attributes"]["cell_phone_number"]);
-            break;
-          case "national_id":
-            createControlAndAssignValue("national_id", "person[patient][identifiers][National id]", 
-            remote_people[pos]["person"]["value"]);
-            break;
-        }
-      }
+      <%(@search_results).each do |npid,data| %>
+          createControlAndAssignValue("gender", "person[gender]","<%=data.sex%>");
+          createControlAndAssignValue("given_name", "person[names][given_name]","<%=data.name.split(' ')[0]%>");
+          createControlAndAssignValue("family_name", "person[names][family_name]","<%=data.name.split(' ')[1]%>")
+          createControlAndAssignValue("address2", "person[addresses][address2]","<%=data.current_residence%>")
+          createControlAndAssignValue("person_birth_year", "person[birth_year]","<%=data.birthdate.year%>")
+          createControlAndAssignValue("person_birth_month", "person[birth_month]","<%=data.birthdate.month%>")
+          createControlAndAssignValue("person_birth_day", "person[birth_day]","<%=data.birthdate.day%>")
+          createControlAndAssignValue("birthdate_estimated", "person[birthdate_estimated]", "<%=data.birthdate_estimated%>");
+          createControlAndAssignValue("state_province", "person[addresses][state_province]","<%=data.home_district%>")
+          createControlAndAssignValue("city_village", "person[addresses][city_village]","<%=data.current_residence%>")
+          createControlAndAssignValue("county_district", "person[addresses][county_district]","<%=data.traditional_authority%>")
+          createControlAndAssignValue("occupation", "person[occupation]","<%=data.occupation%>")
+          createControlAndAssignValue("national_id", "person[patient][identifiers][National id]","<%=data.national_id%>") 
+      <%end%>
     } else {
       document.forms[0].action = "select";
       __$('nextButton').onmousedown = function(){
@@ -221,14 +164,6 @@ end -%>
       window.location.href = "/people/search";
   }
    
-  function makeRemoteButton(){
-    <% if create_from_dde_server %>
-    __$("backButton").innerHTML = "<span>Remote Search</span>";
-    __$('backButton').setAttribute("onmousedown","search_remote();");
-    __$('backButton').style.display = "block";
-    <%end%>
-  }
-    
   function createNewSearchButton(){
     $('clearButton').innerHTML = "<span>New Search</span>";
     $('clearButton').setAttribute("onmousedown","newSearch();");            
@@ -248,6 +183,7 @@ end -%>
   }
    
   function search_remote(){
+    return
     var url = "/people/dde_search?given_name=<%= params[:given_name] %>" + 
       "&family_name=<%= params[:family_name] %>&gender=<%= params[:gender] %>";  
     
@@ -256,14 +192,15 @@ end -%>
   }
   
   function loadPatient(){
-    __$("summary").innerHTML = "";
+    /*__$("summary").innerHTML = "";
     remote_people = JSON.parse(ajaxGeneralRequestResult);
-    
+    */
     people = [{}];
     
     var targetElement = tstFormElements[__$("touchscreenInput"+tstCurrentPage).getAttribute("refersToTouchscreenInputID")];
     
     var opts = __$("tt_currentUnorderedListOptions").getElementsByTagName("li");
+
     var selOptions = targetElement.getElementsByTagName("option");
 
     for(var i = opts.length-1; i > 0; i--){
@@ -277,65 +214,58 @@ end -%>
     }
     
     var pos = 1
-    for(var i = 0; i < remote_people.length; i++){
+    i = -1;
+    <%(@patients).each do |data| %>
+      i++
       people.push({});
       
-      people[pos]["Name"] = remote_people[i]["person"]["data"]["names"]["given_name"] + 
-        " " + remote_people[i]["person"]["data"]["names"]["family_name"];
+      people[pos]["Name"] = "<%=data.name%>"
       
-      people[pos]["Gender"] = ((remote_people[i]["person"]["data"]["gender"].length > 0) ? 
-        (remote_people[i]["person"]["data"]["gender"] == "M" ? "Male" : "Female") : "");
+      people[pos]["Gender"] = "<%=data.sex%>"
       
-      people[pos]["Birthdate"] = remote_people[i]["person"]["birthdate"];
+      people[pos]["Birthdate"] = "<%=data.birth_date%>"
       
-      try{
-        var t = new Date();
-        var d = new Date(remote_people[i]["person"]["birthdate"]);
-
-        var age = (t.getFullYear() - d.getFullYear());
-        
-        people[pos]["Age"] = age;
-      } catch(e){}
+      people[pos]["Age"] = "<%=data.age%>";
       
-      people[pos]["Home District"] = remote_people[i]["person"]["data"]["addresses"]["state_province"];
+      people[pos]["Home District"] = "<%=data.home_district%>"
       
-      people[pos]["Ancestral Traditional Authority(T/A)"] = remote_people[i]["person"]["data"]["addresses"]["county_district"];
+      people[pos]["Ancestral Traditional Authority(T/A)"] = "<%=data.traditional_authority%>"
       
-      people[pos]["Current Residence"] = remote_people[i]["person"]["data"]["addresses"]["city_village"];
+      people[pos]["Current Residence"] = "<%=data.current_residence%>";
       
-      people[pos]["Patient National ID"] = remote_people[i]["person"]["value"];
+      people[pos]["Patient National ID"] = "<%=data.national_id%>";
       
       var li = document.createElement("li");
       li.id = i + 1;
       li.className = ((i + 1)/2 > 0 ? "odd" : "even");
-      li.setAttribute("tstvalue", i + 1);
+      li.setAttribute("tstvalue", <%=data.person_id%>);
       li.setAttribute("pos", i);
       li.innerHTML = people[pos]["Name"] + " (" + people[pos]["Gender"] + ") " + 
         people[pos]["Birthdate"] + ", " + people[pos]["Home District"];
       li.setAttribute("tag", ((i + 1)/2 > 0 ? "odd" : "even"));
       li.onmousedown = function(){
-        changeNextButtonText('Select Patient', this.getAttribute("pos")); 
+        changeNextButtonText('Select Patient', this.getAttribute("pos"), <%=data.person_id%>); 
         updateTouchscreenInputForSelect(this); 
         changeSummary(this.id);
       }
       li.onclick = function(){
-        changeNextButtonText('Select Patient', this.getAttribute("pos")); 
+        changeNextButtonText('Select Patient', this.getAttribute("pos"), <%=data.person_id%>); 
         updateTouchscreenInputForSelect(this); 
         changeSummary(this.id);
       }
-      
+
       __$("tt_currentUnorderedListOptions").appendChild(li);
       
       var selOption = document.createElement("option");
       selOption.innerHTML = li.innerHTML;
-      selOption.setAttribute("value", i + 1);
+      selOption.setAttribute("value", <%=data.person_id%>);
       
       targetElement.appendChild(selOption);
       
       pos++;
-    }
+    <%end%>
     
-    tstDualViewOptions = people;
+    //tstDualViewOptions = people;
   }
   
 </script>
@@ -353,7 +283,7 @@ end -%>
   <% end -%>
   <% unless (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
     <% form_tag "select", :method => :post do %>
-      <% if @people.blank? %>
+      <% if @patients.blank? %>
         <% if @relation.blank? %>
           <label for="person">No patients were found:</label>
         <% else %>
@@ -366,7 +296,7 @@ end -%>
           <label for="person">Select the guardian from the following</label>
         <% end %>
       <% end -%>
-      <select name="person[id]" id="person" dualView="true" dualViewOptions="people" tt_onLoad="makeRemoteButton()">
+      <select name="person[id]" id="person" dualView="true" dualViewOptions="people">
         <!--option onmousedown="search_remote()">Search from remote server for person with name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option-->
 
 			<% if @relation.blank? %>
@@ -384,7 +314,8 @@ end -%>
 			 <% end %>
         
         <% @patients.each do | patient |
-          next if patient.blank? -%>
+          next if patient.blank? 
+          -%>
 				<% if @relation.blank? %>
 					<option value="<%= patient.person_id %>" onmousedown="changeNextButtonText('Select Patient')">
 				<% else %>
@@ -395,7 +326,7 @@ end -%>
             <% unless patient.current_residence.blank? %> <%=h patient.current_residence -%> <% end %>,
             <% unless patient.guardian.blank? %> Guardian: <%=h patient.guardian -%> <% end %>
           </option>
-        <% end -%>
+        <% end -%> 
       </select>
       <input type="hidden" id="identifier" name="identifier" value="<%=h params[:identifier] -%>" />
       <input type="hidden" id="gender" name="gender" value="<%=h params[:gender] -%>" />
@@ -424,5 +355,9 @@ end -%>
     }
         
     //-->
+    
+    <%unless @search_results.blank? -%>
+      setTimeout("loadPatient()", 500);
+    <%end%>
   </script>
 </body>
