@@ -19,38 +19,38 @@
     <script type="text/javascript">
       jQuery(document).ready(function($) {
         $('#logout').click(function() {
-            <% if @report_url.to_s.blank? %>
-                window.location = '/clinic';
-            <% else %>
-                window.location = '<%= "#{@report_url}" -%>';
-            <% end %>
-            })
-        $('#find').click(function() {
+<% if @report_url.to_s.blank? %>
+        window.location = '/clinic';
+<% else %>
+        window.location = '<%= "#{@report_url}" -%>';
+<% end %>
+    })
+    $('#find').click(function() {
 
-          if (document.getElementById("find").innerHTML != "<span>Back</span>")
-          {
-              submit_mastercard();
-          }
-          else
-          {
-              history.go(-1);// /report/data_cleaning';
-          }
+      if (document.getElementById("find").innerHTML != "<span>Back</span>")
+      {
+        submit_mastercard();
+      }
+      else
+      {
+        history.go(-1);// /report/data_cleaning';
+      }
 
-          })
-        //if ($('#staging')) $('#staging').click(function() { window.location = 'http://staging/clinic' })
-      })
+    })
+    //if ($('#staging')) $('#staging').click(function() { window.location = 'http://staging/clinic' })
+  })
 
-    function submit_mastercard()
-    {
-        document.forms["myform"].submit();
-    }
+  function submit_mastercard()
+  {
+    document.forms["myform"].submit();
+  }
 
-    //the function is to be called at the end of the table i.e. to insert the last row
-    function insertBlankRow ()
-    {
-       var lastRow = '<tr style = "height:auto; border:solid 0px black;"> <td style ="height:auto; border:solid 0px black;"></td></tr>';
-       document.write(lastRow);
-    }
+  //the function is to be called at the end of the table i.e. to insert the last row
+  function insertBlankRow ()
+  {
+    var lastRow = '<tr style = "height:auto; border:solid 0px black;"> <td style ="height:auto; border:solid 0px black;"></td></tr>';
+    document.write(lastRow);
+  }
     </script>
     <style type="text/css">
       #tab {
@@ -107,81 +107,81 @@
   </head>
   <body id="mateme">
     <div id="container">
-      <div id="content" style = "position : relative; width : 85%; margin-left : -43%;">
+      <div id="content" style = "position : relative; width : 96%; margin-left : -48%">
 
         <%= yield %>
-		<%#=  raise session[:mastercard_ids].to_yaml %>
-      <% if session[:mastercard_ids].length.to_i != 0 and session[:mastercard_ids].length.to_i != "" %>
-         <% session[:mastercard_ids] = session[:mastercard_ids].uniq.sort! rescue ""%>
-        <form action="/patients/mastercard?source=data_cleaning&show_mastercard_counter=true&current=1"  method="post" id="myform">
-        </form>
-      <% end rescue "" %>
+<%#=  raise session[:mastercard_ids].to_yaml %>
+        <% if session[:mastercard_ids].length.to_i != 0 and session[:mastercard_ids].length.to_i != "" %>
+          <% session[:mastercard_ids] = session[:mastercard_ids].uniq.sort! rescue ""%>
+          <form action="/patients/mastercard?source=data_cleaning&show_mastercard_counter=true&current=1"  method="post" id="myform">
+          </form>
+        <% end rescue "" %>
 
         <div id="footer" class="dark">
           <div id="buttons" class="buttons" style="top:0px">
             <button id="logout" class="red left" style="position :relative; float:right;"><span>Finish</span></button>
             <button id="find" class="blue" style="width:200px;" style="right:-0px; float:right;"><span>Back</span></button>
-             
-						 <% if params[:action] != "opd_cohort" %>
-										 
-										  <% if @report_name.upcase == "PATIENT_LEVEL_DATA" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['Name','Birthdate','Gender','Primary Diagnosis','Secondary Diagnosis','Treatment','Visit Date']})"><span>Export</span></button>
-										  <% elsif @report_name.upcase == "DISAGGREGATED_DIAGNOSIS" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV()"><span>Export</span></button>
-										  <% elsif @report_name.upcase == "DIAGNOSIS_BY_ADDRESS" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['Diagnosis','Address','Total']})"><span>Export</span></button>
-										  <% elsif @report_name.upcase == "DIAGNOSIS_REPORT" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['Diagnosis','Total']})"><span>Export</span></button>
-										  <% elsif @report_name.upcase == "TOTAL_REGISTERED" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['Name','Birthdate','Gender','Date Registered', 'Address','T.A']})">
-											  <span>Export</span></button>
-										  <% elsif @report_name.upcase != 'SHIFT_REPORT' %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['Facility','Total']})"><span>Export</span></button>
-										  <% end %>
 
-						  <% else %>
+            <% if params[:action] != "opd_cohort" %>
 
-										  <% if @report_type == "adults" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
-										  <% elsif @report_type == "paeds"%>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
-										  <% elsif @report_type == "diagnoses" %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
-										  <% else %>
-											  <button id="print" class="blue" style="position :relative; float:right;"
-											  onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
-										  <% end %>
-						   <%end%>
-         
+              <% if @report_name.upcase == "PATIENT_LEVEL_DATA" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['Name','Birthdate','Gender','Primary Diagnosis','Secondary Diagnosis','Treatment','Visit Date']})"><span>Export</span></button>
+                      <% elsif @report_name.upcase == "DISAGGREGATED_DIAGNOSIS" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV()"><span>Export</span></button>
+                      <% elsif @report_name.upcase == "DIAGNOSIS_BY_ADDRESS" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['Diagnosis','Address','Total']})"><span>Export</span></button>
+                      <% elsif @report_name.upcase == "DIAGNOSIS_REPORT" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['Diagnosis','Total']})"><span>Export</span></button>
+                      <% elsif @report_name.upcase == "TOTAL_REGISTERED" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['Name','Birthdate','Gender','Date Registered', 'Address','T.A']})">
+                  <span>Export</span></button>
+              <% elsif @report_name.upcase != 'SHIFT_REPORT' %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['Facility','Total']})"><span>Export</span></button>
+                      <% end %>
+
+            <% else %>
+
+              <% if @report_type == "adults" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
+                      <% elsif @report_type == "paeds"%>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
+                      <% elsif @report_type == "diagnoses" %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
+                      <% else %>
+                <button id="print" class="blue" style="position :relative; float:right;"
+                        onClick="$('#table_id').table2CSV({header:['No','Data Element','Normal Range','Value','Comment']})"><span>Export</span></button>
+                      <% end %>
+                    <%end%>
+
           </div>
         </div>
       </div>
     </div>
   </body>
 
-<script>
-	for (i=0; i<document.getElementsByTagName("th").length; i++){
+  <script>
+    for (i=0; i<document.getElementsByTagName("th").length; i++){
 
-	if (document.getElementsByTagName("td").length > 1) {
-			if (document.getElementsByTagName("th")[i].offsetWidth < document.getElementsByTagName("td")[i].offsetWidth){
-					document.getElementsByTagName("th")[i].style.width = (document.getElementsByTagName("td")[i].offsetWidth) + 'px';
-					document.getElementsByTagName("td")[i].style.width = document.getElementsByTagName("th")[i].style.width;
-			}
-			else{
-					document.getElementsByTagName("td")[i].style.width = (document.getElementsByTagName("th")[i].offsetWidth) + 'px';
-					document.getElementsByTagName("th")[i].style.width = document.getElementsByTagName("td")[i].style.width;
-			}
-		}
-	}
-</script>
+      if (document.getElementsByTagName("td").length > 1) {
+        if (document.getElementsByTagName("th")[i].offsetWidth < document.getElementsByTagName("td")[i].offsetWidth){
+          document.getElementsByTagName("th")[i].style.width = (document.getElementsByTagName("td")[i].offsetWidth) + 'px';
+          document.getElementsByTagName("td")[i].style.width = document.getElementsByTagName("th")[i].style.width;
+        }
+        else{
+          document.getElementsByTagName("td")[i].style.width = (document.getElementsByTagName("th")[i].offsetWidth) + 'px';
+          document.getElementsByTagName("th")[i].style.width = document.getElementsByTagName("td")[i].style.width;
+        }
+      }
+    }
+  </script>
 
 </html>

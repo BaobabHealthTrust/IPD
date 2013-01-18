@@ -239,22 +239,22 @@
       <table  id="table_id" class="display" >
         <thead><tr>
             <th>
-                  <u>Ward</u> <p />
+                  Ward<p />
             </th>
             <th>
-                  <u> Total Patients Admitted </u> <p />
+                  Total Patients Admitted <p />
             </th>
             <th>
-                  <u>Total Patients Discharged </u> <p />
+                  Total Patients Discharged  <p />
             </th>
             <th>
-                  <u> Discharge/Admission Rate (%) </u> <p />
+                 Discharge/Admission Rate (%)  <p />
             </th>
             <th>
-                  <u> %SPINE Compliance </u> <p />
+                   %SPINE Compliance <p />
             </th>
             <th>
-                  <u> Average Stay </u> <p />
+                   Average Stay  <p />
             </th>
           </tr>
 
@@ -271,9 +271,9 @@
           <% @admission_discharge_summary.each do |record| %>
             <tr>
               <td> <span style="display:block; width:90%;"> <%= "#{record[ward]}" %> </span> </td>
-              <td align="center" > <span ><%= link_to "#{record[admitted]}", "/cohort_tool/discharge_by_ward_patient_details?ward=#{record[ward]}&age_groups=#{@age_groups}&start_date=#{@formated_start_date}&end_date=#{@formated_end_date}&field=admitted" %></span>  </td>
-              
-             <td align="center" > <span ><%= link_to "#{record[discharged]}", "/cohort_tool/discharge_by_ward_patient_details?ward=#{record[ward]}&age_groups=#{@age_groups}&start_date=#{@formated_start_date}&end_date=#{@formated_end_date}&field=discharged" %></span>  </td> 
+                           
+              <td align="center"><%= button_to("#{record[admitted]}",{:action => 'discharge_by_ward_patient_details',:ward => "#{ward}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :field => 'admitted'},{:class =>'link'})%></td> 
+              <td align="center"><%= button_to("#{record[discharged]}",{:action => 'discharge_by_ward_patient_details',:ward => "#{ward}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :field => 'discharged'},{:class =>'link'})%></td> 
 
               <% 
                 @discharge_rate =  ((record[discharged].to_i)/(record[admitted]).to_f)*100

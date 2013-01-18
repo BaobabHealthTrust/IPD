@@ -247,8 +247,8 @@
           <% @admission_summary.each do |ward,total| %>
             <tr>
               <td width="50%"> <span style="display:block; width:90%;"> <%= "#{ward}" %> </span> </td>
-              <td align="center" > <span ><%= link_to "#{total}", "/cohort_tool/discharge_by_ward_patient_details?ward=#{ward}&age_groups=#{@age_groups}&start_date=#{@formated_start_date}&end_date=#{@formated_end_date}&field=admitted" %></span>  </td>
-            </tr>
+              <td align="center"><%= button_to("#{total}",{:action => 'discharge_by_ward_patient_details',:ward => "#{ward}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :field => 'admitted'},{:class =>'link'})%></td> 
+           </tr>
           <% end %>
 
         </tbody>
