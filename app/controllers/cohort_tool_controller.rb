@@ -1408,6 +1408,70 @@ class CohortToolController < ApplicationController
     render :layout => "report"
   end
 
+  def re_admissions_patient_details
+
+    @report_name = params[:field]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_date = params[:start_date].to_date
+    end_date = params[:end_date].to_date
+    @start_date = start_date
+    @end_date = end_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    
+    @patient_readmissions = report.re_admissions(@start_date, @end_date)
+    @readmission_in_three_months = []
+     @readmission_in_six_months = []
+     @patient_readmissions.each do |patient|
+        if patient.days.to_i < 91
+          @readmission_in_three_months << patient
+        elsif patient.days.to_i < 181
+          @readmission_in_six_months << patient
+        end
+     end
+
+
+    if params[:field] == 'total_admitted'
+      @patients = Observation.find(:all, 
+                            :select => "person_id AS patient_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
+                            :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ? AND voided = 0", 
+                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD")])
+
+    elsif params[:field] == 'total_re_admitted'
+        @patients = @patient_readmissions
+    elsif params[:field] == 'total_re_admitted_in_3mths'
+        @patients = @readmission_in_three_months
+    elsif params[:field] == 'total_re_admitted_in_6mths'
+        @patients = @readmission_in_six_months
+    end
+
+    @people = []
+    @diagnosis_report_patients = @people
+    @total_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+
+    @patients.each do | patient |
+
+      person = Person.find(patient.patient_id)
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+    render :layout => "report"
+  end
+
   def specific_hiv_related_data
     @report_name = params[:report_name]
     @logo = CoreService.get_global_property_value('logo').to_s
