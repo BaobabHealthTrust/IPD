@@ -4,6 +4,16 @@ module PatientService
 	require 'json'
 	require 'rest_client'
 
+  def self.search_from_remote(params)                                           
+    return [] if params[:given_name].blank?                                     
+    dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+    dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+    dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+    uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json/"
+                                                                                
+    return JSON.parse(RestClient.post(uri,params))                              
+  end
+
   def self.create_patient_from_dde(params)
     old_identifier = params["identifier"] rescue nil
 	  address_params = params["person"]["addresses"]
@@ -1051,6 +1061,11 @@ EOF
         self.set_birthdate(person, birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
 		  end
 		end
+
+    unless person_params['birthdate_estimated'].blank?                          
+      person.birthdate_estimated = person_params['birthdate_estimated'].to_i    
+    end 
+
 		person.save
 
 		person.names.create(names_params)

@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *.swo
+*.pid.lock
 config/database.yml
 config/application.yml
 config/settings.yml
