@@ -1126,91 +1126,49 @@ class CohortToolController < ApplicationController
         @admission_discharge_summary << [ward.ward, ward.total_patients_discharged, admissions[ward.ward]]
       end
     end
-     #@admission_discharge_summary.to_yaml
-
-    
-=begin    
-    admitted_patients = []
-    
-
-    @patients_in_wards.each do  |patient|
-      person = Person.find(patient.patient_id)
-
-      if (@age_groups.include?("< 6 MONTHS"))
-        if (PatientService.age_in_months(person).to_i < 6 )
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("6 MONTHS TO < 1 YR"))
-        if (PatientService.age_in_months(person).to_i >= 6 && PatientService.age(person).to_i < 1)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("1 TO < 5"))
-        if (PatientService.age(person).to_i >= 1 && PatientService.age(person).to_i < 5)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("5 TO 14"))
-        if (PatientService.age(person).to_i >= 5 && PatientService.age(person).to_i < 14)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("> 14 TO < 20"))
-        if (PatientService.age(person).to_i >= 14 && PatientService.age(person).to_i < 20)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("20 TO < 30"))
-        if (PatientService.age(person).to_i >= 20 && PatientService.age(person).to_i < 30)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("30 TO < 40"))
-        if (PatientService.age(person).to_i >= 30 && PatientService.age(person).to_i < 40)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("40 TO < 50"))
-        if (PatientService.age(person).to_i >= 40 && PatientService.age(person).to_i < 50)
-            admitted_patients << person
-        end
-      end
-
-      if (@age_groups.include?("ALL"))
-            admitted_patients << person
-      end
-    end
-    
-    @total_patients_in_wards = @patients_in_wards
-    @total_admitted_patients = []
-    @total_female_registered = 0
-    @total_male_registered = 0
-
-    @patients_in_wards.each do | patient |
-      person = Person.find(patient.patient_id)
-      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
-      @total_admitted_patients << [ name, person.birthdate, person.gender,
-                                    person.date_created.to_date,
-                                    patient.ward,
-                                    patient.admission_date.to_date]
-      if person.gender == 'F'
-        @total_female_registered += 1
-      else
-        @total_male_registered += 1
-      end
-    end
-=end
     render :layout => "report"  
   end
   
+  def dead_patients_statistic_per_ward
+
+    @report_name = params[:report_name]
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_year = params[:start_year]
+    start_month = params[:start_month]
+    start_day = params[:start_day]
+    end_year = params[:end_year]
+    end_month = params[:end_month]
+    end_day = params[:end_day]
+    @start_date = (start_year + "-" + start_month + "-" + start_day).to_date
+    @end_date = (end_year + "-" + end_month + "-" + end_day).to_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @dead_patients_per_ward = report.dead_patients_statistic_per_ward(@start_date, @end_date)
+    
+    @dead_patients_statistic_summary = []
+    @total_patients_died = 0
+    
+    @dead_patients_per_ward.each do |ward|
+      if ward.total_dead.to_i == 1
+        @total_patients_died += 1
+      end
+      @dead_patients_statistic_summary << [ ward.ward,
+                                            ward.total_dead,
+                                            ward.total_dated_in_24hrs,
+                                            ward.dead_btn_24_and_72hrs,
+                                            ward.dead_btn_3_and_7dys,
+                                            ward.dead_after_7dys,
+                                            ward.dead_patients_hiv_positive]
+
+    end
+
+    render :layout => "report"
+  end
+
   def ipd_menu
 	  @shifts =[
 			["Day","day"],
@@ -1594,7 +1552,6 @@ class CohortToolController < ApplicationController
     @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
 
     report = Reports::ReportIpd.new()
-
     people = Person.find(:all,:include =>{:patient=>{:encounters=>{:type=>{}}}},
         :conditions => ["patient.patient_id IS NOT NULL AND encounter_type.name IN (?)
         AND person.date_created >= TIMESTAMP(?)
@@ -1927,7 +1884,7 @@ raise @total_patients.to_yaml
     @total_registered = []
     @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
     @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
-      
+
     concept_ids = ConceptName.find(:all, :conditions => ["name IN (?)",
       ["Additional diagnosis","Diagnosis", "primary diagnosis",
       "secondary diagnosis"]]).map(&:concept_id)
@@ -2485,7 +2442,7 @@ raise @total_patients.to_yaml
 
     if params[:field].upcase == "DISCHARGED"
       @patients = report.discharge_by_ward_patient_list(@start_date, @end_date)
-    else
+    elsif params[:field].upcase == "ADMITTED"
       @patients = Observation.find(:all, 
                             :select => "person_id AS patient_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
                             :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ? AND voided = 0", 
@@ -2496,6 +2453,7 @@ raise @total_patients.to_yaml
         
     @people = []
     @patients.each do |obs|
+
       if obs.ward == params[:ward]
         person = Person.find(obs.patient_id)
 
@@ -2556,7 +2514,6 @@ raise @total_patients.to_yaml
     @total_patients = []
     @total_female_registered = 0
     @total_male_registered = 0
-
     @people.each do | person |
 
       person = Person.find(person.person_id)

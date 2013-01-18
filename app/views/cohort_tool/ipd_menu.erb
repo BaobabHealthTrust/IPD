@@ -25,6 +25,8 @@
 	  document.forms[0].action = "discharge_diagnosis_report"
 <% elsif @report_name.upcase == "ADMISSIONS" %>
 	  document.forms[0].action = "admissions"
+<% elsif @report_name.upcase == "DEAD_PATIENTS_STATISTIC_PER_WARD" %>
+	  document.forms[0].action = "dead_patients_statistic_per_ward"
 <% elsif @report_name.upcase == "RE_ADMISSIONS" %>
 	  document.forms[0].action = "re_admissions"
  <% elsif @report_name.upcase == "REFERALS_GRAPH" %>

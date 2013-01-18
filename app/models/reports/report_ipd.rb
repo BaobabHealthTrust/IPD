@@ -103,8 +103,8 @@ class Reports::ReportIpd
         FROM ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
 	                    , IFNULL ( value_text, ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS ward
 	             FROM obs
-	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE ('2013-01-01') AS visit_start_date,
-	                                        DATE ( '2013-01-31') AS     visit_end_date
+	             LEFT OUTER JOIN ( SELECT  encounter_id , DATE ('#{start_date}') AS visit_start_date,
+	                                        DATE (#{end_date}) AS     visit_end_date
 			                           FROM encounter) AS  v1 ON v1.encounter_id = obs.encounter_id
 	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' )
 	             AND voided = 0 ) AS patients_in_wards
@@ -117,7 +117,7 @@ class Reports::ReportIpd
 			                                                   WHERE name = 'DISCHARGE PATIENT')) AS  v1 ON v1.encounter_id = obs.encounter_id
 	             WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' )
 	             AND voided = 0 ) AS discharged_patients ON patients_in_wards.patient_id = discharged_patients.patient_id
-        WHERE  DATE(admission_date) >= DATE('2013-01-01') AND DATE(admission_date) <= DATE('2013-01-31') AND outcome != ''
+        WHERE  DATE(admission_date) >= DATE('#{start_date}') AND DATE(admission_date) <= DATE('#{end_date}') AND outcome != ''
         GROUP BY ward
     ")
 =begin
@@ -278,7 +278,7 @@ GROUP BY ward
                                    WHERE concept_id = ( SELECT concept_id
                                               FROM concept_name
                                              WHERE name = 'SYNDROMIC DIAGNOSIS'
-                                             LIMIT 1 )
+                                                                 LIMIT 1 )
                                      AND voided = 0 AND  DATE(visit_start_date) >= DATE('#{start_date}') AND DATE(visit_start_date) <= DATE('#{end_date}')
                                   GROUP BY syndromic_diagnosis ) AS syndromic_diagnosis
                                   ORDER BY total_occurance DESC LIMIT 0 , 10 ")   rescue []                
@@ -435,113 +435,77 @@ GROUP BY ward
   end
   
   def dead_patients_statistic_per_ward(start_date, end_date)
-=begin
       report_data = Observation.find_by_sql("   
-                  SELECT ward , SUM(dead_patients) AS total_dead , SUM(dead_with_24) AS total_dated_in_24hrs, SUM(dead_with_24_72) AS dead_btn_24_and_72hrs , SUM(dead_with_7_7dys) AS dead_btn_3_and_7dys , SUM(dead_above_7dys) AS dead_after_7dys, 
-                  SUM(CASE 
-	                  WHEN hiv_status = 'REACTIVE'  AND dead_patients = '1' THEN '1'
-	                  ELSE '0'
-                  END) AS dead_patients_hiv_positive, outcome_date
+                  SELECT ward , SUM(dead_patients) AS total_dead , SUM(dead_with_24) AS total_dated_in_24hrs, 
+                                SUM(dead_with_24_72) AS dead_btn_24_and_72hrs , SUM(dead_with_7_7dys) AS dead_btn_3_and_7dys ,
+                                SUM(dead_above_7dys) AS dead_after_7dys, 
+                         SUM(CASE 
+	                           WHEN hiv_status = 'POSITIVE'  AND dead_patients = '1' THEN '1'
+	                           ELSE '0'
+                         END) AS dead_patients_hiv_positive, outcome_date
                   FROM (
-                  SELECT
-                  patient_outcome.patient_id,
-                  CASE
-	                  WHEN outcome='DEAD' THEN '1'
-	                  ELSE '0'
-                  END AS dead_patients,
-                  ward,
-                  DATEDIFF(outcome_date , admission_date) AS Days,
-                  admission_date, 
-                  outcome_date,
-                  CASE
-	                  WHEN DATEDIFF(outcome_date , admission_date) <= 1 AND outcome='DEAD' THEN '1'
-	                  ELSE '0'
-                  END AS dead_with_24,
-                  CASE
-	                  WHEN DATEDIFF(outcome_date , admission_date) > 1 AND DATEDIFF(outcome_date , admission_date) <= 3 AND outcome='DEAD' THEN '1'
-	                  ELSE '0'
-                  END AS dead_with_24_72,
-                  CASE
-	                  WHEN DATEDIFF(outcome_date , admission_date) > 3 AND DATEDIFF(outcome_date , admission_date) <= 7 AND outcome='DEAD' THEN '1'
-	                  ELSE '0'
-                  END AS dead_with_7_7dys,
-                  CASE
-	                  WHEN DATEDIFF(outcome_date , admission_date) > 7 AND outcome='DEAD' THEN '1'
-	                  ELSE '0'
-                  END AS dead_above_7dys
-
-                  FROM(
-                  SELECT person_id
-                  AS     patient_id
-                       , IFNULL ( value_text
-	                         , ( SELECT name
-		                        FROM concept_name
-		                       WHERE concept_id = value_coded ) )
-                  AS     outcome
-                       , visit_start_date
-                       , visit_end_date
-                       , visit_id
-                       ,  obs.obs_datetime as outcome_date
-                    FROM obs
-                    LEFT OUTER JOIN ( SELECT  encounter_id AS visit_id
-			                   , DATE ( #{start_date} )
-		                      AS     visit_start_date
-			                   , DATE ( #{end_date} )
-		                      AS     visit_end_date
-		                        FROM encounter )
-                  AS     v1
-                      ON v1.encounter_id = obs.encounter_id
-                   WHERE concept_id = ( SELECT concept_id
-		                          FROM concept_name
-		                         WHERE name = 'OUTCOME'
-		                         LIMIT 1 )
-                     AND voided = 0) AS patient_outcome LEFT OUTER JOIN
-                     (SELECT person_id
-                  AS     patient_id
-                       , DATE ( obs_datetime )
-                  AS     admission_date
-                       , IFNULL ( value_text
-	                         , ( SELECT name
-		                        FROM concept_name
-		                       WHERE concept_id = value_coded ) )
-                  AS     ward
-                       , visit_start_date
-                       , visit_end_date
-                       , visit_id
-                    FROM obs
-                    LEFT OUTER JOIN ( SELECT encounter_id AS visit_id
-			                   , DATE ( #{start_date} )
-		                      AS     visit_start_date
-			                   , DATE ( #{end_date} )
-		                      AS     visit_end_date
-		                        FROM encounter)
-                  AS     v1
-                      ON v1.encounter_id = obs.encounter_id
-                   WHERE concept_id = ( SELECT concept_id
-		                          FROM concept_name
-		                         WHERE name = 'ADMIT TO WARD' )
-                     AND voided = 0
-                  ORDER BY person_id ASC) admission_patients
-                  ON patient_outcome.patient_id = admission_patients.patient_id AND 
-                  patient_outcome.visit_start_date=admission_patients.visit_start_date
-                  WHERE ward IS NOT NULL AND admission_date IS NOT NULL ) AS patients_death_statistic 
+                        SELECT patient_outcome.patient_id,
+                          CASE
+	                          WHEN outcome='DEAD' THEN '1'
+	                          ELSE '0'
+                          END AS dead_patients,
+                          ward,DATEDIFF(outcome_date , admission_date) AS Days,admission_date, outcome_date,
+                          CASE
+	                          WHEN DATEDIFF(outcome_date , admission_date) <= 1 AND outcome='DEAD' THEN '1'
+	                          ELSE '0'
+                          END AS dead_with_24,
+                          CASE
+	                          WHEN DATEDIFF(outcome_date , admission_date) > 1 AND DATEDIFF(outcome_date , admission_date) <= 3
+	                          AND outcome='DEAD' THEN '1'
+	                          ELSE '0'
+                          END AS dead_with_24_72,
+                          CASE
+	                          WHEN DATEDIFF(outcome_date , admission_date) > 3 AND DATEDIFF(outcome_date , admission_date) <= 7 
+	                          AND outcome='DEAD' THEN '1'
+	                          ELSE '0'
+                          END AS dead_with_7_7dys,
+                          CASE
+	                          WHEN DATEDIFF(outcome_date , admission_date) > 7 AND outcome='DEAD' THEN '1'
+	                          ELSE '0'
+                          END AS dead_above_7dys
+                        FROM(
+                              SELECT person_id AS     patient_id
+                                 , IFNULL ( value_text
+	                                   , ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS     outcome
+                                 , visit_start_date, visit_end_date, visit_id, obs.obs_datetime AS outcome_date
+                              FROM obs
+                              LEFT OUTER JOIN ( SELECT  encounter_id AS visit_id, DATE ( #{start_date} ) AS visit_start_date
+			                                                , DATE ( #{end_date} ) AS     visit_end_date FROM encounter ) AS v1
+                              ON v1.visit_id = obs.encounter_id
+                              WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' LIMIT 1 )
+                              AND voided = 0) AS patient_outcome
+                              LEFT OUTER JOIN
+                                 ( SELECT person_id AS patient_id, DATE ( obs_datetime ) AS admission_date
+                                    , IFNULL ( value_text, ( SELECT name FROM concept_name
+                                                             WHERE concept_id = value_coded LIMIT 1) ) AS ward
+                                    , visit_start_date, visit_end_date, visit_id
+                                   FROM obs
+                                   LEFT OUTER JOIN ( SELECT encounter_id AS visit_id,
+                                                            DATE ( #{start_date} ) AS visit_start_date,
+                                                            DATE ( #{end_date} ) AS visit_end_date
+		                                                 FROM encounter
+		                                                 WHERE voided = 0 ) AS v1
+                                  ON v1.visit_id = obs.encounter_id
+                              WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD' )
+                              AND voided = 0
+                              ORDER BY person_id ASC) AS admission_patients
+                        ON patient_outcome.patient_id = admission_patients.patient_id 
+                        WHERE ward IS NOT NULL AND admission_date IS NOT NULL ) AS patients_death_statistic 
                   LEFT OUTER JOIN (
-                  SELECT person_id
-                  AS     patient_id
-                       , IFNULL ( value_text
-			                   , ( SELECT name
-			                          FROM concept_name
-			                         WHERE concept_id = value_coded
-			                         LIMIT 1 ) ) AS     hiv_status
-                    FROM obs
-                   WHERE concept_id = ( SELECT concept_id
-		                          FROM concept_name
-		                         WHERE name = 'HIV STATUS' )
-                     AND voided = 0) patients_hiv_status
-                     ON patients_death_statistic .patient_id = patients_hiv_status.patient_id
-		     WHERE DATE(outcome_date) >= DATE('#{start_date}') AND DATE(outcome_date) <= DATE('#{end_date}')
-                     GROUP BY ward ") #rescue []
-=end
+                        SELECT person_id AS patient_id
+                             , IFNULL ( value_text
+			                         , ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1 ) ) AS hiv_status
+                        FROM obs
+                        WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'HIV STATUS' ) 
+                        AND voided = 0) patients_hiv_status
+                 ON patients_death_statistic .patient_id = patients_hiv_status.patient_id
+		             WHERE DATE(outcome_date) >= DATE('#{start_date}') AND DATE(outcome_date) <= DATE('#{end_date}')
+                 GROUP BY ward ")
   end
   
   def specific_hiv_related_data_patient_details(start_date, end_date)

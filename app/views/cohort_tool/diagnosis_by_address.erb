@@ -167,7 +167,7 @@
       }
     </style>
     <style>
-      div {
+        div {
         -moz-user-select: none;
       }
       .basic_span {
@@ -189,7 +189,7 @@
         position:absolute;
         top:0px;
         right:1%;
-        margin-top:-40px;
+        margin-top:150px;
       }
 
       #table_id_filter input{
@@ -207,7 +207,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 476px;
+        top: 640px;
         font-weight:bold;
       }
       #table_id_length{
@@ -219,8 +219,22 @@
       #num{ display:none; }
       #char{ display:none; }
 
+      .link {
+                border-radius: 7px;
+		background-color: #669999;
+		border-bottom: 1px outset black;
+		border-style: outset;
+		border-top: 1px outset black;
+		color: white;
+		display: block;
+		padding: 5px 8px 5px 5px;
+		text-align: center;
+		text-decoration: none;
+                width:8%;
+          }
+
     </style>
-  </head>
+    </head>
   <body >
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
@@ -253,7 +267,8 @@
       <tr>
         <td width="35%"> <span style="display:block; width:90%;"> <%= address[diagnosis] %> </span> </td>
         <td width="35%" align="left" > <%= "<span class='basic_span' > #{ address[village]} </span> " %> </td>
-        <td width="30%" align="center"><%= button_to("#{address[total]}",{:action => 'diagnosis_by_address_patient_details',:field => "#{address[diagnosis]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :category => 'diagnosis_by_address', :address => "#{ address[village]}" },{:class =>'link'})%></td>
+        <td width="30%" align="center"><%= button_to("#{address[total]}",{:action => 'diagnosis_by_address_patient_details',:field => "#{address[diagnosis]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :category => 'diagnosis_by_address',
+          :address => "#{ address[village]}" },{:class =>'link'})%></td>
       </tr>
     <% end %>
         </tbody>
