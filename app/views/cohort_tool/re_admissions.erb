@@ -166,7 +166,7 @@
         width: 672px;
       }
     </style>
-    <style>
+<style>
         div {
         -moz-user-select: none;
       }
@@ -189,7 +189,7 @@
         position:absolute;
         top:0px;
         right:1%;
-        margin-top:-40px;
+        margin-top:150px;
       }
 
       #table_id_filter input{
@@ -207,7 +207,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 476px;
+        top: 640px;
         font-weight:bold;
       }
       #table_id_length{
@@ -218,6 +218,20 @@
       }
       #num{ display:none; }
       #char{ display:none; }
+
+      .link {
+                border-radius: 7px;
+		background-color: #669999;
+		border-bottom: 1px outset black;
+		border-style: outset;
+		border-top: 1px outset black;
+		color: white;
+		display: block;
+		padding: 5px 8px 5px 5px;
+		text-align: center;
+		text-decoration: none;
+                width:10%;
+          }
 
     </style>
   </head>
@@ -250,25 +264,29 @@
         <tbody>
             <tr>
               <td width="40%"><span> Total Patients Admitted </span> </td>
-              <td width="20%" align="center"><span><%= "#{@admitted_patients.length}" %></span></td> 
+              
+              <td align="center"><%= button_to("#{@admitted_patients.length}",{:action => 're_admissions_patient_details',:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_admitted'},{:class =>'link'})%></td>
               <td width="20%" align="center"><span><%= "#{@total_admitted_female.length}" %> </span> </td>
               <td width="20%" align="center"><span><%= "#{@total_admitted_male.length}" %></span></td> 
             </tr>
             <tr>
               <td width="40%"><span> Total Patients Re_admitted </span> </td>
-              <td width="20%" align="center"><span><%= "#{@patient_readmissions.length}" %></span></td> 
+              
+              <td align="center"><%= button_to("#{@patient_readmissions.length}",{:action => 're_admissions_patient_details',:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_re_admitted'},{:class =>'link'})%></td>
               <td width="20%" align="center"><span><%= "#{@total_re_admitted_female.length}" %> </span> </td>
               <td width="20%" align="center"><span><%= "#{@total_re_admitted_male.length}" %></span></td> 
             </tr>
             <tr>
               <td width="40%"> <span>Total Re-admitted Patients within the previous 3 months </span> </td>
-              <td width="20%" align="center" ><span><%= "#{@readmission_in_three_months.length}" %></span></td> 
+              
+              <td align="center"><%= button_to("#{@readmission_in_three_months.length}",{:action => 're_admissions_patient_details',:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_re_admitted_in_3mths'},{:class =>'link'})%></td>
               <td width="20%" align="center"><span><%= "#{@readmission_in_three_months_female.length}" %> </span> </td>
               <td width="20%" align="center"><span><%= "#{@readmission_in_three_months_male.length}" %></span></td> 
             </tr>
           <tr>
               <td width="40%"><span> Total Re-admitted Patients within the previous 6 months </span> </td>
-              <td width="20%" align="center"><span><%= "#{@readmission_in_six_months.length}" %></span></td> 
+              
+              <td align="center"><%= button_to("#{@readmission_in_six_months.length}",{:action => 're_admissions_patient_details',:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_re_admitted_in_6mths'},{:class =>'link'})%></td>
               <td width="20%" align="center"><span><%= "#{@readmission_in_six_months_female.length}" %> </span> </td>
               <td width="20%" align="center"><span><%= "#{@readmission_in_six_months_male.length}" %></span></td> 
             </tr>

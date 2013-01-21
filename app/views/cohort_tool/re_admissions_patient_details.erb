@@ -8,7 +8,7 @@
     <%=javascript_include_tag "jquery.table2CSV.min" %>
     <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
     <script>
-      jQuery(document).ready(function($) {
+      jQuery(document).ready(function($) {     
           $('#table_id').dataTable({
             "bAutoWidth": true,
             "bPaginate": false,
@@ -129,7 +129,8 @@
     </script>
 
     <style>
-#backspace{
+
+      #backspace{
         position:absolute;
         left:100px;
         bottom:2px;
@@ -239,32 +240,58 @@
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
 
-    <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
 
 
-    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> </b>
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Registered: #{@total_patients.length}" %>
+    (Total Male: <%= @total_male_registered %>, Total Female: <%= @total_female_registered %>)</b>
 
-    
-      <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Group (s) : <%= "#{@age_groups.join(' , ').to_s}" %>  </b><br /><br />
-    
+  <br /><br />
+
 
     <div>
       <table  id="table_id" class="display" >
-        <thead>
-          <tr  style="background-color:gray">
-            <th align="left">DISCHARGE DIAGNOSIS<p />
+        <thead><tr>
+            <th>
+                  <u>Name</u> <p />
             </th>
-            <th>									 Total  <p />
+            <th>
+                  <u> Birthdate </u> <p />
             </th>
+            <th>
+                  <u>Gender </u> <p />
+            </th>
+            <th>
+                  <u> Date Registered </u> <p />
+            </th>
+            <th>
+                  <u> Address </u> <p />
+            </th>
+            <th>
+                  <u> T.A </u> <p />
+            </th>
+          </tr>
+
         </thead>
         <tbody>
-          <% @diagnosis_report_paginated.each do |diagnosis,total| %>
+          <%
+          name=0
+          birthdate=1
+          gender=2
+          date_registered=3
+          address=4
+          t_a=5
+        %>
+          <% @total_patients.each do |record| %>
             <tr>
-              <td width="50%"> <span style="display:block; width:90%;"> <%= "#{diagnosis}" %> </span> </td>
-              <td align="center"><%= button_to("#{total}",{:action => 'discharge_diagnosis_patient_details',:field => "#{diagnosis}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :age_groups => "#{@age_groups}", :category => 'discharge_diagnosis'},{:class =>'link'})%></td> 
+              <td> <span style="display:block; width:90%;"> <%= "#{record[name]}" %> </span> </td>
+              <td align="center" > <%= "<span > #{record[birthdate]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[gender] == 'F' ? "Female" : "Male"} </span> " %> </td>
+              <td align="right" > <%= "<span class='basic_span' > #{record[date_registered]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[address]} </span> " %> </td>
+              <td align="left" > <%= "<span class='basic_spuan' > #{record[t_a]} </span> " %> </td>
             </tr>
           <% end %>
-
         </tbody>
       </table>
     </div>
@@ -275,8 +302,6 @@
       <span class="keypad">
       </span>
     </center>
-
   </div>
-
 </body>
 </html>
