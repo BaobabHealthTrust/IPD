@@ -1200,13 +1200,13 @@ class CohortToolController < ApplicationController
     
     report = Reports::ReportIpd.new()
     @patients_in_wards = report.admissions_by_ward(@start_date, @end_date)
-   
+
     @admission_summary = []
     
     @patients = Observation.find(:all, 
                             :select => "count(*) total_patients, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward", 
                             :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ? AND concept_id= ?", 
-                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD")],  
+                             @start_date, @end_date, Concept.find_by_name("ADMIT TO WARD").concept_id],  
                             :group => "ward"
         )
 
@@ -1614,18 +1614,22 @@ class CohortToolController < ApplicationController
     @total_registered = []
     @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
     @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+    @admit_patient_encounter_id = EncounterType.find_by_name("ADMIT PATIENT").encounter_type_id
 
     report = Reports::ReportIpd.new()
-    people = Person.find(:all,:include =>{:patient=>{:encounters=>{:type=>{}}}},
-        :conditions => ["patient.patient_id IS NOT NULL AND encounter_type.name IN (?)
-        AND person.date_created >= TIMESTAMP(?)
-        AND person.date_created  <= TIMESTAMP(?)", ["ADMIT PATIENT"],
-        @start_date.strftime('%Y-%m-%d 00:00:00'),
-        @end_date.strftime('%Y-%m-%d 23:59:59')])
+    @patients = Observation.find(:all, 
+                            :select => "person_id, IFNULL(value_text,(SELECT name from concept_name where concept_id = value_coded LIMIT 1)) as ward, DATE(obs_datetime) as admission_date",
+                            :joins => "LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id",
+                            :conditions => ["DATE(obs.obs_datetime) >= ? AND DATE(obs.obs_datetime) <= ?
+                                             AND obs.concept_id= ? AND obs.voided = 0 AND encounter.voided = 0
+                                             AND encounter.encounter_type = ?", @start_date, @end_date, 
+                                             Concept.find_by_name("ADMIT TO WARD").concept_id, @admit_patient_encounter_id],
+                            :group => "person_id, ward, DATE(obs_datetime)" )
+
         peoples = []
 
-        people.each do  |person|
-
+        @patients.each do  |patient|
+          person = Person.find(patient.person_id)
           if (@age_groups.include?("< 6 MONTHS"))
             if (PatientService.age_in_months(person).to_i < 6 )
                 peoples << person
@@ -1684,22 +1688,22 @@ class CohortToolController < ApplicationController
       @total_female_registered = []
       @total_male_registered = []
 
-      peoples.each do | person_id |
-        person = Person.find(person_id)
+      @patients.each do | patient |
+        person = Person.find(patient.person_id)
         name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
         @registered << [name, person.birthdate, person.gender,
-        person.date_created.to_date,
-        person.addresses.first.city_village,
-        person.addresses.first.county_district]
+        patient.admission_date,
+        patient.ward,
+        person.addresses.first.city_village,]
         
         if(PatientService.sex(person) == 'Female')
-          @total_female_registered << person_id
+          @total_female_registered << patient
         else
-          @total_male_registered << person_id
+          @total_male_registered << patient
         end
 
       end
-
+#raise @registered.to_yaml
     render :layout => "report"
   end
 
@@ -1723,8 +1727,7 @@ class CohortToolController < ApplicationController
 
     report = Reports::ReportIpd.new()
     @total_patients_registered = report.total_registered(@start_date,@end_date)
-raise @total_patients.to_yaml
-=begin   
+  
     people = Person.find(:all,:include =>{:patient=>{:encounters=>{:type=>{}}}},
         :conditions => ["patient.patient_id IS NOT NULL AND encounter_type.name IN (?)
         AND person.date_created >= TIMESTAMP(?)
@@ -1732,7 +1735,6 @@ raise @total_patients.to_yaml
         @start_date.strftime('%Y-%m-%d 00:00:00'),
         @end_date.strftime('%Y-%m-%d 23:59:59')])
 
-=end
         peoples = []
         people.each do  |person|
 
@@ -1836,14 +1838,17 @@ raise @total_patients.to_yaml
     concept_ids = ConceptName.find(:all, :conditions => ["name IN (?)",
       ["Additional diagnosis","Diagnosis", "primary diagnosis",
       "secondary diagnosis"]]).map(&:concept_id)
-
-    observation = Observation.find(:all, :include=>{:person=>{}},
+    admission_diagnosis_encounter_id = EncounterType.find_by_name("ADMISSION DIAGNOSIS").encounter_type_id
+    
+    observations = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id",
                     :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
-                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)",
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?) AND obs.voided = 0 AND encounter.voided = 0 AND encounter.encounter_type = ?",
                     @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
-                    concept_ids])
+                    concept_ids, admission_diagnosis_encounter_id],
+                    :group => "person_id, concept_id,DATE(obs_datetime)")
 
-      observation.each do | obs|
+      observations.each do | obs|
         next if obs.answer_concept.nil?
           if (@age_groups.include?("< 6 MONTHS"))
             if (PatientService.age_in_months(obs.person).to_i < 6 )
@@ -1953,13 +1958,18 @@ raise @total_patients.to_yaml
       ["Additional diagnosis","Diagnosis", "primary diagnosis",
       "secondary diagnosis"]]).map(&:concept_id)
 
-    observation = Observation.find(:all, :include=>{:person=>{}},
+    admission_diagnosis_encounter_id = EncounterType.find_by_name("ADMISSION DIAGNOSIS").encounter_type_id
+    
+    observations = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id",
                     :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
-                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)",
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?) AND obs.voided = 0 AND encounter.voided = 0 AND encounter.encounter_type = ?",
                     @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
-                    concept_ids])
+                    concept_ids, admission_diagnosis_encounter_id],
+                    :group => "person_id, concept_id, DATE(obs_datetime)")
+
     @people = []
-    observation.each do | obs|
+    observations.each do | obs|
         next if obs.answer_concept.nil?
           diagnosis_name = obs.answer_concept.fullname rescue '' 
           if diagnosis_name == params[:field]
@@ -2189,13 +2199,17 @@ raise @total_patients.to_yaml
     :conditions => ["name IN (?)",["Additional diagnosis","Diagnosis",
     "primary diagnosis","secondary diagnosis"]]).map(&:concept_id)
 
-      observation = Observation.find(:all, :include => {:person =>{}},
-        :conditions => ["obs.obs_datetime >= TIMESTAMP(?) AND obs.obs_datetime
-        <= TIMESTAMP(?) AND obs.concept_id IN (?)",
-        @start_date.strftime('%Y-%m-%d 00:00:00'),
-        @end_date.strftime('%Y-%m-%d 23:59:59'),concept_ids])
+    admission_diagnosis_encounter_id = EncounterType.find_by_name("ADMISSION DIAGNOSIS").encounter_type_id
+    
+    observations = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id",
+                    :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?) AND obs.voided = 0 AND encounter.voided = 0 AND encounter.encounter_type = ?",
+                    @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
+                    concept_ids, admission_diagnosis_encounter_id],
+                    :group => "person_id, concept_id,DATE(obs_datetime)")
 
-        observation.each do |obs|
+        observations.each do |obs|
           next if obs.answer_concept.blank?
           diagnosis_name = obs.answer_concept.fullname rescue ''
            if (PatientService.age_in_months(obs.person).to_i < 6 )
@@ -2384,7 +2398,7 @@ raise @total_patients.to_yaml
     discharge_diagnosis_encounter_id = EncounterType.find_by_name("DISCHARGE DIAGNOSIS").encounter_type_id
     
     if params[:category] == 'discharge_diagnosis'
-      observation = Observation.find(:all, :include=>{:person=>{}},
+      observations = Observation.find(:all, :include=>{:person=>{}},
                       :joins      => "INNER JOIN encounter ON encounter.encounter_id = obs.encounter_id",
                       :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
                       AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?)
@@ -2393,16 +2407,20 @@ raise @total_patients.to_yaml
                       concept_ids,discharge_diagnosis_encounter_id])
 
    else params[:category] == 'all_diagnosis'
-      observation = Observation.find(:all, :include => {:person =>{}},
-          :conditions => ["obs.obs_datetime >= TIMESTAMP(?) AND obs.obs_datetime
-          <= TIMESTAMP(?) AND obs.concept_id IN (?)",
-          @start_date.strftime('%Y-%m-%d 00:00:00'),
-          @end_date.strftime('%Y-%m-%d 23:59:59'),concept_ids])
+      admission_diagnosis_encounter_id = EncounterType.find_by_name("ADMISSION DIAGNOSIS").encounter_type_id
+    
+      observations = Observation.find(:all, :include=>{:person=>{}},
+                    :joins      => "LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id",
+                    :conditions => ["obs.obs_datetime >= TIMESTAMP(?)
+                    AND obs.obs_datetime  <= TIMESTAMP(?) AND obs.concept_id IN (?) AND obs.voided = 0 AND encounter.voided = 0 AND encounter.encounter_type = ?",
+                    @start_date.strftime('%Y-%m-%d 00:00:00'), @end_date.strftime('%Y-%m-%d 23:59:59'),
+                    concept_ids, admission_diagnosis_encounter_id],
+                    :group => "person_id, concept_id,DATE(obs_datetime)")
    end
     
     @patients = []
 
-        observation.each do |obs|
+        observations.each do |obs|
           next if obs.answer_concept.blank?
           diagnosis_name = obs.answer_concept.fullname rescue ''
           

@@ -103,6 +103,10 @@
             search.value+= " "
             search_box.fnFilter(search.value)
             return
+          case 'Cap':
+            search.value+= " "
+            search_box.fnFilter(search.value)
+            return
           case 'clear':
             search.value = ""
             search_box.fnFilter(search.value)
@@ -130,12 +134,26 @@
 
     <style>
 
+      
+      #cap{
+        position:absolute;
+        left:10px;
+        bottom:2px;
+      }
+      
       #backspace{
         position:absolute;
         left:100px;
         bottom:2px;
       }
-
+     
+     #Space{
+        position:absolute;
+        left:220px;
+        bottom:2px;
+        width:200px;
+      }
+    
       #Space{
         position:absolute;
         left:220px;
@@ -167,8 +185,8 @@
         width: 672px;
       }
     </style>
-    <style>
-       div {
+<style>
+        div {
         -moz-user-select: none;
       }
       .basic_span {
@@ -190,7 +208,7 @@
         position:absolute;
         top:0px;
         right:1%;
-        margin-top:-40px;
+        margin-top:150px;
       }
 
       #table_id_filter input{
@@ -208,7 +226,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 455px;
+        top: 640px;
         font-weight:bold;
       }
       #table_id_length{
@@ -219,6 +237,20 @@
       }
       #num{ display:none; }
       #char{ display:none; }
+
+      .link {
+                border-radius: 7px;
+		background-color: #669999;
+		border-bottom: 1px outset black;
+		border-style: outset;
+		border-top: 1px outset black;
+		color: white;
+		display: block;
+		padding: 5px 8px 5px 5px;
+		text-align: center;
+		text-decoration: none;
+                width:8%;
+          }
 
     </style>
   </head>
@@ -239,22 +271,22 @@
       <table  id="table_id" class="display" >
         <thead><tr>
             <th>
-                  <u>Name</u> <p />
+                  Name <p />
             </th>
             <th>
-                  <u> Birthdate </u> <p />
+                 Birthdate <p />
             </th>
             <th>
-                  <u>Gender </u> <p />
+                  Gender <p />
             </th>
             <th>
-                  <u> Date Registered </u> <p />
+                  Date Registered  <p />
             </th>
             <th>
-                  <u> Address </u> <p />
+                  Ward <p />
             </th>
             <th>
-                  <u> T.A </u> <p />
+                  Traditional Authority <p />
             </th>
           </tr>
 
@@ -265,17 +297,17 @@
           birthdate=1
           gender=2
           date_registered=3
-          address=4
-          t_a=5
+          ward=4
+          address=5
         %>
           <% @registered.each do |record| %>
             <tr>
-              <td> <span style="display:block; width:90%;"> <%= "#{record[name]}" %> </span> </td>
-              <td align="center" > <%= "<span > #{record[birthdate]} </span> " %> </td>
-              <td> <%= "<span class='basic_span' > #{record[gender] == 'F' ? "Female" : "Male"} </span> " %> </td>
-              <td align="right" > <%= "<span class='basic_span' > #{record[date_registered]} </span> " %> </td>
-              <td> <%= "<span class='basic_span' > #{record[address]} </span> " %> </td>
-              <td align="left" > <%= "<span class='basic_spuan' > #{record[t_a]} </span> " %> </td>
+              <td align="center"> <span style="display:block;" width="20%"> <%= "#{record[name]}" %> </span> </td>
+              <td align="center"> <span style="display:block;" width="20%"> <%= "#{record[birthdate]}" %> </span>  </td>
+              <td align="center"> <span style="display:block;" width="20%"> <%=" #{record[gender] == 'F' ? "Female" : "Male"}" %> </span>  </td>
+              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[date_registered]} " %> </span> </td>
+              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[ward]}" %> </span>  </td>
+              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[address]} " %> </span>  </td>
             </tr>
           <% end %>
         </tbody>
