@@ -431,8 +431,50 @@ GROUP BY ward
                   GROUP BY primary_diagnosis ) AS diagnosis_and_hiv_status_total
 		              WHERE DATE(visit_start_date) >= DATE('#{start_date}') AND DATE(visit_start_date) <= DATE('#{end_date}')
                   ORDER BY total DESC
-                  LIMIT 0, 10" ) rescue []
+                  LIMIT 0, 10" ) #rescue []
   end
+  
+  def dead_patients_statistic_per_ward_patient_list(start_date, end_date)
+    report_data = Observation.find_by_sql("
+                                            SELECT person_id AS patient_id,
+                                                 IFNULL ( value_text, ( SELECT name
+                                                                        FROM concept_name 
+                                                                        WHERE concept_id = value_coded LIMIT 1) ) AS ward,
+                                                 DATE(obs_datetime) AS admission_date, outcome_date,
+                                                 DATEDIFF(outcome_date , obs_datetime) AS number_admitted_days, hiv_status
+                                            FROM obs
+                                            INNER JOIN ( SELECT person_id AS patient_id, 
+                                                                 IFNULL ( value_text, ( SELECT name
+                                                                                        FROM concept_name 
+                                                                                        WHERE concept_id = value_coded
+                                                                                        LIMIT 1) ) AS outcome,
+                                                                 DATE(obs_datetime) AS outcome_date
+                                                          FROM obs
+                                                          WHERE concept_id = (SELECT concept_id
+                                                                              FROM concept_name 
+                                                                              WHERE name = 'OUTCOME' LIMIT 1)
+                                                          AND value_coded = (SELECT concept_id 
+                                                                             FROM concept_name 
+                                                                             WHERE name = 'DEAD'  LIMIT 1) 
+                                                          AND voided = 0) AS patient_outcome
+                                            ON obs.person_id = patient_outcome.patient_id
+                                            LEFT JOIN (SELECT person_id AS patient_id
+                                                                       , IFNULL ( value_text, ( SELECT name 
+                                                                                                FROM concept_name 
+                                                                                                WHERE concept_id = value_coded
+                                                                                                LIMIT 1 ) ) AS hiv_status
+                                                                  FROM obs
+                                                                  WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'HIV STATUS' limit 1) 
+                                                                  AND value_coded = (SELECT concept_id FROM concept_name WHERE name = 'POSITIVE' limit 1)) AS patients_hiv_status
+                                            ON patient_outcome.patient_id = patients_hiv_status.patient_id
+                                          WHERE concept_id = (SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD')
+                                          AND (DATE(obs_datetime) >= '#{start_date}' AND DATE(obs_datetime) <= '#{end_date}')
+                                          AND voided = 0
+                                            
+    
+    ")
+  end
+  
   
   def dead_patients_statistic_per_ward(start_date, end_date)
       report_data = Observation.find_by_sql("   
@@ -469,13 +511,13 @@ GROUP BY ward
 	                          ELSE '0'
                           END AS dead_above_7dys
                         FROM(
-                              SELECT person_id AS     patient_id
+                              SELECT person_id AS patient_id
                                  , IFNULL ( value_text
-	                                   , ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS     outcome
+	                                   , ( SELECT name FROM concept_name WHERE concept_id = value_coded LIMIT 1) ) AS outcome
                                  , visit_start_date, visit_end_date, visit_id, obs.obs_datetime AS outcome_date
                               FROM obs
                               LEFT OUTER JOIN ( SELECT  encounter_id AS visit_id, DATE ( #{start_date} ) AS visit_start_date
-			                                                , DATE ( #{end_date} ) AS     visit_end_date FROM encounter ) AS v1
+			                                                , DATE ( #{end_date} ) AS visit_end_date FROM encounter ) AS v1
                               ON v1.visit_id = obs.encounter_id
                               WHERE concept_id = ( SELECT concept_id FROM concept_name WHERE name = 'OUTCOME' LIMIT 1 )
                               AND voided = 0) AS patient_outcome

@@ -1169,6 +1169,70 @@ class CohortToolController < ApplicationController
     render :layout => "report"
   end
 
+  def dead_patients_statistic_per_ward_patient_list
+
+    @report_name = params[:field] 
+    @logo = CoreService.get_global_property_value('logo').to_s
+    @current_location_name =Location.current_health_center.name
+    start_date = params[:start_date].to_date
+    end_date = params[:end_date].to_date
+    @start_date = start_date
+    @end_date = end_date
+    @total_registered = []
+    @formated_start_date = @start_date.strftime('%A, %d, %b, %Y')
+    @formated_end_date = @end_date.strftime('%A, %d, %b, %Y')
+
+    report = Reports::ReportIpd.new()
+    @dead_patients_per_ward = report.dead_patients_statistic_per_ward_patient_list(@start_date, @end_date)
+    @patients = []
+    @total_patients_died = []
+
+    @dead_patients_per_ward.each do |patient|
+      if patient.ward == params[:ward]
+        person = Person.find(patient.patient_id)
+        if params[:field] == "total_patients_dead"
+          @patients << person
+          @report_name = "#{patient.ward} - Total patients died"
+        elsif params[:field] == "total_died_in_24_hrs"
+          @patients << person
+          @report_name = "#{patient.ward} - Total patients died within 24 hrs"
+        elsif params[:field] == "dead_btn_24_and_72hrs"
+          @patients << person
+          @report_name = "#{patient.ward} - Total patients died between 24 and 72 hrs"
+        elsif params[:field] == "dead_btn_3_and_7dys"
+          @patients << person
+          @report_name = "#{patient.ward} - Total patients died between 3 and 7 days"
+        elsif params[:field] == "dead_after_7dys"
+          @patients << person
+          @report_name = "#{patient.ward} - Total patients died after 7 days"
+        else params[:field] == "dead_patients_with_hiv_positive"
+          @patients << person
+          @report_name = "#{patient.ward} - Total HIV patients died"
+        end
+      end
+    end
+
+    @total_patients_died = @patients
+    @total_patients = []
+    @total_female_registered = 0
+    @total_male_registered = 0
+    
+    @patients.each do | person |
+      name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+      @total_patients << [ name, person.birthdate, person.gender,
+                                    person.date_created.to_date,
+                                    person.addresses.first.city_village,
+                                    person.addresses.first.county_district]
+      if person.gender == 'F'
+        @total_female_registered += 1
+      else
+        @total_male_registered += 1
+      end
+    end
+
+    render :layout => "report"
+  end
+
   def ipd_menu
 	  @shifts =[
 			["Day","day"],

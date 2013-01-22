@@ -231,7 +231,7 @@
 		padding: 5px 8px 5px 5px;
 		text-align: center;
 		text-decoration: none;
-                width:20%;
+                width:8%;
           }
 
     </style>
@@ -240,114 +240,56 @@
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
 
-      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name.humanize.split.map{|w| w.capitalize}.join(' ') %></b><br />
+      <b style="position:relative; top:0px;margin-left:75px"><%= @report_name %></b><br />
 
 
-    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Patients Died: #{@total_patients_died}" %></b>
-<br /><br />
+    <br /><b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"> Dates : <%= "#{@formated_start_date} to #{@formated_end_date}"%> <%= "<br> Total Registered: #{@total_patients.length}" %>
+    (Total Male: <%= @total_male_registered %>, Total Female: <%= @total_female_registered %>)</b>
+
+      <b style="position: relative; display:block; font-weight:bold; top:-15px; padding-left:30px;margin-left:200px"></b><br /><br />
 
 
     <div>
       <table  id="table_id" class="display" >
         <thead><tr>
             <th>
-                 Ward<p />
+                  <u>Name</u> <p />
             </th>
             <th>
-                 Total Patients Died <p />
+                  <u> Birthdate </u> <p />
             </th>
             <th>
-                 Total Died in 24hrs  <p />
+                  <u>Gender </u> <p />
             </th>
             <th>
-                 Total Died between 24hrs and 72hrs  <p />
+                  <u> Date Registered </u> <p />
             </th>
             <th>
-                 Total Died between 3 and 7 days <p />
+                  <u> Address </u> <p />
             </th>
             <th>
-                 Total Died after 7 days  <p />
-            </th>
-            <th>
-                 Total Died and HIV positive  <p />
+                  <u> T.A </u> <p />
             </th>
           </tr>
 
         </thead>
         <tbody>
           <%
-          ward=0
-          total_dead=1
-          total_dated_in_24hrs=2
-          dead_btn_24_and_72hrs=3
-          dead_btn_3_and_7dys=4
-          dead_after_7dys=5
-          dead_patients_hiv_positive=6
+          name=0
+          birthdate=1
+          gender=2
+          date_registered=3
+          address=4
+          t_a=5
         %>
-        <% @dead_patients_statistic_summary.each do |record| %>
-          <tr>
-            <td> <span style="display:block;" width="30%"> <%= "#{record[ward]}" %> </span> </td>
-            
-            <% if record[total_dead].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                <%= button_to("#{record[total_dead]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_patients_dead'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[total_dead]}" %> </span>
-              </td>
-            <% end %>
-
-            <% if record[total_dated_in_24hrs].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                  <%= button_to("#{record[total_dated_in_24hrs]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'total_died_in_24_hrs'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[total_dated_in_24hrs]}" %> </span>
-              </td>
-            <% end %>
-
-            <% if record[dead_btn_24_and_72hrs].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                  <%= button_to("#{record[dead_btn_24_and_72hrs]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}",:field => 'dead_btn_24_and_72hrs'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[dead_btn_24_and_72hrs]}" %> </span>
-              </td>
-            <% end %>
-
-            <% if record[dead_btn_3_and_7dys].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                  <%= button_to("#{record[dead_btn_3_and_7dys]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'dead_btn_3_and_7dys'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[dead_btn_3_and_7dys]}" %> </span>
-              </td>
-            <% end %>
-
-            <% if record[dead_after_7dys].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                  <%= button_to("#{record[dead_after_7dys]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'dead_after_7dys'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[dead_after_7dys]}" %> </span>
-              </td>
-            <% end %>
-
-            <% if record[dead_patients_hiv_positive].to_i > 0 %>
-              <td align="center"><span style="display:block;" width="10%">
-                  <%= button_to("#{record[dead_patients_hiv_positive]}",{:action => 'dead_patients_statistic_per_ward_patient_list',:ward => "#{record[ward]}",:start_date => "#{@formated_start_date}", :end_date => "#{@formated_end_date}", :field => 'dead_patients_with_hiv_positive'},{:class =>'link'})%>
-              </span></td>
-            <% else %>
-              <td align="center"> 
-                <span style="display:block;" width="10%"> <%= "#{record[dead_patients_hiv_positive]}" %> </span>
-              </td>
-            <% end %>
-
+          <% @total_patients.each do |record| %>
+            <tr>
+              <td> <span style="display:block; width:90%;"> <%= "#{record[name]}" %> </span> </td>
+              <td align="center" > <%= "<span > #{record[birthdate]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[gender] == 'F' ? "Female" : "Male"} </span> " %> </td>
+              <td align="right" > <%= "<span class='basic_span' > #{record[date_registered]} </span> " %> </td>
+              <td> <%= "<span class='basic_span' > #{record[address]} </span> " %> </td>
+              <td align="left" > <%= "<span class='basic_spuan' > #{record[t_a]} </span> " %> </td>
             </tr>
           <% end %>
         </tbody>
