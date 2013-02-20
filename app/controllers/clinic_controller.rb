@@ -46,6 +46,7 @@ class ClinicController < GenericClinicController
 		["Manage Roles", "/properties/set_role_privileges"],
 		
 		["Show Lab Results", "/properties/creation?value=show_lab_results"],
+    ["Show Column prescrp. interface", "/properties/creation?value=use_column_interface"]
 		
 		]
 		render :layout => false
