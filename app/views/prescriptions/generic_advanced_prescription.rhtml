@@ -1,26 +1,33 @@
 <link href="/touchscreentoolkit/lib/stylesheets/drug-style.css" type="text/css" rel="stylesheet" />
 <link href="/touchscreentoolkit/lib/stylesheets/dispense.css" type="text/css" rel="stylesheet" />
-<% 
-url = request.referrer.gsub(/http\:\/\//,"") 
+<%
+url = request.referrer.gsub(/http\:\/\//,"")
 
 url = url[url.index("/"), url.length - url.index("/")]
 %>
 <script type="text/javascript" language="javascript">
-  
+
   // tt_cancel_show = "<%= '/patients/treatment_dashboard/#{@patient.id}' %>";
   tt_cancel_destination = '<%= "/patients/treatment_dashboard/#{@patient.id}" %>';
 
-	var generic_drugs = <%= @generics.sort.to_json %>;
-	var drugslist = <%= @formulations.to_json %>;
-	var frequencies = <%= @frequencies.to_json %>;
-	var diagnosisList = <%= @diagnosis.to_json %>;
-	var patient_id = <%= params[:patient_id] rescue "" %>;
-
+  var generic_drugs = <%= @generics.sort.to_json %>;
+  var generics = <%= @generics.sort.to_json %>;
+  var frequencies = <%= @frequencies.to_json %>;
+  var drugslist = <%= @formulations.to_json %>;
+  var diagnosisList = <%= @diagnosis.to_json %>;
+  var patient_id = <%= params[:patient_id] rescue "" %>;
   var search_path = "/prescriptions/load_frequencies_and_dosages";
 
 </script>
 
+<% if @use_col_interface == "true" %>
+<script language="javascript" type="text/javascript" src="/javascripts/multiColumnTreatment.js" defer></script>
+
+<%else%>
+
 <script language="javascript" type="text/javascript" src="/touchscreentoolkit/lib/javascripts/prescriber.js" defer></script>
+
+<%end%>
 
 <style type="text/css">
   #space { display:inline; font-size:1.2em; }
@@ -36,16 +43,20 @@ url = url[url.index("/"), url.length - url.index("/")]
     z-index: 1000;
     border-radius: 20px;
     text-align: center;
-    border: 2px outset #87d469;    
+    border: 2px outset #87d469;
     font-size: 2em;
     vertical-align: middle;
     padding-top: 10px;
     opacity: 0.9;
     display: none;
   }
+  .keyboard{
+    display: none !important;
+
+}
 </style>
 
-<div id="alertBox">  
+<div id="alertBox">
   Hello World!
 </div>
 
@@ -85,5 +96,4 @@ url = url[url.index("/"), url.length - url.index("/")]
   </button-->
 </div>
 <script type="text/javascript" language="javascript">
-
 </script>
