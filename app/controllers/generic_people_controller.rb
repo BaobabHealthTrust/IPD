@@ -252,11 +252,24 @@ class GenericPeopleController < ApplicationController
 
     if params[:person][:patient] && success
 		  	if !params[:identifier].empty?
-					patient_identifier = PatientIdentifier.new
-					patient_identifier.type = PatientIdentifierType.find_by_name("National id")
-					patient_identifier.identifier = params[:identifier]
-					patient_identifier.patient = person.patient
-					patient_identifier.save!
+          identifier = params[:identifier].gsub("-","").strip
+          if (identifier.length == 13) && (identifier.first.match(/P/i))
+            invalid_chars = []
+            identifier = identifier.split(//)
+            identifier[0] = nil
+            identifier =  identifier.compact
+            identifier.each {|char|
+              invalid_chars << char if !char.match(/^(\d+)$/)
+
+            }
+            if (invalid_chars.blank?)
+              patient_identifier = PatientIdentifier.new
+              patient_identifier.type = PatientIdentifierType.find_by_name("National id")
+              patient_identifier.identifier = params[:identifier].capitalize
+              patient_identifier.patient = person.patient
+              patient_identifier.save!
+            end
+          end
 				end
 
       PatientService.patient_national_id_label(person.patient)
