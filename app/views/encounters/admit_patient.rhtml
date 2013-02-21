@@ -1,6 +1,12 @@
 <style>
-  .options{
-      height:11em;
+
+    #tt_page_admit_to_ward .inputFrameClass{
+    height: 372px !important;
+
+    }
+    #tt_page_admit_to_ward .options{
+    height: 325px !important;
+
     }
 </style>
 
@@ -15,9 +21,7 @@
 	<%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
 
 	<%= touch_select_tag "ADMIT TO WARD", @patient, options_for_select(@ipd_wards),
-		{	:helpText => "Admit to ward", 
-			:tt_onload => "$('nextButton').style.display = 'none'",
-			:tt_requireNextClick => "false" } %>
+		{	:helpText => "Admit to ward" } %>
 
 	<% program_id = Program.find_by_name('IPD PROGRAM').id %>
 	<% patient_program_id = @patient.patient_programs.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil %>
