@@ -110,13 +110,17 @@ class GenericProgramsController < ApplicationController
   def update
     flash[:error] = nil
     
-    ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
-			@ipd_wards = []
-			@ipd_wards = LocationTagMap.all.collect { | ltm |
-				[ltm.location.name] if ltm.location_tag.name == ipd_wards_tag
-			}
-			@ipd_wards = @ipd_wards.compact.sort
+    #ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
+			#@ipd_wards = []
+			#@ipd_wards = LocationTagMap.all.collect { | ltm |
+				#[ltm.location.name] if ltm.location_tag.name == ipd_wards_tag
+			#}
+			#@ipd_wards = @ipd_wards.compact.sort
       
+    kch_wards = CoreService.get_global_property_value('kch_wards') rescue ''
+    @ipd_wards = kch_wards.split(",")
+    @ipd_wards = @ipd_wards.compact.sort
+
     if request.method == :post
       #raise params[:observations].inspect
       patient_program = PatientProgram.find(params[:patient_program_id])
