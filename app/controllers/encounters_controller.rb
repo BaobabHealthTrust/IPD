@@ -91,6 +91,7 @@ class EncountersController < GenericEncountersController
       @fbc = concept_set("Full blood count")
       @urinalysis = concept_set("Urinalysis")
       @csf = concept_set("CSF analysis")
+      @other_tests = ['DNA HIV test','viral load','Influenza virus']
     end
 
 =begin
