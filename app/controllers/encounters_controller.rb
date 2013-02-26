@@ -805,6 +805,7 @@ class EncountersController < GenericEncountersController
             "encounter_id" => "#{encounter_id}",
             "patient_id" => params['encounter']['patient_id'],
             "concept_name" => multiple_array[0],
+            "accession_number" => Observation.new_accession_number,
             "value_coded" => Concept.find_by_name(multiple_array[1]).id,
             "obs_group_id" => "#{obs_group_id}",
             "obs_datetime" => params['encounter']['encounter_datetime']
@@ -815,6 +816,7 @@ class EncountersController < GenericEncountersController
             "encounter_id" => "#{encounter.id}",
             "patient_id" => params['encounter']['patient_id'],
 						"concept_name" => "Tests ordered".upcase,
+            "accession_number" => Observation.new_accession_number,
 						"value_coded" => Concept.find_by_name(order).id,
 						"obs_datetime" => params['encounter']['encounter_datetime']
           }
@@ -824,6 +826,7 @@ class EncountersController < GenericEncountersController
 
     end
    @patient_id = params[:encounter][:patient_id]
-   redirect_to("/patients/show/#{@patient_id}")
+   #redirect_to("/patients/show/#{@patient_id}")
+    redirect_to"/patients/print_lab_orders/?patient_id=#{@patient_id}"
   end
 end
