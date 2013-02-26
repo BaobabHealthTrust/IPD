@@ -78,6 +78,10 @@
           <option id="<%=test[0]%>" value="CSF analysis:<%= test[0] %>"><%= test[0] %></option>
         <% end %>
       </optgroup>
+
+      <% @other_tests .each do |test| %>
+          <option id="<%=test%>" value="<%= test %>"><%= test%></option>
+        <% end %>
     </select>
 
     <% if @retrospective %>
