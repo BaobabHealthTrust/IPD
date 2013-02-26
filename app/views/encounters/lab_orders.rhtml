@@ -3,10 +3,12 @@
 </script>
 <style type="text/css" media="screen">
   #space { display:inline; font-size:1.2em; }
+  form{
+    display: block!important;
+}
 </style>
 
-  <form id='lab_tests' action="/encounters/create"
-        method='post'>
+  <form id='lab_tests' action="/encounters/created_nested_lab_orders" method='post'>
     <% default={
       :allowFreeText => 'false',
     } %>
@@ -19,31 +21,71 @@
     <%= hidden_field_tag "patient_identifier[patient_id]", @patient.id %>
     <%= hidden_field_tag "patient_identifier[identifier_type_name]", "LAB IDENTIFIER" %>
     <%= hidden_field_tag "patient_identifier[lab_id]", "LAB" %>
-	
-	<%
-    tests_to_request = Array.new()
-    if @patient_bean.age <15  
-      tests_to_request = concept_set_options("Lab tests for peads")
-    else 
-      tests_to_request = concept_set_options("Lab tests for adults")
-    end
-  %>
-    <%= touch_select_tag "TESTS ORDERED", @patient, tests_to_request, 
-    	{
-		    :multiple => true,
-		    :id => "tests",
-		    :tt_pageStyleclass => "LongListSelect",
-		    :helpText => "Select Tests of interest"
-    	}
-    %>
 
+    <select style="width: 100%" id="multiple" class="multi" name="lab_orders[]" helptext="Select Lab orders" multiple="multiple" nested="true">
+      <option></option>
 
-		<% if @retrospective %>
-			<p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
-			<%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
-		<% else %>
-			<%= hidden_field_tag "filter[provider]", nil %>
-		<% end %>
+      <optgroup id="liver_test" label="Liver functional tests">
+        <% @liver_tests .each do |test| %>
+          <option id="<%=test[0]%>" value="Liver functional tests:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+      
+      <optgroup id="renal_test" label="Renal functional tests">
+        <% @renal_tests .each do |test| %>
+          <option id="<%=test[0]%>" value="Renal functional tests:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="lipids" label="Lipid profile">
+        <% @lipid_tests .each do |test| %>
+          <option id="<%=test[0]%>" value="Lipid profile:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="minerals" label="Minerals">
+        <% @minerals .each do |test| %>
+          <option id="<%=test[0]%>" value="Minerals:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="enzymes" label="Enzymes">
+        <% @enzymes .each do |test| %>
+          <option id="<%=test[0]%>" value="Enzymes:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="hormones" label="Hormones">
+        <% @hormones .each do |test| %>
+          <option id="<%=test[0]%>" value="Hormones:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="fbc" label="Full blood count">
+        <% @fbc .each do |test| %>
+          <option id="<%=test[0]%>" value="Full blood count:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="urinalysis" label="Urinalysis">
+        <% @urinalysis .each do |test| %>
+          <option id="<%=test%>" value="Urinalysis:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+
+      <optgroup id="csf" label="CSF analysis">
+        <% @csf .each do |test| %>
+          <option id="<%=test[0]%>" value="CSF analysis:<%= test[0] %>"><%= test[0] %></option>
+        <% end %>
+      </optgroup>
+    </select>
+
+    <% if @retrospective %>
+            <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+            <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
+    <% else %>
+            <%= hidden_field_tag "filter[provider]", nil %>
+    <% end %>
 
     <%= submit_tag "Finish" %>
   </form>
