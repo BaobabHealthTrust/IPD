@@ -27,7 +27,9 @@
     when 'show_lab_results'
       property = 'show.lab.results'
     when 'use_column_interface'
-    	property = 'use.column.interface'
+      property = 'use.column.interface'
+    when 'ask_admission_time'
+      property = 'ask.admission.time'
   end
 %>
   <%= hidden_field_tag "property", property %>
