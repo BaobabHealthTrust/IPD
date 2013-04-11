@@ -28,6 +28,13 @@ class ApplicationController < GenericApplicationController
 			end
 		end
 
+    if is_encounter_available(patient, 'TRANSFER OUT', session_date)
+			if !is_encounter_available(patient, 'INPATIENT DIAGNOSIS', session_date)
+				task.encounter_type = 'INPATIENT DIAGNOSIS'
+				task.url = "/encounters/new/inpatient_diagnosis?patient_id=#{patient.id}"
+			end
+		end
+
 		if task.encounter_type.nil?
 			task.encounter_type = 'NONE'
 			task.url = "/patients/show/#{patient.id}"
