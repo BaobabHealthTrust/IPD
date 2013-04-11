@@ -135,6 +135,7 @@ class GenericProgramsController < ApplicationController
       patient_state = patient_program.patient_states.build(
         :state => params[:current_state],
         :start_date => params[:current_date])
+      transfered_internally = (patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED INTERNALLY')
       if patient_state.save
 		    # Close and save current_active_state if a new state has been created
 		   current_active_state.save
@@ -144,6 +145,30 @@ class GenericProgramsController < ApplicationController
           encounter = Encounter.new(params[:encounter])
           encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
           encounter.save
+          
+          if transfered_internally
+            previous_ward = Observation.find_by_sql("SELECT * FROM obs o INNER JOIN encounter e WHERE
+            e.encounter_type=(SELECT encounter_type_id FROM encounter_type WHERE name = 'TRANSFER OUT')
+            AND o.person_id = #{encounter.patient_id} AND o.value_text IS NOT NULL AND
+            o.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'TRANSFERRED TO')
+            AND o.voided = 0 ORDER BY o.obs_datetime DESC LIMIT 1").first.value_text rescue ""
+
+            if (previous_ward.blank? || previous_ward == "" )
+              previous_ward = Observation.find_by_sql("SELECT * FROM obs o INNER JOIN encounter e WHERE
+              e.encounter_type=(SELECT encounter_type_id FROM encounter_type WHERE name = 'ADMIT PATIENT')
+              AND o.person_id = #{encounter.patient_id} AND o.value_text IS NOT NULL AND
+              o.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD')
+              AND o.voided = 0 ORDER BY o.obs_datetime DESC LIMIT 1").first.value_text rescue ""
+            end
+            
+            observation = {}
+            observation[:concept_name] = "TRANSFER IN FROM"
+            observation[:encounter_id] = encounter.id
+            observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+            observation[:person_id] ||= encounter.patient_id
+            observation[:value_text] = previous_ward
+            Observation.create(observation)
+          end
 
           (params[:observations] || [] ).each do |observation|
             #for now i do this
@@ -163,6 +188,7 @@ class GenericProgramsController < ApplicationController
           observation[:person_id] ||= encounter.patient_id
           observation[:value_text] = params[:transfer_out_location_id]
           Observation.create(observation)
+          
         end  
 
         updated_state = patient_state.program_workflow_state.concept.fullname
@@ -218,6 +244,9 @@ class GenericProgramsController < ApplicationController
         end
         #for import
          unless params[:location]
+            patient = Patient.find(params[:patient_id])
+            next_task = next_task(patient)
+            redirect_to(next_task) and return if transfered_internally
             redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id]
          else
             render :text => "import suceeded" and return
