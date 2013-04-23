@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>Patient Treatment Dashboard</title>
+
+    <script type="text/javascript" language="javascript"
+            src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer>
+    </script>
+
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+
+  </head>
+
+  <body>
+    <div id='content'>
+      <form id = 'dashboard' action='/clinic'>
+
+        <div id='project_name'>
+					IPD
+        </div>
+
+        <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+        <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+        <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+        <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+        <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+        <div id="patient_card">
+
+        </div>
+
+ <div style="display: table-row">
+      <div style="display: table-cell;width: 945px;">
+        <div style="padding:10px;width:100%;">
+          <form id='barcodeForm' action="/dispensations/create?patient_id=<%= @patient.id -%>" method="post" target="_parent">
+            <div style="float:left;margin-top:-6px;"><label for="barcode" style="margin-top:-5px;">
+              <img src="/images/barcode.jpg" style="vertical-align:top;background:white;"/></label>
+            </div>
+            <%= text_field_tag :identifier, '', {:id => 'barcode', :class => 'touchscreenTextInput', :style => 'position:absolute;width:230px' } %>
+            <%= submit_tag "Submit", :style => "display:none" %>
+          </form>
+
+          <% if @transfer_out_site.blank? %>
+            <button id="set_appointment" class="silver" style="float:right;margin-top:-25px;">
+              <span>Set appointment</span></button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+        <select id="links">
+          <% if advanced_prescription_interface %>
+            <option value='/prescriptions/generic_advanced_prescription?patient_id=<%= @patient.id -%>'>Prescribe</option>
+          <% else %>
+            <option value='/prescriptions/auto?patient_id=<%= @patient.id -%>'>Prescribe</option>
+          <% end %>
+          <option value='/dispensations/new?patient_id=<%= @patient.id -%>'>Dispense</option>
+        </select>
+        <input type='submit' value='Finish' />
+      </form>
+    </div>
+  </body>
+</html>
