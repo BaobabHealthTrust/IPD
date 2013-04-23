@@ -603,4 +603,66 @@ class PatientsController < GenericPatientsController
     return chronic_conditions_array
     
   end
+
+  def band_print
+
+    @patient = Patient.find(params[:patient_id]) rescue nil
+    #raise @patient.inspect
+    print_string = patient_wrist_band_barcode_label(@patient.id) 
+    #raise print_string.inspect
+    if !print_string.blank?
+
+      send_data(print_string,
+        :type=>"application/label; charset=utf-8",
+        :stream=> false,
+        :filename=>"#{params[:patient_id]}#{rand(10000)}.bcs",
+        :disposition => "inline") and return
+    end
+
+    #redirect_to next_task(@patient)
+
+  end
+
+  def patient_wrist_band_barcode_label(patient)
+    person = Person.find(patient) rescue nil
+    patient_bean = PatientService.get_patient(person) rescue nil
+    obs = Observation.find_by_sql("SELECT * FROM obs o INNER JOIN encounter e WHERE
+              e.encounter_type=(SELECT encounter_type_id FROM encounter_type WHERE name = 'ADMIT PATIENT')
+              AND o.person_id = #{patient} AND o.value_text IS NOT NULL AND
+              o.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD')
+              AND o.voided = 0 ORDER BY o.obs_datetime DESC LIMIT 1").first rescue nil
+    ward = obs.value_text.humanize rescue nil
+    patient_name = patient_bean.name rescue nil
+    unless patient_name.blank?
+      if (patient_name.size > 17)
+        patient_name = patient_name[0..18] + '..'
+      end
+    end
+    
+    unless ward.blank?
+      if (ward.size > 15)
+        ward = ward[0..16] + '..'
+      end
+    end
+=begin
+  "^XA~TA000~JSN^LT0^MNM^MTD^PON^PMN^LH0,0^JMA^PR2,2^MD21^JUS^LRN^CI0^XZ
+  ^XA
+  ^FO200,1250^ADR,36,20^FD#{(patient_bean.name.titlecase + '(' + person.gender + ')' rescue nil)}^FS
+  ^FO160,1250^ADR,36,20^FDAdmitted on: #{(obs.encounter_datetime.strftime("%d/%m/%Y") rescue nil)}^FS
+  ^FO120,1250^ADR,36,20^FDWard:#{obs.value_text rescue nil}^FS
+  ^FO80,1850^BY4^BCR,200,N,N,N^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
+  ^FO40,1950^ADR,36,20^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
+  ^XZ"
+=end
+    "^XA~TA000~JSN^LT0^MNM^MTD^PON^PMN^LH0,0^JMA^PR2,2^MD21^JUS^LRN^CI0^XZ
+  ^XA
+  ^FO240,1250^ADR,36,20^FD#{(patient_name.titlecase + '(' + person.gender + ')' rescue nil)}^FS
+  ^FO200,1250^ADR,36,20^FDBorn on: #{patient_bean.birth_date rescue nil}^FS
+  ^FO160,1250^ADR,36,20^FDAdmitted on: #{(obs.encounter_datetime.strftime("%d/%m/%Y") rescue nil)}^FS
+  ^FO120,1250^ADR,36,20^FDWard:#{ward}^FS
+  ^FO80,1850^BY4^BCR,200,N,N,N^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
+  ^FO40,1950^ADR,36,20^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
+  ^XZ"
+  end
+  
 end
