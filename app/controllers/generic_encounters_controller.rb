@@ -491,6 +491,9 @@ class GenericEncountersController < ApplicationController
     #find a way of printing the lab_orders labels
      if params['encounter']['encounter_type_name'] == "LAB ORDERS"
        redirect_to"/patients/print_lab_orders/?patient_id=#{@patient.id}"
+     elsif params['encounter']['encounter_type_name'] == "ADMIT PATIENT"
+       print_and_redirect("/patients/band_print/?patient_id=#{@patient.id}",next_task(@patient))
+       #redirect_to"/patients/band_print/?patient_id=#{@patient.id}" and return
      elsif params['encounter']['encounter_type_name'] == "TB suspect source of referral" && !params[:gender].empty? && !params[:family_name].empty? && !params[:given_name].empty?
        redirect_to"/encounters/new/tb_suspect_source_of_referral/?patient_id=#{@patient.id}&gender=#{params[:gender]}&family_name=#{params[:family_name]}&given_name=#{params[:given_name]}"
      else
