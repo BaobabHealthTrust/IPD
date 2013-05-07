@@ -73,10 +73,26 @@
         </select>
 
         <select id="links">
-          <option value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>'>Inpatient Diagnosis</option>
-          <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Complaints</option>
-          <option value='/patients/treatment_dashboard/<%= @patient.id -%>'>Treatment</option>
-          <option value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</option>
+          <!--<optgroup value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>' label='Inpatient Diagnosis'></optgroup>-->
+          <optgroup value='/encounters/new/admit_patient?patient_id=<%= @patient.id %>' label='Admit patient'></optgroup>
+          <optgroup label='Add admission details'>
+            <option value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>'>Add diagnosis</option>
+            <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Add complications</option>
+          </optgroup>
+          <optgroup value='/patients/investigations_dashboard/<%= @patient.id -%>' label='Investigations'>
+            <!--<option>Lab specimen ordering</option>
+            <option>Radiology investigations</option>
+            <option>Results</option>
+            <optgroup label="Results">
+                <option>Radiology results</option>
+                <option>Lab results</option>
+            </optgroup>-->
+          </optgroup>
+          <optgroup value='/patients/programs_dashboard/<%= @patient.id -%>' label='Add patient outcome'></optgroup>
+          
+          <!--<optgroup value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Complaints</optgroup>-->
+          <optgroup value='/patients/treatment_dashboard/<%= @patient.id -%>' label="Treatment"></optgroup>
+          <!--<optgroup value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</optgroup>-->
 
           <%  if @spine_clinician  %>
             <option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
