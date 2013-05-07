@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>Investigations Dashboard</title>
+
+		<script type="text/javascript" language="javascript"
+			src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer>
+		</script>
+
+		<meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+
+	</head>
+
+	<body>
+		<div id='content'>
+			<form id = 'dashboard' action='/clinic'>
+
+				<div id='project_name'>
+					IPD
+				</div>
+
+				<span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+				<span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+				<span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+				<span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+				<span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+				<div id="patient_card">
+
+				</div>
+
+				<select id="tabs">
+                                    <option value=''>Tasks</option>
+				</select>
+
+				<select id="links">
+                                    <optgroup value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>' label='Lab specimen ordering'></optgroup>
+                                    <optgroup value='<%= @radiology_url %>' label='RAD investigations' ></optgroup>
+                                    <optgroup value='' label='Results' >
+                                        <option>Radiology Results</option>
+                                        <option>Lab Results</option>
+                                    </optgroup>
+				</select>
+				<input type='submit' value='Finish' />
+			</form>
+		</div>
+	</body>
+</html>
