@@ -694,6 +694,16 @@ class GenericPatientsController < ApplicationController
     render :template => 'dashboards/programs_dashboard', :layout => false
   end
 
+  def investigations_dashboard
+    @patient_bean = PatientService.get_patient(@patient.person)
+    @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
+    @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
+    @radiology_url = CoreService.get_global_property_value('radiology_url') rescue nil
+    @radiology_url+="/investigation/new/#{@patient.id}" rescue nil
+    @radiology_url+="?from_ipd=true"
+    render :template => 'dashboards/investigations_dashboard', :layout => false
+  end
+  
   def general_mastercard
     @type = nil
     
