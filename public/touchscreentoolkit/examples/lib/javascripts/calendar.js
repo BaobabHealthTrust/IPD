@@ -118,6 +118,14 @@ function createMonth(date, selected, initialdate, startweekdate, endweekdate){
     }
                 
     if(typeof(date) != "undefined" && date != null){
+        var test_date = Date.parse(date);
+
+        if(isNaN(test_date)){
+            var str = date.match(/^\d{4}\-\d{2}\-/);
+            
+            date = str + "01";
+        }
+        
         selected_date = new Date(date);
         current_year = selected_date.getFullYear();
         current_month = monthNames[selected_date.getMonth()];        

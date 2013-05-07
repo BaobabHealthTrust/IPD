@@ -1,10 +1,14 @@
 .main-container {
     height: 545px;
     position: absolute;
-    width: 992px;
+    width: 99%;
     z-index: 20;
     top: 5px;
     left: 0px;
+}
+
+div {
+    -moz-user-select:none;
 }
 
 .diagnosis-columns{

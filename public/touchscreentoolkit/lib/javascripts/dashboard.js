@@ -38,6 +38,10 @@ function __$(id){
 }
 
 function checkCtrl(obj){
+    if(obj == null){
+        return [null, null, null, null];
+    }
+    
     var o = obj;
     var t = o.offsetTop;
     var l = o.offsetLeft + 1;
@@ -247,7 +251,8 @@ function generateHomepage(){
         return;
         if(event.keyCode == 52){
             if(tt_cancel_show){
-                window.location = tt_cancel_show + '?identifier=' + this.value;
+                window.location = tt_cancel_show + (tt_cancel_show.trim().match(/\?/) != null ? "&" : "?") +
+                'identifier=' + this.value;
             } else {
                 window.location = '/people/search?identifier=' + this.value;
             }
@@ -562,6 +567,7 @@ function generateDashboard(){
 
     var links = document.createElement("div");
     links.id = "buttonlinks";
+    links.style.height = "30%";
 
     content.appendChild(links);
 
@@ -624,31 +630,61 @@ function generateDashboard(){
     }
 
     if(__$("links")){
-        var childlinks = __$("links").options;
+        
+        var optgroups = __$("links").getElementsByTagName("OPTGROUP");
 
-        if(childlinks.length <= 4){
-            __$("buttonlinks").style.height = "30%";
-            __$("patient-dashboard-main").style.width = "100%";
-        } else {
-            __$("patient-dashboard-main").style.width = "73%";
-            __$("buttonlinks").style.height = "90%";
-        }
+        if(optgroups.length > 0){
 
-        for(var j = 0; j < childlinks.length; j++){
-            var button = document.createElement("button");
-            button.className = "blue";
-            button.style.minWidth = "255px";
-            button.style.margin = "0px";
-            button.style.marginTop = "5px";
-            button.innerHTML = "<span>" + childlinks[j].innerHTML.trim() + "</span>";
-            button.setAttribute("link", childlinks[j].value);
-            button.onclick = function(){
-                window.location = this.getAttribute("link");
+            var start = document.createElement("button");
+            start.id = "btnStart";
+            start.className = "menu_start_button blue";
+            start.style.position = "absolute";
+            start.style.width = "220px";
+            start.style.height = "220px";
+            start.style.margin = "10px";
+            start.style.fontSize = "32px";
+            start.style.right = "10px";
+            start.style.zIndex = 100;
+            start.innerHTML = "<img src='/touchscreentoolkit/lib/images/emblem.gif' height='80' style='margin: 10px;' /><br />Tasks";
+
+            start.onclick = function(){
+                if(__$('menu')){
+                    collapse()
+                } else {
+                    expand(this)
+                }
             }
 
-            links.appendChild(button);
-        }
+            links.appendChild(start);
 
+        } else {
+    
+            var childlinks = __$("links").options;
+
+            if(childlinks.length <= 4){
+                __$("buttonlinks").style.height = "30%";
+                __$("patient-dashboard-main").style.width = "100%";
+            } else {
+                __$("patient-dashboard-main").style.width = "73%";
+                __$("buttonlinks").style.height = "90%";
+            }
+
+            for(var j = 0; j < childlinks.length; j++){
+                var button = document.createElement("button");
+                button.className = "blue";
+                button.style.minWidth = "255px";
+                button.style.margin = "0px";
+                button.style.marginTop = "5px";
+                button.innerHTML = "<span>" + childlinks[j].innerHTML.trim() + "</span>";
+                button.setAttribute("link", childlinks[j].value);
+                button.onclick = function(){
+                    window.location = this.getAttribute("link");
+                }
+
+                links.appendChild(button);
+            }
+
+        }
     }
 
     if(__$("navigation_links")){
@@ -1018,7 +1054,9 @@ function checkForBarcode(validAction){
             barcodeScanAction();
         } else {
             if(tt_cancel_show){
-                window.location = tt_cancel_show + '?identifier=' + barcode_element.value;
+                window.location = tt_cancel_show + (tt_cancel_show.trim().match(/\?/) != null ? "&" : "?") +
+                'identifier=' + barcode_element.value;
+            // window.location = tt_cancel_show + '?identifier=' + barcode_element.value;
             } else {
                 window.location = '/people/search?identifier=' + barcode_element.value;
             }
@@ -1115,6 +1153,108 @@ function confirmYesNo(message, yes, no) {
 function hideConfirmation(){
     if (confirmation != null) confirmation.setAttribute('style', 'display:none');
     if (confirmationTimeout != null) window.clearTimeout(confirmationTimeout);
+}
+
+function expand(ctrl){
+    branches = {};
+
+    // [w, h, t, l]
+    var o = checkCtrl(ctrl);
+
+    var shield = document.createElement("div");
+    shield.id = "lyrShield";
+    shield.style.position = "absolute";
+    shield.style.width = "100%";
+    shield.style.height = "100%";
+    shield.style.left = "0px";
+    shield.style.top = "0px";
+    shield.style.backgroundColor = "#333"; // "#0088CC";
+    shield.style.opacity = "0.5";
+    shield.style.zIndex = 90;
+
+    document.body.appendChild(shield);
+
+    var menu = document.createElement("div");
+    menu.id = "menu";
+    menu.style.position = "absolute";
+    menu.style.left = (o[3] - 285) + "px";
+    menu.style.top = (o[2]) + "px";
+    menu.style.width = "280px";
+    menu.style.height = "650px";
+    menu.style.zIndex = 100;
+    menu.style.overflowY = "auto";
+    menu.style.overflowX = "hidden";
+
+    document.body.appendChild(menu);
+
+    var submenu = document.createElement("div");
+    submenu.id = "submenu";
+    submenu.style.position = "absolute";
+    submenu.style.left = (o[3] - (284 * 2)) + "px";
+    submenu.style.top = (o[2]) + "px";
+    submenu.style.width = "280px";
+    submenu.style.height = "650px";
+    submenu.style.zIndex = 100;
+    submenu.style.overflowY = "auto";
+    submenu.style.overflowX = "hidden";
+
+    document.body.appendChild(submenu);
+
+    var topLevelOptions = __$("links").getElementsByTagName("optgroup");
+
+    for(var i = 0; i < topLevelOptions.length; i++){
+        var middleLevelOptions = topLevelOptions[i].getElementsByTagName("option");
+
+        if(middleLevelOptions.length > 0){
+            branches[topLevelOptions[i].getAttribute("label")] = middleLevelOptions;
+        }
+
+        var button = document.createElement("button");
+        button.className = "menu_button blue";
+        button.style.width = "99%";
+        button.setAttribute("path", topLevelOptions[i].getAttribute("value"));
+        button.innerHTML = topLevelOptions[i].getAttribute("label");
+
+        button.onclick = function(){
+            if(branches[this.innerHTML]){
+                expandSub(this.innerHTML);
+            } else {
+                collapse(this.getAttribute("path"));
+            }
+        }
+
+        menu.appendChild(button);
+    }
+
+}
+
+function expandSub(group){
+    __$("submenu").innerHTML = "";
+
+    for(var i = 0; i < branches[group].length; i++){
+
+        var button = document.createElement("button");
+        button.className = "menu_button blue";
+        button.style.width = "99%";
+        button.setAttribute("path", branches[group][i].value);
+        button.innerHTML = branches[group][i].innerHTML;
+
+        button.onclick = function(){
+            collapse(this.getAttribute("path"));
+        }
+
+        __$("submenu").appendChild(button);
+    }
+}
+
+function collapse(path){
+    if(typeof(path) != "undefined"){
+        window.location = path;
+    }
+    
+    document.body.removeChild(__$("lyrShield"))
+    document.body.removeChild(__$("menu"));
+    document.body.removeChild(__$("submenu"));
 }
 
 //window.addEventListener("load", createPage, false);

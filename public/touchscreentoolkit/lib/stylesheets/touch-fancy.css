@@ -20,6 +20,10 @@ body{
     overflow: hidden;
 }
 
+div {
+    -moz-user-select:none;
+}
+
 form{
     z-index:0;
 }
@@ -43,7 +47,7 @@ form{
     border-left:none;
     border-right:none;
     border-bottom: 1px solid silver;
-    width:928px;
+    width:99.5%;
     font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
     font-size:2.2em;
     background:none;
@@ -93,7 +97,7 @@ form{
     height: 80px;
     position: absolute;
     top: 670px;
-    width:  98%;
+    width:  98.7%;
     padding-right: 20px;
     /*  z-index:10;*/
 }
@@ -157,7 +161,7 @@ form{
     border-radius: 15px;
     padding: 5px;
     background-color: #fff;
-    width: 935px;
+    width: 95%;
 }
 
 .buttonLine{
@@ -184,7 +188,7 @@ form{
     left: 0px;
     z-index: 1;
     height: 670px;
-    width: 998px;
+    width: 99%;
     overflow: hidden;
 }
 
@@ -210,7 +214,7 @@ form{
     border: 1px solid black;
     margin-left:25px;
     background: #F0F0F0;
-    width:935px;
+    width:96.5%;
     border-radius: 10px;
     padding: 5px;
 }
@@ -702,7 +706,7 @@ button:hover.dark span {
     font-size:1.3em;
     margin-left:25px;
     padding-top:5px;
-    width:942px;
+    width:99%;
     border-bottom:2px dotted;
 }  
 
@@ -711,9 +715,12 @@ button:hover.dark span {
 .NumbersOnlyWithDecimal,
 .NumbersOnly,
 .DatesOnly { height: 330px !important }
-.NoKeyboard, .NoControls { height: 520px !important } 
-.NoKeyboard .inputFrameClass { height: 440px !important } 
-.NoKeyboard .options { height: 395px !important } 
+
+.NoKeyboard, .NoControls { height: 660px !important }
+
+.NoKeyboard .inputFrameClass { height: 595px !important }
+
+.NoKeyboard .options { height: 552px !important }
 
 #footer button, div.buttonsDiv button {
     margin-top: 10px;
@@ -824,7 +831,7 @@ button {
 }
 
 .NoKeyboard #keyboard {
-    display: none;
+    display: none !important;
 }
 
 button:active.blue span {

@@ -25,15 +25,18 @@ body{
     background-color:#000000;
 }
 
+div {
+    -moz-user-select:none;
+}
 
 #content {
     background:#FFFFFF;
     position:absolute;
-    left:50%;
     top:50%;
-    width:1000px;
+    width:99%;
     height:750px;
-    margin-left:-500px;
+    margin-left:0.5%;
+    margin-right:0.5%;
     margin-top:-380px;
     -moz-user-select:none;
 }
@@ -42,7 +45,7 @@ body{
     background-color:rgb(51,51,51);
     color:#CADCEA;
     height:80px;
-    width: 98%;
+    width: 98.7%;
     padding-right: 20px;
     bottom:0px;
     position:absolute;
@@ -315,6 +318,7 @@ div.panel h2 {
     display: table-cell;
     height: 92%;
     background-color: #fff;
+    width: 200px;
 }
 
 #applicationname {
@@ -373,16 +377,18 @@ div.panel h2 {
 }
 
 #buttonlinks {
-    height: 90%;
+    height: 30%;
     float: right;
-    width: 26%;
+    width: 250px;
     background-color: #fff;
     z-index: 100;
+    text-align: right;
+    padding-right: 5px;
 }
 
 #patient-dashboard-main {
     float: left;
-    width: 73%;
+    width: 100%;
     height: 57%;
     margin-left: 3px;
     -moz-user-select:none;
@@ -525,7 +531,7 @@ div.panel h2 {
 #logininfo{
     position: absolute;
     border: 1px #eee solid;
-    left: 765px;
+    right: 20px;
     top: 140px;
     height: 30px;
     width: 225px;
@@ -614,4 +620,84 @@ div.panel h2 {
 
 .male {
     background:url(../images/male.gif) center no-repeat;
+}
+
+.menu_button {
+    height: 60px;
+    margin: 0.5%;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.menu_button.blue {
+    color: #fff;
+    -moz-transition: none 0s ease 0s;
+    border: 0 none;
+    border-radius: 15px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 1px 5px rgba(0, 0, 0, 0.25);
+    color: #FFFFFF;
+    padding: 14px 24px;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #0088CC, #0044CC);
+    background-repeat: repeat-x;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.menu_start_button {
+    height: 60px;
+    margin: 0.5%;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.menu_start_button.blue {
+    color: #fff;
+    -moz-transition: none 0s ease 0s;
+    border-radius: 20px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 1px 5px rgba(0, 0, 0, 0.25);
+    color: #FFFFFF;
+    padding: 14px 24px;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #0088CC, #0044CC);
+    background-repeat: repeat-x;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    border: 4px outset #006DCC;
+}
+
+.menu_button.blue:hover {
+    color: #ffffee;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #0088EE, #0044EE);
+    background-repeat: repeat-x;
+}
+
+.menu_button.blue:active {
+    -moz-user-select:none;
+    -moz-user-focus:disabled;
+    color: #ffffcc;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #CC8800, #CC4400);
+    background-repeat: repeat-x;
+    border: 5px inset #000;
+}
+
+.menu_start_button.blue:hover {
+    color: #ffffee;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #0088EE, #0044EE);
+    background-repeat: repeat-x;
+}
+
+.menu_start_button.blue:active {
+    -moz-user-select:none;
+    -moz-user-focus:disabled;
+    color: #ffffcc;
+    background-color: #006DCC;
+    background-image: -moz-linear-gradient(center top , #CC8800, #CC4400);
+    background-repeat: repeat-x;
+    border: 5px inset #000;
 }

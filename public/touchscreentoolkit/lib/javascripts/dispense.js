@@ -79,22 +79,23 @@ function generateGenerics(patient_id){
     var parent_container = document.createElement("div");
     parent_container.id = "parent_container";
     parent_container.style.position = "absolute";
-    parent_container.style.marginLeft = "-500px";
-    parent_container.style.marginTop = "-358px";
+    parent_container.style.marginLeft = "0.5%";
+    parent_container.style.marginRight = "0.5%";
+    parent_container.style.marginTop = "-370px";
     parent_container.style.top = "50%";
-    parent_container.style.left = "50%";
-    parent_container.style.height = "630px";
-    parent_container.style.width = "1000px";
+    // parent_container.style.left = "50%";
+    parent_container.style.height = "660px";
+    parent_container.style.width = "99%";
     parent_container.style.overflow = "hidden";
     parent_container.style.zIndex = "20";
-    parent_container.style.backgroundColor = "#FFFFFF";
+    parent_container.style.backgroundColor = "#ffffff";
 
     __$("content").appendChild(parent_container);
 
     var mainDiv = document.createElement("div");
     mainDiv.id = "mainDiv";
-    mainDiv.style.width = "960px";
-    mainDiv.style.height = "590px";
+    mainDiv.style.width = "97%";
+    mainDiv.style.height = "610px";
     mainDiv.style.margin = "10px";
 
     parent_container.appendChild(mainDiv);
@@ -2070,7 +2071,16 @@ function removeGenerics(){
             document.forms[0].appendChild(field);
         }
     }
-    
+
+    if(__$("parent_container")){
+        __$("content").removeChild(__$("parent_container"));
+    }
+
+    if(__$("clearButton")){
+        __$("clearButton").onmousedown = function(){
+            clearInput();
+        }
+    }
 }
 
 /*

@@ -124,14 +124,16 @@ function createLoadingMessage(){
     msg.style.color = "#00f";
     msg.style.backgroundColor = "#fff";
     msg.style.fontSize = "2em";
-    msg.innerHTML = "<div id='progressAnimation' style='margin-top:35%; " +
-    "font-style: italic; padding-left: 350px; border: 1px solid #fff; text-align: left;'>Loading. Please Wait...</div>";
+    msg.innerHTML = "<div id='progressAnimation' style='margin-left:auto; margin-right: auto; margin-top: 375px; " +
+    "font-style: italic; border: 1px solid #fff; text-align: center;'>Loading. Please Wait...</div>";
     msg.style.position = "absolute";
-    msg.style.left = "50%";
+    // msg.style.left = "50%";
     msg.style.top = "50%";
-    msg.style.width = "1000px";
+    msg.style.width = "99%"; // "1000px";
     msg.style.height = "750px";
-    msg.style.marginLeft = "-500px";
+    // msg.style.marginLeft = "-500px";
+    msg.style.marginLeft = "0.5%";
+    msg.style.marginRight = "0.5%";
     msg.style.marginTop = "-380px";
     msg.style.textAlign = "center";
     msg.style.verticalAlign = "middle";

@@ -21,38 +21,51 @@ body{
 }
 
 #content {
-  background:#FFFFFF;
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:1000px;
-  height:750px;
-  margin-left:-500px;
-  margin-top:-380px;
+    background:#FFFFFF;
+    position:absolute;
+    /*left:50%;*/
+    top:50%;
+    width:99%;
+    height:750px;
+    margin-left:0.5%;
+    margin-right:0.5%;
+    margin-top:-380px;
 
+}
+
+#loadingProgressMessage {
+    background:#FFFFFF;
+    position:absolute;
+    /*left:50%;*/
+    top:50%;
+    width:99%;
+    height:750px;
+    margin-left:0.5%;
+    margin-right:0.5%;
+    margin-top:-380px;
 }
 
 .inputPage {
-  background-color: #FFFFFF; 
-  /*background-image: url(/images/watermark.png);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: 80% 80%*/
+    background-color: #FFFFFF;
+    /*background-image: url(/images/watermark.png);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 80% 80%*/
 }
 
 .centered {
-  width:400px;
-  height:300px;
-  position:absolute;
-  margin-top:-150px;
-  margin-left:-200px;
-  left:50%;
-  top:50%;
-  text-align:center;
+    width:400px;
+    height:300px;
+    position:absolute;
+    margin-top:-150px;
+    margin-left:-200px;
+    left:50%;
+    top:50%;
+    text-align:center;
 }
 
 .centered button {
-  display:inline;
+    display:inline;
 }
 
 .right {
@@ -60,26 +73,26 @@ body{
 }
 
 ul.list {
-  font-size:0.9em;
-  border:2px solid black;
-  padding:0px;
-  overflow:scroll;
+    font-size:0.9em;
+    border:2px solid black;
+    padding:0px;
+    overflow:scroll;
 }  
 ul.list li.data {
-  vertical-align:top;
-  display:block;
-  list-style: none;
-  padding-left:8px;
-  padding-top:8px;
-  line-height:0.7em;
+    vertical-align:top;
+    display:block;
+    list-style: none;
+    padding-left:8px;
+    padding-top:8px;
+    line-height:0.7em;
 }
 ul.list li.data .summary {  
-  padding:3px;
-  padding-left:10px;
-  font-size:0.6em;  
-  color:#444;
+    padding:3px;
+    padding-left:10px;
+    font-size:0.6em;
+    color:#444;
 }
 ul.list li.odd {
-  background:#eee;
+    background:#eee;
 }
 
