@@ -18,6 +18,9 @@ class PeopleController < GenericPeopleController
     @task = main_next_task(Location.current_location, @person.patient, session_date.to_date)
     @arv_number = PatientService.get_patient_identifier(@person, 'ARV Number')
 	  @patient_bean = PatientService.get_patient(@person)
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    @patient = @person.patient
+    @ipd_program_id = @patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil
     render :layout => false
   end
 
