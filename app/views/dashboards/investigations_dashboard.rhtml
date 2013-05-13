@@ -1,47 +1,65 @@
 <html>
-	<head>
-		<title>Investigations Dashboard</title>
+  <head>
+    <title>Patient Programs Dashboard</title>
+    <script type="text/javascript" language="javascript"
+    src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      tt_cancel_show = '/patients/show/<%= @patient.id %>';
 
-		<script type="text/javascript" language="javascript"
-			src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer>
-		</script>
+      var message = '<%= params[:error] rescue "" %>';
 
-		<meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    </script>
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='/clinic'>
 
-	</head>
+          <% unless flash[:notice].nil? %>
+            <p id="flash_notice" style="color: green"><%= flash[:notice] %></p>
+          <% end %>
+          <% unless flash[:error].nil? %>
+            <p id="flash_error" style="color: red"><%= flash[:error] %></p>
+          <% end %>
 
-	<body>
-		<div id='content'>
-			<form id = 'dashboard' action='/clinic'>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Investigations Dashboard</th>
+            </tr>
+            <h1 id='project_name'>
+              IPD
+            </h1>
 
-				<div id='project_name'>
-					IPD
-				</div>
+            <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+            <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+            <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+            <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+            <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
 
-				<span id='patient_name'><%= @patient_bean.name rescue "" %></span>
-				<span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
-				<span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
-				<span id='patient_age'><%= @patient_bean.age rescue "" %></span>
-				<span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
-
-				<div id="patient_card">
-
-				</div>
-
-				<select id="tabs">
-                                    <option value=''>Tasks</option>
-				</select>
-
-				<select id="links">
-                                    <optgroup value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>' label='Lab specimen ordering'></optgroup>
-                                    <optgroup value='<%= @radiology_url %>' label='RAD investigations' ></optgroup>
-                                    <optgroup value='' label='Results' >
-                                        <option>Radiology Results</option>
-                                        <option>Lab Results</option>
-                                    </optgroup>
-				</select>
-				<input type='submit' value='Finish' />
-			</form>
-		</div>
-	</body>
+            <div id="patient_card">
+              <% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
+						    <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
+					    <% end %>
+            </div>
+            <select id="tabs">
+              <option value=''>Tasks</option>
+            </select>
+            <select id="links">
+              <option value='<%= @radiology_url %>'>RAD investigations</option>
+              <option value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>'>Lab specimen ordering</option
+              <option value=''>Radiology Results</option>
+              <option value=''>Lab Results</option>
+            </select>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+  </body>
 </html>
