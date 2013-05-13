@@ -116,9 +116,7 @@
 			</div>
 
 			<select id="tabs">
-				<% if Location.current_location.name.match(/HIV|ART/i) %>
-					<option value='/patients/overview?patient_id=<%= @person.patient.id %>'>Overview</option>
-				<% end %>             
+                                <option value='/patients/overview?patient_id=<%= @person.patient.id %>'>Overview</option>
 				<option value='/patients/next_task_description?task_id=<%= task.id -%>'>
 					NEXT TASK: <%= task_name.gsub('_',' ') %>
 				</option>
