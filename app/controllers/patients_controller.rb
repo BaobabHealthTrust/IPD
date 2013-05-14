@@ -664,5 +664,48 @@ class PatientsController < GenericPatientsController
   ^FO40,1950^ADR,36,20^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
   ^XZ"
   end
+
+  def admission_history
+    @logo = CoreService.get_global_property_value('logo').to_s rescue nil
+    patient_id = params[:id]
+    patient = Patient.find(patient_id)
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    date_enrolled = patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.date_enrolled.to_date rescue nil
+    @date_enrolled = date_enrolled
+    today = Date.today
+    @patient_bean = PatientService.get_patient(patient.person)
+   # observations = Observation.find(:all, :conditions => ["person_id =? AND
+       # DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ?",patient_id, date_enrolled,today])
+
+    encounters = Encounter.find(:all, :conditions => ["patient_id =? AND
+        DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?",patient_id, date_enrolled,today],\
+        :order => "encounter_datetime ASC")
+    
+    admission_history = {}
+    encounters.each do |encounter|
+      admission_history[encounter.id] = {}
+      admission_history[encounter.id]["encounter_datetime"] = encounter.encounter_datetime
+      admission_history[encounter.id]["encounter_type"] = encounter.type.name
+      provider = encounter.provider.names[0]
+      provider_names = provider.given_name.first.to_s + '.' + provider.family_name.to_s
+      admission_history[encounter.id]["provider_details"] = provider_names
+      answer_string = []
+      encounter.observations.each do |obs|
+        answer_string << obs.to_s
+      end
+      answer_string.delete_if{|answer|answer.match(/Workstation location/i)}
+      test = ""
+      answer_string.each do |answer|
+        string  = answer.split(":")
+        text = string[0].to_s + ": " + "<b>" + string[1].to_s.squish + "</b>"
+        text+= ", " if answer_string.size > 1 && answer_string[-1] != answer
+        test += text
+      end
+      #raise test.inspect
+      admission_history[encounter.id]["answer_string"] = test
+    end
+     @admission_history = admission_history.sort_by {|key,value| key}
+    render:layout => "menu"
+  end
   
 end
