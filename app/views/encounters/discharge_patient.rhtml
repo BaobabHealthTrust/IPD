@@ -1,6 +1,6 @@
 <script>
-	var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=false"
-
+	//var tt_cancel_destination = "/patients/show/<%= @patient.id%>?auto_load_forms=false"
+        var tt_cancel_destination = "/patients/programs_dashboard/<%= @patient.id%>"
 	function setPatientState() {
 		if($("discharge_outcome").value == "Dead") {
 			$("programs__states__state").value = "Patient Died";
@@ -51,8 +51,7 @@
 		<%= touch_select_tag "OUTCOME", @patient, options_for_select(@discharge_outcomes), 
 			{	:id => 'discharge_outcome',
 				:helpText => 'Discharge outcome',
-				:tt_onUnload => 'setPatientState();', 
-				:tt_requireNextClick => 'false'} %>
+				:tt_onUnload => 'setPatientState();'} %>
 
 			<%= touch_location_tag "TRANSFER OUT TO", @patient, nil,
 			{	:id => "refer", 

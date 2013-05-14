@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title></title>
+    <style>
+      .patient_info{
+        position: absolute;
+        left: 200px;
+        top: 22px;
+      }
+    </style>
+    <script>
+      var tt_cancel_destination = "/patients/programs_dashboard/<%=@patient.id%>"
+    </script>
+  </head>
+  <body>
+
+    <%=image_tag(@logo)%>
+    <div class="patient_info">
+      National ID : <b><%= @patient_bean.national_id_with_dashes %></b><br />
+      Patient Name : <b><%= @patient_bean.name.titlecase %></b><br />
+      Date of Birth: <b><%= @patient_bean.birth_date %></b><br />
+      Age: <b><%= @patient_bean.age %></b><br />
+      Gender: <b><%= @patient_bean.sex %></b><br />
+      Admission Date: <b><%= @date_enrolled.strftime("%A, %d/%B/%Y")%></b><br />
+    </div><br /><br />
+
+    <div class="admission_history">
+      <table width="100%">
+        <thead>
+          <th>Date</th>
+          <th>Encounter</th>
+          <th>Details</th>
+          <th>Provider Details</th>
+        </thead>
+        <tbody>
+          <% @admission_history.each do |key, value| %>
+          <tr>
+            <td> <%= value["encounter_datetime"].strftime("%d/%m/%Y (%H:%M:%S)") %></td>
+            <td> <%= value["encounter_type"] %></td>
+            <td> <%= value["answer_string"] %></td>
+            <td> <%= value["provider_details"] %></td>
+          </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div>
+
+  </body>
+</html>
+
