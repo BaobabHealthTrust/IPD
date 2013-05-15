@@ -10,6 +10,11 @@
     </style>
     <script>
       var tt_cancel_destination = "/patients/programs_dashboard/<%=@patient.id%>"
+      function addPrintButton(){
+        buttons = document.getElementById('buttons')
+        buttons.innerHTML+='<button id="print" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+      window.setTimeout("addPrintButton()",300)
     </script>
   </head>
   <body>
@@ -27,10 +32,12 @@
     <div class="admission_history">
       <table width="100%">
         <thead>
-          <th>Date</th>
-          <th>Encounter</th>
-          <th>Details</th>
-          <th>Provider Details</th>
+          <tr style="background-color:#EEE8AA; line-height: 26px;">
+            <th style="text-align: left">Date</th>
+            <th style="text-align: left">Encounter</th>
+            <th style="text-align: left">Details</th>
+            <th style="text-align: left">Provider</th>
+          </tr>
         </thead>
         <tbody>
           <% @admission_history.each do |key, value| %>
@@ -40,6 +47,7 @@
             <td> <%= value["answer_string"] %></td>
             <td> <%= value["provider_details"] %></td>
           </tr>
+          <tr><td colspan = 4><hr/></td></tr>
           <% end %>
 
         </tbody>
