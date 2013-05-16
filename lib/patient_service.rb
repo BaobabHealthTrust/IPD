@@ -3,16 +3,204 @@ module PatientService
 	require 'bean'
 	require 'json'
 	require 'rest_client'
+  require 'dde_service'
 
-  def self.search_from_remote(params)                                           
-    return [] if params[:given_name].blank?                                     
+  def self.search_from_remote(params)
+    return [] if params[:given_name].blank?
     dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
     dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
     dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
     uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json/"
-                                                                                
-    return JSON.parse(RestClient.post(uri,params))                              
+
+    return JSON.parse(RestClient.post(uri,params))
   end
+
+  def self.search_from_dde_by_identifier(identifier)
+      dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+      dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+      dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+      uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
+      uri += "?value=#{identifier}"
+      people = JSON.parse(RestClient.get(uri)) rescue nil
+      return [] if people.blank?
+
+      local_people = []
+      people.each do |person|
+        national_id = person['person']["value"] rescue nil
+        old_national_id = person["person"]["old_identification_number"] rescue nil
+
+        birthdate_year = person["person"]["data"]["birthdate"].to_date.year rescue "Unknown"
+        birthdate_month = person["person"]["data"]["birthdate"].to_date.month rescue nil
+        birthdate_day = person["person"]["data"]["birthdate"].to_date.day rescue nil
+        birthdate_estimated = person["person"]["data"]["birthdate_estimated"]
+        gender = person["person"]["data"]["gender"] == "F" ? "Female" : "Male"
+        passed_person = {
+         "person"=>{"occupation"=>person["person"]["data"]["attributes"]["occupation"],
+         "age_estimate"=> birthdate_estimated ,
+         "birthdate" => person["person"]["data"]["birthdate"],
+         "cell_phone_number"=>person["person"]["data"]["attributes"]["cell_phone_number"],
+         "birth_month"=> birthdate_month ,
+         "addresses"=>{"address1"=> person["person"]["data"]["addresses"]["county_district"],
+                       "address2"=> person["person"]["data"]["addresses"]["address2"],
+                       "city_village"=> person["person"]["data"]["addresses"]["city_village"],
+                       "county_district"=> person["person"]["data"]["addresses"]["county_district"],
+                       "state_province" => person["person"]["data"]["addresses"]["state_province"],
+                       "neighborhood_cell" => person["person"]["data"]["addresses"]["neighborhood_cell"]},
+         "gender"=> gender ,
+         "patient"=>{"identifiers"=>{"National id" => national_id ,"Old national id" => old_national_id}},
+         "birth_day"=>birthdate_day,
+         "home_phone_number"=>person["person"]["data"]["attributes"]["home_phone_number"],
+         "names"=>{"family_name"=>person["person"]["data"]["names"]["family_name"],
+         "given_name"=>person["person"]["data"]["names"]["given_name"],
+         "middle_name"=>""},
+         "birth_year"=>birthdate_year,
+         "id" => person["person"]["id"]},
+         "filter_district"=>"",
+         "filter"=>{"region"=>"",
+         "t_a"=>""},
+         "relation"=>""
+        }
+        local_people << passed_person
+      end
+    return local_people
+  end
+
+  def self.create_from_dde_server_only(params)
+    address_params = params["person"]["addresses"]
+    names_params = params["person"]["names"]
+    patient_params = params["person"]["patient"]
+    birthday_params = params["person"]
+    params_to_process = params.reject{|key,value|
+      key.match(/identifiers|addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/)
+    }
+    birthday_params = params_to_process["person"].reject{|key,value| key.match(/gender/) }
+    person_params = params_to_process["person"].reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
+
+
+    if person_params["gender"].to_s == "Female"
+      person_params["gender"] = 'F'
+    elsif person_params["gender"].to_s == "Male"
+      person_params["gender"] = 'M'
+    end
+
+    unless birthday_params.empty?
+      if birthday_params["birth_year"] == "Unknown"
+        birthdate = Date.new(Date.today.year - birthday_params["age_estimate"].to_i, 7, 1)
+        birthdate_estimated = 1
+      else
+        year = birthday_params["birth_year"]
+        month = birthday_params["birth_month"]
+        day = birthday_params["birth_day"]
+
+        month_i = (month || 0).to_i
+        month_i = Date::MONTHNAMES.index(month) if month_i == 0 || month_i.blank?
+        month_i = Date::ABBR_MONTHNAMES.index(month) if month_i == 0 || month_i.blank?
+
+        if month_i == 0 || month == "Unknown"
+          birthdate = Date.new(year.to_i,7,1)
+          birthdate_estimated = 1
+        elsif day.blank? || day == "Unknown" || day == 0
+          birthdate = Date.new(year.to_i,month_i,15)
+          birthdate_estimated = 1
+        else
+          birthdate = Date.new(year.to_i,month_i,day.to_i)
+          birthdate_estimated = 0
+        end
+      end
+    else
+      birthdate_estimated = 0
+    end
+
+    passed_params = {"person"=>
+        {"data" =>
+          {"addresses"=>
+            {"state_province"=> address_params["state_province"],
+            "address2"=> address_params["address2"],
+            "address1"=> address_params["address1"],
+            "neighborhood_cell"=> address_params["neighborhood_cell"],
+            "city_village"=> address_params["city_village"],
+            "county_district"=> address_params["county_district"]
+          },
+          "attributes"=>
+            {"occupation"=> params["person"]["occupation"],
+            "cell_phone_number" => params["person"]["cell_phone_number"] },
+          "patient"=>
+            {"identifiers"=>
+              {"old_identification_number"=> params["person"]["patient"]["identifiers"]["old_identification_number"]}},
+          "gender"=> person_params["gender"],
+          "birthdate"=> birthdate,
+          "birthdate_estimated"=> birthdate_estimated ,
+          "names"=>{"family_name"=> names_params["family_name"],
+            "given_name"=> names_params["given_name"]
+          }}}}
+
+      @dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+      @dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+      @dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+
+      uri = "http://#{@dde_server_username}:#{@dde_server_password}@#{@dde_server}/people.json/"
+      received_params = RestClient.post(uri,passed_params)
+
+      return JSON.parse(received_params)["npid"]["value"]
+  end
+
+  def self.get_dde_person(person, current_date = Date.today)
+    patient = PatientBean.new('')
+    patient.person_id = person["person"]["id"]
+    patient.patient_id = 0
+    patient.address = person["person"]["addresses"]["city_village"]
+    patient.national_id = person["person"]["patient"]["identifiers"]["National id"]
+    patient.national_id = person["person"]["value"] if patient.national_id.blank? rescue nil
+    patient.name = person["person"]["names"]["given_name"] + ' ' + person["person"]["names"]["family_name"] rescue nil
+    patient.first_name = person["person"]["names"]["given_name"] rescue nil
+    patient.last_name = person["person"]["names"]["family_name"] rescue nil
+    patient.sex = person["person"]["gender"]
+    patient.birthdate = person["person"]["birthdate"].to_date
+    patient.birthdate_estimated =  person["person"]["age_estimate"].to_i rescue 0
+    date_created =  person["person"]["date_created"].to_date rescue Date.today
+    patient.age = self.cul_age(patient.birthdate , patient.birthdate_estimated , date_created, Date.today)
+    patient.birth_date = self.get_birthdate_formatted(patient.birthdate,patient.birthdate_estimated)
+    patient.home_district = person["person"]["addresses"]["address2"]
+    patient.current_district = person["person"]["addresses"]["state_province"]
+    patient.traditional_authority = person["person"]["addresses"]["county_district"]
+    patient.current_residence = person["person"]["addresses"]["city_village"]
+    patient.landmark = person["person"]["addresses"]["address1"]
+    patient.home_village = person["person"]["addresses"]["neighborhood_cell"]
+    patient.occupation = person["person"]["occupation"]
+    patient.cell_phone_number = person["person"]["cell_phone_number"]
+    patient.home_phone_number = person["person"]["home_phone_number"]
+    patient.old_identification_number = person["person"]["patient"]["identifiers"]["Old national id"]
+    patient.national_id  = patient.old_identification_number if patient.national_id.blank?
+    patient
+  end
+
+  def self.cul_age(birthdate , birthdate_estimated , date_created = Date.today, today = Date.today)
+
+    # This code which better accounts for leap years
+    patient_age = (today.year - birthdate.year) + ((today.month - birthdate.month) + ((today.day - birthdate.day) < 0 ? -1 : 0) < 0 ? -1 : 0)
+
+    # If the birthdate was estimated this year, we round up the age, that way if
+    # it is March and the patient says they are 25, they stay 25 (not become 24)
+    birth_date = birthdate
+    estimate = birthdate_estimated == 1
+    patient_age += (estimate && birth_date.month == 7 && birth_date.day == 1  &&
+        today.month < birth_date.month && date_created.year == today.year) ? 1 : 0
+    end
+
+  def self.get_birthdate_formatted(birthdate,birthdate_estimated)
+    if birthdate_estimated == 1
+      if birthdate.day == 1 and birthdate.month == 7
+        birthdate.strftime("??/???/%Y")
+      elsif birthdate.day == 15
+        birthdate.strftime("??/%b/%Y")
+      elsif birthdate.day == 1 and birthdate.month == 1
+        birthdate.strftime("??/???/%Y")
+      end
+    else
+      birthdate.strftime("%d/%b/%Y")
+    end
+  end
+  #............................................................. new code
 
   def self.create_patient_from_dde(params)
     old_identifier = params["identifier"] rescue nil
@@ -61,12 +249,13 @@ module PatientService
       birthdate_estimated = 0
 		end
 
-
     passed_params = {"person"=>
         {"data" =>
           {"addresses"=>
-            {"state_province"=> address_params["address2"],
-            "address2"=> address_params["address1"],
+            {"state_province"=> address_params["state_province"],
+            "address2"=> address_params["address2"],
+            "address1"=> address_params["address1"],
+            "neighborhood_cell"=> address_params["neighborhood_cell"],
             "city_village"=> address_params["city_village"],
             "county_district"=> address_params["county_district"]
           },
@@ -74,39 +263,13 @@ module PatientService
             {"occupation"=> params["person"]["occupation"],
             "cell_phone_number" => params["person"]["cell_phone_number"] },
           "patient"=>
-            {"identifiers"=>
-              {"diabetes_number"=>""}},
+            {"identifiers"=> {"old_identification_number"=> old_identifier}},
           "gender"=> person_params["gender"],
           "birthdate"=> birthdate,
           "birthdate_estimated"=> birthdate_estimated ,
           "names"=>{"family_name"=> names_params["family_name"],
             "given_name"=> names_params["given_name"]
           }}}}
-
-    unless old_identifier.blank?
-      passed_params = {"person"=>
-        {"data" =>
-          {"addresses"=>
-            {"state_province"=> address_params["address2"],
-            "address2"=> address_params["address1"],
-            "city_village"=> address_params["city_village"],
-            "county_district"=> address_params["county_district"]
-          },
-          "attributes"=>
-            {"occupation"=> params["person"]["occupation"],
-            "cell_phone_number" => params["person"]["cell_phone_number"] },
-          "patient"=>
-            {"identifiers"=>
-              {"old_identification_number"=> old_identifier}},
-          "gender"=> person_params["gender"],
-          "birthdate"=> birthdate,
-          "birthdate_estimated"=> birthdate_estimated ,
-          "names"=>{"family_name"=> names_params["family_name"],
-            "given_name"=> names_params["given_name"]
-          }}}}
-    end
-
-    #raise passed_params.to_yaml
 
     if !params["remote"]
 
@@ -121,20 +284,16 @@ module PatientService
 
       national_id = JSON.parse(received_params)["npid"]["value"]
     else
-      national_id = params["person"]["patient"]["identifiers"]["National_id"]
+      national_id = params["person"]["patient"]["identifiers"]["National id"]
+      national_id = params["person"]["value"] if national_id.blank? rescue nil
+      return national_id
     end
 
 	  person = self.create_from_form(params[:person] || params["person"])
+
     identifier_type = PatientIdentifierType.find_by_name("National id") || PatientIdentifierType.find_by_name("Unknown id")
     person.patient.patient_identifiers.create("identifier" => national_id,
       "identifier_type" => identifier_type.patient_identifier_type_id) unless national_id.blank?
-
-    unless old_identifier.blank?
-      identifier_type = PatientIdentifierType.find_by_name("Old Identification Number")
-      person.patient.patient_identifiers.create("identifier" => old_identifier,
-      "identifier_type" => identifier_type.patient_identifier_type_id)
-    end
-
     return person
   end
 
@@ -256,7 +415,7 @@ module PatientService
 
   def self.create_remote_person(received_params)
     #raise known_demographics.to_yaml
-    #raise received_params.to_yaml
+
     #Format params for BART
     new_params = received_params[:person]
     known_demographics = Hash.new()
@@ -297,7 +456,6 @@ module PatientService
         "identifier"=>"#{new_params[:addresses][:county_district]}"}
     }
 
-
     servers = GlobalProperty.find(:first,
       :conditions => {:property => "remote_servers.parent"}).property_value.split(/,/) rescue nil
     server_address_and_port = servers.to_s.split(':')
@@ -309,9 +467,9 @@ module PatientService
       :conditions => {:property => "remote_bart.password"}).property_value.split(/,/) rescue ''
 
     if server_port.blank?
-      uri = "http://#{login.first}:#{password.first}@#{server_address}/people/create_remote"
+      uri = "http://#{login.first}:#{password.first}@#{server_address}/patient/create_remote"
     else
-      uri = "http://#{login.first}:#{password.first}@#{server_address}:#{server_port}/people/create_remote"
+      uri = "http://#{login.first}:#{password.first}@#{server_address}:#{server_port}/patient/create_remote"
     end
     output = RestClient.post(uri,known_demographics)
 
@@ -333,11 +491,11 @@ module PatientService
       person["person"]["attributes"].delete("office_phone_number")
     rescue
     end
-    person
+
+    return person
   end
 
   def self.find_remote_person(known_demographics)
-
     servers = GlobalProperty.find(:first, :conditions => {:property => "remote_servers.parent"}).property_value.split(/,/) rescue nil
     server_address_and_port = servers.to_s.split(':')
     server_address = server_address_and_port.first
@@ -345,7 +503,6 @@ module PatientService
 
     return nil if servers.blank?
 
-    wget_base_command = "wget --quiet --load-cookies=cookie.txt --quiet --cookies=on --keep-session-cookies --save-cookies=cookie.txt"
     # use ssh to establish a secure connection then query the localhost
     # use wget to login (using cookies and sessions) and set the location
     # then pull down the demographics
@@ -353,27 +510,27 @@ module PatientService
 
     login = GlobalProperty.find(:first, :conditions => {:property => "remote_bart.username"}).property_value.split(/,/) rescue ""
     password = GlobalProperty.find(:first, :conditions => {:property => "remote_bart.password"}).property_value.split(/,/) rescue ""
-    location = GlobalProperty.find(:first, :conditions => {:property => "remote_bart.location"}).property_value.split(/,/) rescue nil
-    machine = GlobalProperty.find(:first, :conditions => {:property => "remote_machine.account_name"}).property_value.split(/,/) rescue ''
 
-    post_data = known_demographics
-    post_data["_method"]="put"
+    # TODO need better logic here to select the best result or merge them
+    # Currently returning the longest result - assuming that it has the most information
+    # Can't return multiple results because there will be redundant data from sites
 
     if server_port.blank?
-      uri = "http://#{login.first}:#{password.first}@#{server_address}/people/demographics_remote"
+      uri = "http://#{login.first}:#{password.first}@#{server_address}/people/demographics"
     else
-      uri = "http://#{login.first}:#{password.first}@#{server_address}:#{server_port}/people/demographics_remote"
+      uri = "http://#{login.first}:#{password.first}@#{server_address}:#{server_port}/people/demographics"
     end
 
     output = RestClient.post(uri,known_demographics)
 
     results = []
-    results.push output if output and output.match /person/
+    results.push output if output and output.match(/person/)
     result = results.sort{|a,b|b.length <=> a.length}.first
     result ? person = JSON.parse(result) : nil
 
     return {} if person.blank?
 
+    #Stupid hack to structure the hash for openmrs 1.7
     person["person"]["occupation"] = person["person"]["attributes"]["occupation"]
     person["person"]["cell_phone_number"] = person["person"]["attributes"]["cell_phone_number"]
     person["person"]["home_phone_number"] =  person["person"]["attributes"]["home_phone_number"]
@@ -387,12 +544,13 @@ module PatientService
   end
 
   def self.find_remote_person_by_identifier(identifier)
-    known_demographics = {:person => {:patient => { :identifiers => {"national_id" => identifier }}}}
+    known_demographics = {:person => {:patient => { :identifiers => {"National id" => identifier }}}}
     find_remote_person(known_demographics)
   end
 
   def self.find_person_by_demographics(person_demographics)
     national_id = person_demographics["person"]["patient"]["identifiers"]["National id"] rescue nil
+    national_id = person_demographics["person"]["value"] if national_id.blank? rescue nil
     results = search_by_identifier(national_id) unless national_id.nil?
     return results unless results.blank?
 
@@ -525,12 +683,18 @@ module PatientService
   	services = Observation.find(:all, :conditions => ["DATE(date_created) = ? AND concept_id = ?", Date.today.to_date, ConceptName.find_by_name("SERVICES").concept_id], :order => "obs_datetime desc")
   end
 
-
   def self.patient_national_id_label(patient)
 	  patient_bean = get_patient(patient.person)
     return unless patient_bean.national_id
     sex =  patient_bean.sex.match(/F/i) ? "(F)" : "(M)"
-    address = patient.person.address.strip[0..24].humanize rescue ""
+    address = ""
+    if !patient_bean.state_province.blank? and !patient_bean.current_residence.blank?
+      address = patient_bean.state_province + ", " + patient_bean.current_residence
+    elsif !patient_bean.state_province.blank? and patient_bean.current_residence.blank?
+      address = patient_bean.state_province
+    elsif patient_bean.state_province.blank? and !patient_bean.current_residence.blank?
+      address = patient_bean.current_residence
+    end
     label = ZebraPrinter::StandardLabel.new
     label.font_size = 2
     label.font_horizontal_multiplier = 2
@@ -539,7 +703,7 @@ module PatientService
     label.draw_barcode(50,180,0,1,5,15,120,false,"#{patient_bean.national_id}")
     label.draw_multi_text("#{patient_bean.name.titleize}")
     label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{patient_bean.birth_date}#{sex}")
-    label.draw_multi_text("#{patient_bean.state_province}, #{patient_bean.current_residence} " )
+    label.draw_multi_text("#{address}" ) unless address.blank?
     label.print(1)
   end
 
@@ -596,7 +760,7 @@ module PatientService
     return false
   end
 
-  def self.get_patient_attribute_value(patient, attribute_name, session_date = Date.today)
+  def self.get_patient_attribute_value(patient, attribute_name,session_date = Date.today)
 
     patient_bean = get_patient(patient.person)
     if patient_bean.sex.upcase == 'MALE'
@@ -610,10 +774,12 @@ module PatientService
       return patient_bean.age
     when "RESIDENCE"
       return patient_bean.address
-     when "CURRENT_HEIGHT"
+    when "CURRENT_HEIGHT"
+      #obs = patient.person.observations.before((session_date + 1.days).to_date).question("HEIGHT (CM)").all
       obs = patient.person.observations.recent(1).question("HEIGHT (CM)").all
       return obs.first.answer_string.to_f rescue 0
     when "CURRENT_WEIGHT"
+      #obs = patient.person.observations.before((session_date + 1.days).to_date).question("WEIGHT (KG)").all
       obs = patient.person.observations.recent(1).question("WEIGHT (KG)").all
       return obs.first.answer_string.to_f rescue 0
     when "INITIAL_WEIGHT"
@@ -666,27 +832,30 @@ module PatientService
     appointments
   end
 
+
+
   def self.get_patient_identifier(patient, identifier_type)
     patient_identifier_type_id = PatientIdentifierType.find_by_name(identifier_type).patient_identifier_type_id rescue nil
     patient_identifier = PatientIdentifier.find(:first, :select => "identifier",
       :conditions  =>["patient_id = ? and identifier_type = ?", patient.id, patient_identifier_type_id],
       :order => "date_created DESC" ).identifier rescue nil
-      return patient_identifier
+    return patient_identifier
   end
 
   def self.patient_printing_message(new_patient , archived_patient , creating_new_filing_number_for_patient = false)
     arv_code = Location.current_arv_code
+
     new_patient_bean = get_patient(new_patient.person)
     archived_patient_bean = get_patient(archived_patient.person) rescue nil
 
     new_patient_name = new_patient_bean.name
     new_filing_number = patient_printing_filing_number_label(new_patient_bean.filing_number)
-    inactive_identifier = PatientIdentifier.inactive(:first,:order => 'date_created DESC',
-                           :conditions => ['identifier_type = ? AND patient_id = ?',PatientIdentifierType.
-                           find_by_name("Archived filing number").patient_identifier_type_id,
-                            archived_patient.person.id]).identifier rescue nil
-    old_archive_filing_number = patient_printing_filing_number_label(inactive_identifier)
-
+    #inactive_identifier = PatientIdentifier.inactive(:first,:order => 'date_created DESC',
+    #                        :conditions => ['identifier_type = ? AND patient_id = ?',PatientIdentifierType.
+    #                        find_by_name("Archived filing number").patient_identifier_type_id,
+    #                         archived_patient.person.id]).identifier rescue nil
+    # old_archive_filing_number = patient_printing_filing_number_label(inactive_identifier)
+    old_archive_filing_number = patient_printing_filing_number_label(new_patient_bean.archived_filing_number)
     unless archived_patient.blank?
       old_active_filing_number = patient_printing_filing_number_label(old_filing_number(archived_patient))
       new_archive_filing_number = patient_printing_filing_number_label(archived_patient_bean.archived_filing_number)
@@ -749,6 +918,14 @@ EOF
   <th style="text-align:left;">Old label</th>
   <th style="text-align:left;">New label</th>
 </tr>
+
+<tr>
+  <td style='text-align:left;'>Active → Dormant</td>
+  <td class = 'filing_instraction'>#{archived_patient_bean.name}</td>
+  <td class = 'old_label'>#{old_active_filing_number}</td>
+  <td class='new_label'>#{new_archive_filing_number}</td>
+</tr>
+
 <tr>
   <td style='text-align:left;'>Add → Active</td>
   <td class = 'filing_instraction'>#{new_patient_name}</td>
@@ -809,6 +986,10 @@ EOF
 
   def self.patient_art_start_date(patient_id)
     self.date_antiretrovirals_started(Patient.find(patient_id))
+    #date = ActiveRecord::Base.connection.select_value <<EOF
+#SELECT patient_start_date(#{patient_id})
+#EOF
+    #return date.to_date rescue nil
   end
 
   def self.prescribe_arv_this_visit(patient, date = Date.today)
@@ -828,8 +1009,8 @@ EOF
   end
 
   def self.drug_given_before(patient, date = Date.today)
-    clinic_encounters = ["APPOINTMENT", "VITALS","HIV CLINIC CONSULTATION","HIV RECEPTION",
-      "HIV CLINIC REGISTRATION","TREATMENT","DISPENSING",'ART ADHERENCE','HIV STAGING']
+    clinic_encounters = ["APPOINTMENT", "VITALS","ART_INITIAL","HIV RECEPTION",
+      "ART VISIT","TREATMENT","DISPENSING",'ART ADHERENCE','HIV STAGING']
     encounter_type_ids = EncounterType.find_all_by_name(clinic_encounters).collect{|e|e.id}
 
     latest_encounter_date = Encounter.find(:first,:conditions =>["patient_id=? AND encounter_datetime < ? AND
@@ -874,40 +1055,41 @@ EOF
         :order =>"obs_datetime")
   end
 
-	def self.get_patient(person, current_date = Date.today)
-		patient = PatientBean.new('')
-		patient.person_id = person.id
-		patient.patient_id = person.patient.id
-		patient.arv_number = get_patient_identifier(person.patient, 'ARV Number')
-		patient.address = person.addresses.first.city_village
-		patient.national_id = get_patient_identifier(person.patient, 'National id')
-		patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
-		patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
+  def self.get_patient(person, current_date = Date.today)
+    patient = PatientBean.new('')
+    patient.person_id = person.id
+    patient.patient_id = person.patient.id
+    patient.arv_number = get_patient_identifier(person.patient, 'ARV Number')
+    patient.address = person.addresses.first.city_village
+    patient.national_id = get_patient_identifier(person.patient, 'National id')
+	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
+    patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
 		patient.first_name = person.names.first.given_name rescue nil
 		patient.last_name = person.names.first.family_name rescue nil
-		patient.sex = sex(person)
-		patient.age = age(person, current_date)
-		patient.age_in_months = age_in_months(person, current_date)
-		patient.dead = person.dead
-		patient.birth_date = birthdate_formatted(person)
-		patient.birthdate_estimated = person.birthdate_estimated
-		patient.home_district = person.addresses.first.address2
-		patient.traditional_authority = person.addresses.first.county_district
-    patient.state_province = person.addresses.first.state_province
-		patient.current_residence = person.addresses.first.city_village
-		patient.landmark = person.addresses.first.address1
-		patient.mothers_surname = person.names.first.family_name2
-		patient.eid_number = get_patient_identifier(person.patient, 'EID Number') rescue nil
-		patient.pre_art_number = get_patient_identifier(person.patient, 'Pre ART Number (Old format)') rescue nil
-		patient.archived_filing_number = get_patient_identifier(person.patient, 'Archived filing number') rescue nil
-		patient.filing_number = get_patient_identifier(person.patient, 'Filing Number')
-		patient.occupation = get_attribute(person, 'Occupation')
-		patient.cell_phone_number = get_attribute(person, 'Cell phone number')
-		patient.office_phone_number = get_attribute(person, 'Office phone number')
-		patient.home_phone_number = get_attribute(person, 'Home phone number')
-		patient.guardian = art_guardian(person.patient) rescue nil
-		patient
-	end
+    patient.sex = sex(person)
+    patient.age = age(person, current_date)
+    patient.age_in_months = age_in_months(person, current_date)
+    patient.dead = person.dead
+    patient.birth_date = birthdate_formatted(person)
+    patient.birthdate_estimated = person.birthdate_estimated
+    patient.current_district = person.addresses.first.state_province
+    patient.home_district = person.addresses.first.address2
+    patient.traditional_authority = person.addresses.first.county_district
+    patient.current_residence = person.addresses.first.city_village
+    patient.landmark = person.addresses.first.address1
+    patient.home_village = person.addresses.first.neighborhood_cell
+    patient.mothers_surname = person.names.first.family_name2
+    patient.eid_number = get_patient_identifier(person.patient, 'EID Number') rescue nil
+    patient.pre_art_number = get_patient_identifier(person.patient, 'Pre ART Number (Old format)') rescue nil
+    patient.archived_filing_number = get_patient_identifier(person.patient, 'Archived filing number')rescue nil
+    patient.filing_number = get_patient_identifier(person.patient, 'Filing Number')
+    patient.occupation = get_attribute(person, 'Occupation')
+    patient.cell_phone_number = get_attribute(person, 'Cell phone number')
+    patient.office_phone_number = get_attribute(person, 'Office phone number')
+    patient.home_phone_number = get_attribute(person, 'Home phone number')
+    patient.guardian = art_guardian(person.patient) rescue nil
+    patient
+  end
 
   def self.art_guardian(patient)
     person_id = Relationship.find(:first,:order => "date_created DESC",
@@ -947,14 +1129,10 @@ EOF
 
   def self.patient_to_be_archived(patient)
     active_identifier_type = PatientIdentifierType.find_by_name("Filing Number")
-=begin    PatientIdentifier.find_by_sql(["
+    PatientIdentifier.find_by_sql(["
       SELECT * FROM patient_identifier
       WHERE voided = 1 AND identifier_type = ? AND void_reason = ? ORDER BY date_created DESC",
         active_identifier_type.id,"Archived - filing number given to:#{patient.id}"]).first.patient rescue nil
-=end
-
-
-   PatientIdentifier.find_by_sql(["SELECT * FROM patient_identifier WHERE voided = 1 AND identifier_type = ? AND void_reason = 'Archived'  AND patient_id = ? ORDER BY date_created DESC",active_identifier_type.id,patient.id]).first.patient rescue nil
   end
 
   def self.set_patient_filing_number(patient) #changed from set_filing_number after being moved from patient model
@@ -1039,6 +1217,7 @@ EOF
 	end
 
 	def self.create_from_form(params)
+    return nil if params.blank?
 		address_params = params["addresses"]
 		names_params = params["names"]
 		patient_params = params["patient"]
@@ -1062,9 +1241,9 @@ EOF
 		  end
 		end
 
-    unless person_params['birthdate_estimated'].blank?                          
-      person.birthdate_estimated = person_params['birthdate_estimated'].to_i    
-    end 
+    unless person_params['birthdate_estimated'].blank?
+       person.birthdate_estimated = person_params['birthdate_estimated'].to_i
+    end
 
 		person.save
 
@@ -1091,19 +1270,25 @@ EOF
 
 		if (!patient_params.nil?)
 		  patient = person.create_patient
-
+       params["identifiers"].each{|identifier_type_name, identifier|
+        next if identifier.blank?
+        identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
+        patient.patient_identifiers.create("identifier" => identifier, "identifier_type" => identifier_type.patient_identifier_type_id)
+		  } if params["identifiers"]
+=begin
 		  patient_params["identifiers"].each{|identifier_type_name, identifier|
         next if identifier.blank?
         identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
         patient.patient_identifiers.create("identifier" => identifier, "identifier_type" => identifier_type.patient_identifier_type_id)
 		  } if patient_params["identifiers"]
-
+=end
 		  # This might actually be a national id, but currently we wouldn't know
 		  #patient.patient_identifiers.create("identifier" => patient_params["identifier"], "identifier_type" => PatientIdentifierType.find_by_name("Unknown id")) unless params["identifier"].blank?
 		end
 
 		return person
 	end
+
 
   # Get the any BMI-related alert for this patient
   def self.current_bmi_alert(patient_weight, patient_height)
@@ -1135,7 +1320,9 @@ EOF
   def self.person_search(params)
     people = []
     people = search_by_identifier(params[:identifier]) if params[:identifier]
-    return people.first.id unless people.blank? || people.size > 1
+
+    #return people.first.id unless people.blank? || people.size > 1
+    return people unless people.blank? || people.size > 1
 
     gender = params[:gender]
     given_name = params[:given_name].squish unless params[:given_name].blank?
@@ -1194,13 +1381,11 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
   end
 
   def self.search_by_identifier(identifier)
-    identifier_without_dashes = identifier.gsub("-","").strip
-    people = PatientIdentifier.find(:all ,
-    :conditions =>["identifier = ? OR identifier =?", identifier,identifier_without_dashes]).map{|id|
+    identifier = identifier.gsub("-","").strip
+    people = PatientIdentifier.find_all_by_identifier(identifier).map{|id|
       id.patient.person
     } unless identifier.blank? rescue nil
     return people unless people.blank?
-
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
     if create_from_dde_server
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
@@ -1208,9 +1393,16 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
       uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/find.json"
       uri += "?value=#{identifier}"
-      p = JSON.parse(RestClient.get(uri)).first rescue nil
-
+      p = JSON.parse(RestClient.get(uri)) rescue nil
       return [] if p.blank?
+      return "found duplicate identifiers" if p.count > 1
+      p = p.first
+
+      passed_national_id = (p["person"]["patient"]["identifiers"]["National id"])rescue nil
+      passed_national_id = (p["person"]["value"]) if passed_national_id.blank? rescue nil
+      if passed_national_id.blank?
+       return [DDEService.get_remote_person(p["person"]["id"])]
+      end
 
       birthdate_year = p["person"]["birthdate"].to_date.year rescue "Unknown"
       birthdate_month = p["person"]["birthdate"].to_date.month rescue nil
@@ -1220,27 +1412,36 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
       passed = {
        "person"=>{"occupation"=>p["person"]["data"]["attributes"]["occupation"],
-       "age_estimate"=>"",
+       "age_estimate"=> birthdate_estimated,
        "cell_phone_number"=>p["person"]["data"]["attributes"]["cell_phone_number"],
        "birth_month"=> birthdate_month ,
-       "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["county_district"],
-       "address2"=>p["person"]["data"]["addresses"]["address2"],
-       "city_village"=>p["person"]["data"]["addresses"]["city_village"],
-       "county_district"=>""},
+       "addresses"=>{"address1"=>p["person"]["data"]["addresses"]["address1"],
+              "address2"=>p["person"]["data"]["addresses"]["address2"],
+              "city_village"=>p["person"]["data"]["addresses"]["city_village"],
+              "state_province"=>p["person"]["data"]["addresses"]["state_province"],
+              "neighborhood_cell"=>p["person"]["data"]["addresses"]["neighborhood_cell"],
+              "county_district"=>p["person"]["data"]["addresses"]["county_district"]},
        "gender"=> gender ,
        "patient"=>{"identifiers"=>{"National id" => p["person"]["value"]}},
        "birth_day"=>birthdate_day,
        "home_phone_number"=>p["person"]["data"]["attributes"]["home_phone_number"],
-       "names"=>{"family_name"=>"Mwale",
+       "names"=>{"family_name"=>p["person"]["family_name"],
        "given_name"=>p["person"]["given_name"],
        "middle_name"=>""},
        "birth_year"=>birthdate_year},
-       "filter_district"=>"Chitipa",
-       "filter"=>{"region"=>"Northern Region",
+       "filter_district"=>"",
+       "filter"=>{"region"=>"",
        "t_a"=>""},
        "relation"=>""
       }
 
+      unless passed_national_id.blank?
+        patient = PatientIdentifier.find(:first,
+          :conditions =>["voided = 0 AND identifier = ?",passed_national_id]).patient rescue nil
+        return [patient.person] unless patient.blank?
+      end
+
+      passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
       return [self.create_from_form(passed["person"])]
     end
     return people

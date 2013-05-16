@@ -15,7 +15,9 @@ class GenericSessionsController < ApplicationController
 			current_user.reset_authentication_token
 			#my_token = current_user.authentication_token
 			#User.find_for_authentication_token()
-			#self.current_user = user      
+			#self.current_user = user
+      session[:username] = params[:login]
+      session[:password] = params[:password]
 			redirect_to '/clinic'
 		else
 			note_failed_signin

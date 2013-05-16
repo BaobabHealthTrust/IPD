@@ -707,5 +707,58 @@ class PatientsController < GenericPatientsController
      @admission_history = admission_history.sort_by {|key,value| key}
     render:layout => "menu"
   end
-  
+
+  def print_admission_history
+    # raise request.remote_ip.to_yaml
+    patient_id    = params[:patient_id]
+    current_printer = "192.168.12.97"
+      t1 = Thread.new{
+        Kernel.system "wkhtmltopdf -s A4 http://0.0.0.0:3000/patients/admission_history/#{patient_id} test.pdf"
+      }
+      t2 = Thread.new{
+        sleep(5)
+        Kernel.system "lp test.pdf"
+      }
+=begin
+      t3 = Thread.new{
+        sleep(10)
+        Kernel.system "rm /tmp/output-" + session[:user_id].to_s + ".pdf\n"
+      }
+=end
+  end
+
+  def proceed_to_radiology
+      @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) # rescue nil
+      # rad_link = GlobalProperty.find_by_property("rad_link").property_value.gsub(/http\:\/\//, "") rescue nil
+      # ipd_link = GlobalProperty.find_by_property("ipd_link").property_value rescue nil
+
+      token = session[:token]
+      location_id = session[:location_id]
+
+      rad_link = CoreService.get_global_property_value("rad_url") rescue nil
+      ipd_link = CoreService.get_global_property_value("ipd_url") rescue nil
+      #if !rad_link.nil? && !ipd_link.nil? # && foreign_links.include?(pos)
+      unless(rad_link.blank? && ipd_link.blank? )
+          response = RestClient.post("http://#{rad_link}/single_sign_on/get_token",
+            {"login"=>session[:username], "password"=>session[:password]}) rescue nil
+           #raise response.inspect
+          if !response.nil?
+            response = JSON.parse(response) rescue ""
+
+            token = response["auth_token"]
+            session[:token] = response["auth_token"]
+          else
+            flash[:error] = "Could not get valid token"
+            redirect_to next_task(@patient) and return
+          end
+
+      end
+     
+      redirect_to "http://#{rad_link}/single_sign_on/single_sign_in?location=#{
+      (!location_id.nil? and !location_id.blank? ? location_id : "721")}&current_location=#{
+      (!location_id.nil? and !location_id.blank? ? location_id : "721")}&" +
+        (!session[:datetime].blank? ? "current_time=#{ (session[:datetime] || Time.now()).to_date.strftime("%Y-%m-%d")}&" : "") +
+        "return_uri=http://#{ipd_link}/patients/show/#{@patient.id}&destination_uri=http://#{rad_link}" +
+        "/investigation/new/#{@patient.id}?from_ipd=true&auth_token=#{token}" and return
+  end
 end

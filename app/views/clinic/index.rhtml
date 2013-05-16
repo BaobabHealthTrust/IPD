@@ -19,15 +19,16 @@
             </tr>
             <h1 id='project_name'>
               <div style="font-size: 0.8em; margin-top: 28px;">
-                <%location_name = (@location.downcase == "outpatient" ? "IPD" : "IPD") 
+                <!--<%location_name = (@location.downcase == "outpatient" ? "IPD" : "IPD")
                   if current_user.activities.include?('Manage Lab Orders') or current_user.activities.include?('Manage Lab Results') or
                   current_user.activities.include?('Manage Sputum Submissions') or current_user.activities.include?('Manage TB Clinic Visits') or
                   current_user.activities.include?('Manage TB Reception Visits') or current_user.activities.include?('Manage TB Registration Visits') or
                   current_user.activities.include?('Manage HIV Status Visits') %>
-                    <span style="font-size: 55px;">IPD</span>
+                    <span style="font-size: 55px;">ADT</span>
                 <%else%>
                   <%= location_name %>
-               <%end%>
+               <%end%>-->
+               ADT
               </div>
             </h1>
 
