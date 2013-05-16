@@ -33,7 +33,9 @@ development:
  logo: mw.gif
  statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
  create.from.dde.server: false
- kch_wards:
+ ipd_url: 0.0.0.0:3005
+ rad_url: 0.0.0.0:3006
+ kch_wards: 
   Medical_Ward_4A,Medical_Ward_4B,Medical_4B HDU,Medical Short Stay,Medical Dermatology_Skin Unit,
   Medical_Dialysis Unit,Medical Ambulatory Casualty,Medical OPD II,Epilepsy Clinic,
   Medical_Bottom_Psychiatry,Oncology,Surgical_ward 1A,Surgical_ward 1B,Surgical_Ward 4A,Surgical_HDU Unit,
