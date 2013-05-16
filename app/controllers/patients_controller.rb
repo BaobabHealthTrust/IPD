@@ -671,7 +671,12 @@ class PatientsController < GenericPatientsController
     patient = Patient.find(patient_id)
     program_id = Program.find_by_name('IPD PROGRAM').id
     date_enrolled = patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.date_enrolled.to_date rescue nil
-    @date_enrolled = date_enrolled
+    unless date_enrolled.blank?
+      @date_enrolled = date_enrolled
+    else
+      date_enrolled = patient.patient_programs.local.select{|p| p.program_id == program_id }.last.date_enrolled.to_date rescue nil
+      @date_enrolled = date_enrolled
+    end
     today = Date.today
     @patient_bean = PatientService.get_patient(patient.person)
    # observations = Observation.find(:all, :conditions => ["person_id =? AND
