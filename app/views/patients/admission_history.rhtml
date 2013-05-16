@@ -1,6 +1,8 @@
 <html>
   <head>
     <title></title>
+    <%= javascript_include_tag "jquery" %>
+    <%= javascript_include_tag "prototype" %>
     <style>
       .patient_info{
         position: absolute;
@@ -12,9 +14,22 @@
       var tt_cancel_destination = "/patients/programs_dashboard/<%=@patient.id%>"
       function addPrintButton(){
         buttons = document.getElementById('buttons')
-        buttons.innerHTML+='<button id="print" class="blue left" style="position :relative;"><span>Print</span></button>'
+        buttons.innerHTML+='<button id="print" onclick="printAdmissionHistory();" class="blue left" style="position :relative;"><span>Print</span></button>'
       }
       window.setTimeout("addPrintButton()",300)
+
+      function printAdmissionHistory(){
+      jQuery.ajax({
+                    type: "POST",
+                    url: "/patients/print_admission_history",
+                    data: "patient_id="+<%= params[:id]  %>,
+                    success: function(){
+                            alert("Successful")
+                    }
+
+            });
+        
+      }
     </script>
   </head>
   <body>
