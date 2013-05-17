@@ -688,6 +688,7 @@ class PatientsController < GenericPatientsController
     
     admission_history = {}
     encounters.each do |encounter|
+      next if encounter.type.name.match(/Treatment|Dispensing/i)
       admission_history[encounter.id] = {}
       admission_history[encounter.id]["encounter_datetime"] = encounter.encounter_datetime
       admission_history[encounter.id]["encounter_type"] = encounter.type.name
