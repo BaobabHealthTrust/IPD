@@ -1,0 +1,153 @@
+<html>
+<head>
+<%= javascript_include_tag "prototype" %>
+
+<style>
+#second_patient_div {
+  float:right;
+  width:49%;
+  border-style: solid;
+  border-width: 1px;
+  margin: 10px;
+  padding-left: 5px;
+  height:85%;
+  overflow:auto;
+}
+
+#primary_patient_div {
+  float:left;
+  width:45%;
+  height:85%;
+  border-style: solid;
+  border-width: 1px;
+  margin: 10px;
+  padding-left: 5px;
+}
+
+table{
+ font-size:20px;
+ padding-left:10px;
+}
+
+#popUpBox{
+ position: absolute;
+ top: 84px;
+ left: 420px;
+ border: solid 1px #000000;
+ background-color:MediumTurquoise;
+ visibility: hidden;
+ font-size: 25;
+ z-index: 600;
+ width:413px;
+ -moz-user-select:none
+}
+
+.reassign_btn a{
+  background-color: #669999;
+  border-bottom: 1px outset black;
+  border-radius: 7px 7px 7px 7px;
+  border-style: outset;
+  border-top: 1px outset black;
+  color: white;
+  display: block;
+  padding: 10px 16px 10px 10px;
+  text-align: center;
+  text-decoration: none;
+}
+</style>
+
+<script>
+  var tt_cancel_destination = "/clinic";
+
+
+  function newNpid(local_person_id,remote_person_id) {
+    /*
+    If a user selects this method,that means that the selected patient is the same
+    patient on the 'left' side of the screen ...
+    */
+    document.location = "/people/reassign_dde_national_id?dde_person_id=" + remote_person_id + "&local_person_id=" + local_person_id;
+  }
+
+  function newLocalID(patient_id,national_id) {
+    document.location = "/people/reassign_national_identifier?person_id=" + patient_id + "&identifier=" + national_id;
+  }
+
+  function createPersonLocally(person_id) {
+    /*
+    If a user selects this method,that means that the selected patient is currently
+    not on the server but on the proxy.
+    NOTE: the patient will be created locally with a new version 4 number
+    */
+    document.location = "/people/create_person_from_dde?remote_person_id=" + person_id;
+  }
+
+  function remoteNewID(national_id) {
+    /*
+    If a user selects this method,that means that the selected patient is a 
+    different patient all together - the patient on the 'left' side of the screen 
+    and the selected patient are different...
+    */
+    document.location = "/people/select?identifier=" + national_id;
+  }
+  function postToSelect(national_id) {
+    document.location = "/people/search?identifier=" + national_id;
+  }
+  
+</script>
+</head>
+
+
+<div id='primary_patient_div'>
+  <div><h4>
+    <%if @dde_duplicates.length < 2
+        if @dde_duplicates.blank?
+      %>
+          Give the patient below a new national identifier:
+      <%else%>
+          Give the patient below a new national identifier or merge with the remote patient on your right:
+      <%end%>
+    <%else%>
+      Patient(s) with similar national identifier as the patient below:
+    <%end%>
+  </h4></div>
+  <div><hr /></div>
+  <%if @primary_patient%>
+  <div><b>Name:</b><%=@primary_patient.name%>&nbsp;(<%=@primary_patient.sex%>)</div>
+  <div><b>Age</b>&nbsp;<%=@primary_patient.age%></div>
+  <div><b>Birthdate:</b>&nbsp;<%=@primary_patient.birth_date%></div>
+  <div><b>National ID:</b>&nbsp;<%=@primary_patient.national_id_with_dashes%></div>
+  <div><b>Home district:</b>&nbsp;<%=@primary_patient.home_district%></div>
+  <div><b>Current address:</b>&nbsp;<%=@primary_patient.address%></div>
+  <%if @dde_duplicates.length < 2%>
+    <div>&nbsp;</div>
+    <div style="margin-left:-4px;" class="reassign_btn">
+      <a href="javascript:newLocalID('<%=@primary_patient.patient_id%>','<%=@primary_patient.national_id%>')">Reassign National ID</a>
+    </div>
+  <%end%>
+  <%end%>
+</div>
+<div id='second_patient_div'>
+  <%(@dde_duplicates || []).each do |person| %>
+    <div><b>Name:</b>&nbsp;<%=person.name%>&nbsp;(<%=person.sex%>)</div>
+    <div><b>Age:</b>&nbsp;<%=person.age%>&nbsp;</div>
+    <div><b>Birthdate:</b>&nbsp;<%=person.birth_date%></div>
+    <div><b>National ID:</b>&nbsp;<%=person.national_id %></div>
+    <div><b>Home district:</b>&nbsp;<%=person.home_district%></div>
+    <div><b>TA:</b>&nbsp;<%=person.traditional_authority%></div>
+    <div><b>Current address:</b>&nbsp;<%=person.current_residence%></div>
+    <div>&nbsp;</div>
+    <div class="reassign_btn">
+      <%if @primary_patient%>
+        <a href="javascript:newNpid('<%=@primary_patient.patient_id%>','<%=person.person_id%>')">Reassign National ID</a>
+      <%elsif person.national_id != params[:identifier] %>
+        <a href="javascript:remoteNewID('<%=person.national_id%>')">Select</a>
+       <%else%>
+        <a href="javascript:createPersonLocally('<%=person.person_id%>')">Reassign National ID</a>
+      <%end%>
+    </div>
+    <div><hr /></div>
+  <%end%>
+</div>
+
+
+</html>
