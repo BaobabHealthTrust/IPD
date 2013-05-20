@@ -16,7 +16,7 @@ Malawi, Africa. It is licensed under the Mozilla Public License.
 
 
 
-ADMISSION, DISCHARGE AND TRANSFER(ADT) SYSTEM CONFIGURATION
+<b>ADMISSION, DISCHARGE AND TRANSFER(ADT) SYSTEM CONFIGURATION</b>
 Below are some simple steps to follow when you want to setup ADT.
 
 Open your terminal
