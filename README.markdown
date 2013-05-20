@@ -15,9 +15,8 @@ ADT was built by Baobab Health and Partners in Health in
 Malawi, Africa. It is licensed under the Mozilla Public License.
 
 
-===================================================================================================================
-ADMISSION, DISCHARGE AND TRANSFER(ADT) SYSTEM CONFIGURATION
-===================================================================================================================
+
+ADMISSION, DISCHARGE AND TRANSFER(ADT) SYSTEM CONFIGURATION<br />
 Below are some simple steps to follow when you want to setup ADT.
 
 Open your terminal
