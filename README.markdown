@@ -21,11 +21,11 @@ Below are some simple steps to follow when you want to setup ADT.
 
 Open your terminal<br />
 Get a source code from github by typing <b>git clone git@github.com:BaobabHealthTrust/IPD.git</b><br />
-Enter into the root of your application by typing "<b>cd IPD</b><br />"
+Enter into the root of your application by typing <b>cd IPD</b><br />
 Type <b>cp config/application.yml.example config/application.yml</b><br />
 Type <b>cp config/database.yml.example config/database.yml </b><br />
-Note: Open config/database.yml and edit the file. Provide any database name to be used in your application. Do not forget to provide mysql password in the same file </b><br />.
-Type <b>script/runner script/initial_database_setup.sh development mpc</b>. Please be patient while the script is running. This may take some time</b><br />.
+Note: Open config/database.yml and edit the file. Provide any database name to be used in your application. Do not forget to provide mysql password in the same file </b><br />
+Type <b>script/runner script/initial_database_setup.sh development mpc</b>. Please be patient while the script is running. This may take some time</b><br />
 Type <b>sudo bundle install <br />
 After completing the above steps, you may now run the application by typing <b>script/server </b><br />
 
@@ -36,7 +36,7 @@ Open your browser on the following address"http://0.0.0.0:3000" </b><br />
 Note: You can change the default port of the application by passing -p option
 e.g "script/server -p 3001" <br />
 
-With the above steps, you have managed to setup the application. BUT ADT talks with Radiology system when capturing patient investigations so you just need to follow some steps as below </b><br />.
+With the above steps, you have managed to setup the application. BUT ADT talks with Radiology system when capturing patient investigations so you just need to follow some steps as below </b><br />
 Open new terminal  <br />
 Type <b>git clone git@github.com:BaobabHealthTrust/Radiology.git </b><br />
 Type <b>cd Radiology" </b><br />
