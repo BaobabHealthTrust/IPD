@@ -715,8 +715,9 @@ class PatientsController < GenericPatientsController
   end
 
   def current_lab_orders
+    patient_id = params[:id]
     encounters =  Encounter.find(:all, :conditions => ["encounter_type =? AND DATE(encounter_datetime) =? AND
-        patient_id =?", EncounterType.find_by_name('lab orders').id, Date.today, 9887])
+        patient_id =?", EncounterType.find_by_name('lab orders').id, Date.today, patient_id])
     @current_lab_orders = {}
     encounters.each do |enc|
       enc.observations.each do |obs|
@@ -740,11 +741,12 @@ class PatientsController < GenericPatientsController
         end
       end
     end
+    render :template => 'dashboards/current_lab_orders_tab', :layout => false
   end
 
   def historical_lab_orders
     patient_id = params[:id]
-    encounters =  Encounter.find(:all, :conditions => ["encounter_type =? AND DATE(encounter_datetime) =? AND
+    encounters =  Encounter.find(:all, :conditions => ["encounter_type =? AND DATE(encounter_datetime) < ? AND
         patient_id =?", EncounterType.find_by_name('lab orders').id, Date.today, patient_id])
     @prev_lab_orders = {}
     encounters.each do |enc|
@@ -755,21 +757,22 @@ class PatientsController < GenericPatientsController
         child_obs = Observation.find(:all, :conditions => ["obs_group_id =?", obs.id])
         unless child_obs.blank?
           child_obs.each do |child|
-            if @prev_lab_orders[obs.answer_string.squish].blank?
-              @prev_lab_orders[obs.answer_string.squish] = child.answer_string.squish + ', '
+            if @prev_lab_orders[enc.encounter_datetime.to_date][obs.answer_string.squish].blank?
+              @prev_lab_orders[enc.encounter_datetime.to_date][obs.answer_string.squish] = child.answer_string.squish + ', '
             else
               if child_obs[-1] != child
-                @prev_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s + ', '
+                @prev_lab_orders[enc.encounter_datetime.to_date][obs.answer_string.squish] += child.answer_string.squish.to_s + ', '
               else
-                @prev_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s
+                @prev_lab_orders[enc.encounter_datetime.to_date][obs.answer_string.squish] += child.answer_string.squish.to_s
               end
             end
           end
         else
-          @prev_lab_orders[obs.answer_string.squish] = "N/A"
+          @prev_lab_orders[enc.encounter_datetime.to_date][obs.answer_string.squish] = "N/A"
         end
       end
     end
+     render :template => 'dashboards/historical_lab_orders_tab', :layout => false
   end
 
   def print_admission_history
