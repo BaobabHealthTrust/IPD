@@ -48,10 +48,9 @@
               <option value='/patients/historical_lab_orders/<%=@patient.id%>'>Historical Lab Orders</option>
             </select>
             <select id="links">
-              <option value='/patients/proceed_to_radiology/<%= @patient.id %>'>RAD investigations</option>
-              <option value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>'>Lab specimen ordering</option
-              <option value=''>Radiology Results</option>
-              <option value=''>Lab Results</option>
+              <optgroup value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>' label='Lab specimen ordering'></optgroup>
+              <!--<option value='/patients/proceed_to_radiology/<%= @patient.id %>'>RAD investigations</option>
+              <option value='/encounters/new/lab_orders?patient_id=<%= @patient.id %>'>Lab specimen ordering</option>-->
             </select>
             <tr>
               <td align='center'>
