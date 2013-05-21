@@ -615,7 +615,7 @@ class PatientsController < GenericPatientsController
       send_data(print_string,
         :type=>"application/label; charset=utf-8",
         :stream=> false,
-        :filename=>"#{params[:patient_id]}#{rand(10000)}.bcs",
+        :filename=>"#{params[:patient_id]}#{rand(10000)}.bcl",
         :disposition => "inline") and return
     end
 
@@ -712,6 +712,64 @@ class PatientsController < GenericPatientsController
     end
      @admission_history = admission_history.sort_by {|key,value| key}
     render:layout => "menu"
+  end
+
+  def current_lab_orders
+    encounters =  Encounter.find(:all, :conditions => ["encounter_type =? AND DATE(encounter_datetime) =? AND
+        patient_id =?", EncounterType.find_by_name('lab orders').id, Date.today, 9887])
+    @current_lab_orders = {}
+    encounters.each do |enc|
+      enc.observations.each do |obs|
+        next if obs.concept.fullname.match(/Workstation/i)
+        next if !obs.obs_group_id.blank?
+        child_obs = Observation.find(:all, :conditions => ["obs_group_id =?", obs.id])
+        unless child_obs.blank?
+          child_obs.each do |child|
+            if @current_lab_orders[obs.answer_string.squish].blank?
+              @current_lab_orders[obs.answer_string.squish] = child.answer_string.squish + ', '
+            else
+              if child_obs[-1] != child
+                @current_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s + ', '
+              else
+                @current_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s
+              end
+            end
+          end
+        else
+          @current_lab_orders[obs.answer_string.squish] = "N/A"
+        end
+      end
+    end
+  end
+
+  def historical_lab_orders
+    patient_id = params[:id]
+    encounters =  Encounter.find(:all, :conditions => ["encounter_type =? AND DATE(encounter_datetime) =? AND
+        patient_id =?", EncounterType.find_by_name('lab orders').id, Date.today, patient_id])
+    @prev_lab_orders = {}
+    encounters.each do |enc|
+      @prev_lab_orders[enc.encounter_datetime.to_date]={}
+      enc.observations.each do |obs|
+        next if obs.concept.fullname.match(/Workstation/i)
+        next if !obs.obs_group_id.blank?
+        child_obs = Observation.find(:all, :conditions => ["obs_group_id =?", obs.id])
+        unless child_obs.blank?
+          child_obs.each do |child|
+            if @prev_lab_orders[obs.answer_string.squish].blank?
+              @prev_lab_orders[obs.answer_string.squish] = child.answer_string.squish + ', '
+            else
+              if child_obs[-1] != child
+                @prev_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s + ', '
+              else
+                @prev_lab_orders[obs.answer_string.squish] += child.answer_string.squish.to_s
+              end
+            end
+          end
+        else
+          @prev_lab_orders[obs.answer_string.squish] = "N/A"
+        end
+      end
+    end
   end
 
   def print_admission_history
