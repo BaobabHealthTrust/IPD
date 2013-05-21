@@ -1,6 +1,49 @@
-<%#
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
-%>
+<html>
+  <head>
+    <title></title>
+    <style>
+      div{
+      -moz-user-select: none;
+      }
+      table{
+       width: 100%;
+      }
+      thead{
+        color: white;
+        line-height: 2em;
+      }
+      .date{
+        background-color: #4A708B;
+        color: white;
+        padding: 8px;
+        border-radius: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="overflow:auto; height: 317px;">
+        <table>
+          <thead>
+            <tr style="background-color:#668B8B ">
+              <th style="text-align: left">Test Ordered</th>
+              <th style="text-align: left">Details(If any)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="2"><hr /></td</tr>
+            <% @current_lab_orders.each do |key, value| %>
+              <tr>
+                      <td><%= key %></td>
+                      <td><%= value %></td>
+              </tr>
+              <tr><td colspan="2"><hr /></td</tr>
+            <% end %>
+          </tbody>
+          <tfoot>
 
-<%= "current_lab_orders" %>
+          </tfoot>
+        </table>
+    </div>
+  </body>
+</html>
