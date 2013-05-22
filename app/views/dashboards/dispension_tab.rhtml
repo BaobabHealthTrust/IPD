@@ -6,7 +6,7 @@
 <style type="text/css">
   .subtotal { margin-left:32px; font-size: 0.8em;}
   .warning { color: red; font-weight: bold; }
-  #set_appointment { display:none; }
+  #set_appointment { display:none; position: absolute;}
   h2 {
     margin: 0px;
     font-size: 1.2em;
@@ -52,6 +52,8 @@
     if (total_dispensed > 0)
       document.getElementById('set_appointment').style.display='inline';
   }
+
+
 </script>
 
 <body onload="showAppointmentButton();">
@@ -122,7 +124,7 @@
           </form>
 
           <% if @transfer_out_site.blank? %>
-            <button id="set_appointment" class="silver" style="float:right;margin-top:-25px;">
+            <button id="set_appointment" class="silver" style="margin-top:-25px; margin-left: 1169px">
               <span>Set appointment</span></button>
           <% end %>
         </div>
