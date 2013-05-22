@@ -57,11 +57,15 @@
 
 				<select id="links">
 					<% if advanced_prescription_interface %>
-						<option value='/prescriptions/generic_advanced_prescription?patient_id=<%= @patient.id -%>'>Prescribe</option>
+						<!--<option value='/prescriptions/generic_advanced_prescription?patient_id=<%= @patient.id -%>'>Prescribe</option>-->
+                                                <optgroup value='/prescriptions/generic_advanced_prescription?patient_id=<%= @patient.id -%>' label='Prescribe'></optgroup>
 					<% else %>
-						<option value='/prescriptions/auto?patient_id=<%= @patient.id -%>'>Prescribe</option>
+						<!--<option value='/prescriptions/auto?patient_id=<%= @patient.id -%>'>Prescribe</option>-->
+                                                <optgroup value='/prescriptions/auto?patient_id=<%= @patient.id -%>' label='Prescribe'></optgroup>
 					<% end %>
-					<option value='/dispensations/new?patient_id=<%= @patient.id -%>'>Dispense</option>
+					<!--<option value='/dispensations/new?patient_id=<%= @patient.id -%>'>Dispense</option>-->
+                                        <optgroup value='/dispensations/new?patient_id=<%= @patient.id -%>' label='Dispense'></optgroup>
+
 				</select>
 				<input type='submit' value='Finish' />
 			</form>
