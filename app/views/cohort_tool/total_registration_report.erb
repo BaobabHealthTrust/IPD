@@ -208,7 +208,7 @@
         position:absolute;
         top:0px;
         right:1%;
-        margin-top:150px;
+        margin-top:-50px;
       }
 
       #table_id_filter input{
@@ -226,7 +226,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 640px;
+        top: 453px;
         font-weight:bold;
       }
       #table_id_length{
@@ -302,12 +302,12 @@
         %>
           <% @registered.each do |record| %>
             <tr>
-              <td align="center"> <span style="display:block;" width="20%"> <%= "#{record[name]}" %> </span> </td>
-              <td align="center"> <span style="display:block;" width="20%"> <%= "#{record[birthdate]}" %> </span>  </td>
-              <td align="center"> <span style="display:block;" width="20%"> <%=" #{record[gender] == 'F' ? "Female" : "Male"}" %> </span>  </td>
-              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[date_registered]} " %> </span> </td>
-              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[ward]}" %> </span>  </td>
-              <td align="center"> <span style="display:block;" width="20%"><%=" #{record[address]} " %> </span>  </td>
+              <td align="left"> <span style="display:block;" width="20%"> <%= "#{record[name]}" %> </span> </td>
+              <td align="left"> <span style="display:block;" width="20%"> <%= "#{record[birthdate]}" %> </span>  </td>
+              <td align="left"> <span style="display:block;" width="20%"> <%=" #{record[gender] == 'F' ? "Female" : "Male"}" %> </span>  </td>
+              <td align="left"> <span style="display:block;" width="20%"><%=" #{record[date_registered]} " %> </span> </td>
+              <td align="left"> <span style="display:block;" width="20%"><%=" #{record[ward]}" %> </span>  </td>
+              <td align="left"> <span style="display:block;" width="20%"><%=" #{record[address]} " %> </span>  </td>
             </tr>
           <% end %>
         </tbody>
