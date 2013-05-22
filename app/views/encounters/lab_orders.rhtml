@@ -22,69 +22,119 @@
     <%= hidden_field_tag "patient_identifier[patient_id]", @patient.id %>
     <%= hidden_field_tag "patient_identifier[identifier_type_name]", "LAB IDENTIFIER" %>
     <%= hidden_field_tag "patient_identifier[lab_id]", "LAB" %>
+    <% unless (@from_file) %>
+        <select style="width: 100%" id="multiple" class="multi" name="lab_orders[]" helptext="Select Lab orders" multiple="multiple" nested="true">
+          <option></option>
+
+          <optgroup id="liver_test" label="Liver functional tests">
+            <% @liver_tests .each do |test| %>
+              <option id="<%=test[0]%>" value="Liver functional tests:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="renal_test" label="Renal functional tests">
+            <% @renal_tests .each do |test| %>
+              <option id="<%=test[0]%>" value="Renal functional tests:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="lipids" label="Lipid profile">
+            <% @lipid_tests .each do |test| %>
+              <option id="<%=test[0]%>" value="Lipid profile:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="minerals" label="Minerals">
+            <% @minerals .each do |test| %>
+              <option id="<%=test[0]%>" value="Minerals:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="enzymes" label="Enzymes">
+            <% @enzymes .each do |test| %>
+              <option id="<%=test[0]%>" value="Enzymes:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="hormones" label="Hormones">
+            <% @hormones .each do |test| %>
+              <option id="<%=test[0]%>" value="Hormones:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="fbc" label="Full blood count">
+            <% @fbc .each do |test| %>
+              <option id="<%=test[0]%>" value="Full blood count:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="urinalysis" label="Urinalysis">
+            <% @urinalysis .each do |test| %>
+              <option id="<%=test%>" value="Urinalysis:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <optgroup id="csf" label="CSF analysis">
+            <% @csf .each do |test| %>
+              <option id="<%=test[0]%>" value="CSF analysis:<%= test[0] %>"><%= test[0] %></option>
+            <% end %>
+          </optgroup>
+
+          <% @other_tests .each do |test| %>
+              <option id="<%=test%>" value="<%= test %>"><%= test%></option>
+            <% end %>
+        </select>
+    <% else %>
 
     <select style="width: 100%" id="multiple" class="multi" name="lab_orders[]" helptext="Select Lab orders" multiple="multiple" nested="true">
-      <option></option>
+          <option></option>
 
-      <optgroup id="liver_test" label="Liver functional tests">
-        <% @liver_tests .each do |test| %>
-          <option id="<%=test[0]%>" value="Liver functional tests:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
-      
-      <optgroup id="renal_test" label="Renal functional tests">
-        <% @renal_tests .each do |test| %>
-          <option id="<%=test[0]%>" value="Renal functional tests:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="blood_test" label="Blood Tests">
+            <% @blood.each do |test| %>
+              <option id="<%=test%>" value="Blood:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="lipids" label="Lipid profile">
-        <% @lipid_tests .each do |test| %>
-          <option id="<%=test[0]%>" value="Lipid profile:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="csf_test" label="CSF">
+            <% @csf.each do |test| %>
+              <option id="<%=test%>" value="CSF:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="minerals" label="Minerals">
-        <% @minerals .each do |test| %>
-          <option id="<%=test[0]%>" value="Minerals:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="urine_test" label="Urine">
+            <% @urine.each do |test| %>
+              <option id="<%=test%>" value="Urine:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="enzymes" label="Enzymes">
-        <% @enzymes .each do |test| %>
-          <option id="<%=test[0]%>" value="Enzymes:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="aspirate_test" label="Aspirate">
+            <% @aspirate.each do |test| %>
+              <option id="<%=test%>" value="Full aspirate analysis:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="hormones" label="Hormones">
-        <% @hormones .each do |test| %>
-          <option id="<%=test[0]%>" value="Hormones:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="sputum" label="Sputum">
+            <% @sputum.each do |test| %>
+              <option id="<%=test%>" value="Sputum:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="fbc" label="Full blood count">
-        <% @fbc .each do |test| %>
-          <option id="<%=test[0]%>" value="Full blood count:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="stool" label="Stool">
+            <% @stool.each do |test| %>
+              <option id="<%=test%>" value="Stool exam:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="urinalysis" label="Urinalysis">
-        <% @urinalysis .each do |test| %>
-          <option id="<%=test%>" value="Urinalysis:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+          <optgroup id="fbc" label="Swab">
+            <% @swab.each do |test| %>
+              <option id="<%=test%>" value="Swab sample:<%= test %>"><%= test %></option>
+            <% end %>
+          </optgroup>
 
-      <optgroup id="csf" label="CSF analysis">
-        <% @csf .each do |test| %>
-          <option id="<%=test[0]%>" value="CSF analysis:<%= test[0] %>"><%= test[0] %></option>
-        <% end %>
-      </optgroup>
+        </select>
 
-      <% @other_tests .each do |test| %>
-          <option id="<%=test%>" value="<%= test %>"><%= test%></option>
-        <% end %>
-    </select>
-
+    <% end %>
+    
     <% if @retrospective %>
             <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
             <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)', :ajaxURL => '/user/username?username=' %></p>
