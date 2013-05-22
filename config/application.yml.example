@@ -35,6 +35,27 @@ development:
  create.from.dde.server: false
  ipd_url: 0.0.0.0:3005
  rad_url: 0.0.0.0:3006
+ use.lab.orders.from.file: true
+ blood:
+  Full blood count, Malaria parasite, Group and Cross match, Urea and electrolytes, CD4(cluster of differentiation 4) count,
+  Viral load, Cryptococcal Antigen, Lactate, Fasting blood sugar, Random blood sugar,
+  Liver function test, Hepatitis test, sickling test,ESR(erythrocyte sedimentation rate),
+  Culture and sensitivity, Widal test,ELISA(enzyme-linked immunosorbent assay),
+  ASO(Antistreptoysin-0) titre, Rheumatoid factor, Cholesterol, Tryglicerides, Calcium,
+  Creatinine, VDRL(venereal disease research laboratory), Direct Coombs, Indirect Coombs,
+  Blood Test NOS
+ csf:
+  Full CSF analysis, Indian ink, Protein and Sugar, White cell count, Culture and sensitivity
+ urine:
+  Urine microscopy, Urinalysis, Culture and sensitivity
+ aspirate:
+  Full aspirate analysis
+ sputum:
+  AAFB (1st), AAFB (2nd), AAFB (3rd)
+ stool:
+  Full stool analysis, Culture and sensitivity
+ swab:
+  Microscopy, Culture and sensitivity
  kch_wards: 
   Medical_Ward_4A,Medical_Ward_4B,Medical_4B HDU,Medical Short Stay,Medical Dermatology_Skin Unit,
   Medical_Dialysis Unit,Medical Ambulatory Casualty,Medical OPD II,Epilepsy Clinic,
