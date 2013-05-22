@@ -82,16 +82,27 @@ class EncountersController < GenericEncountersController
 
     if (params[:encounter_type].humanize.upcase rescue '') == 'LAB ORDERS'
       #raise "Lab orders".inspect
-      @liver_tests = concept_set("Liver functional tests")
-      @renal_tests = concept_set("Renal functional tests")
-      @lipid_tests = concept_set("Lipid profile")
-      @minerals = concept_set("Minerals")
-      @enzymes = concept_set("Enzymes")
-      @hormones = concept_set("Hormones")
-      @fbc = concept_set("Full blood count")
-      @urinalysis = concept_set("Urinalysis")
-      @csf = concept_set("CSF analysis")
-      @other_tests = ['DNA HIV test','viral load','Influenza virus']
+      @from_file = CoreService.get_global_property_value('use.lab.orders.from.file')
+      unless (@from_file)
+        @liver_tests = concept_set("Liver functional tests")
+        @renal_tests = concept_set("Renal functional tests")
+        @lipid_tests = concept_set("Lipid profile")
+        @minerals = concept_set("Minerals")
+        @enzymes = concept_set("Enzymes")
+        @hormones = concept_set("Hormones")
+        @fbc = concept_set("Full blood count")
+        @urinalysis = concept_set("Urinalysis")
+        @csf = concept_set("CSF analysis")
+        @other_tests = ['DNA HIV test','viral load','Influenza virus']
+      else
+        @blood = CoreService.get_global_property_value('blood').split(',') rescue nil
+        @csf = CoreService.get_global_property_value('csf').split(',') rescue nil
+        @urine = CoreService.get_global_property_value('urine').split(',') rescue nil
+        @aspirate = CoreService.get_global_property_value('aspirate').split(',') rescue nil
+        @sputum = CoreService.get_global_property_value('sputum').split(',') rescue nil
+        @stool = CoreService.get_global_property_value('stool').split(',') rescue nil
+        @swab = CoreService.get_global_property_value('swab').split(',') rescue nil
+      end
     end
 
 =begin
@@ -793,7 +804,7 @@ class EncountersController < GenericEncountersController
             "encounter_id" => "#{encounter_id}",
             "patient_id" => params['encounter']['patient_id'],
             "concept_name" => "Tests ordered".upcase,
-            "value_coded" => Concept.find_by_name(multiple_array[0]).id,
+            "value_coded_or_text" => multiple_array[0],
             "obs_datetime" => params['encounter']['encounter_datetime']
           }
 
@@ -806,7 +817,7 @@ class EncountersController < GenericEncountersController
             "patient_id" => params['encounter']['patient_id'],
             "concept_name" => multiple_array[0],
             "accession_number" => Observation.new_accession_number,
-            "value_coded" => Concept.find_by_name(multiple_array[1]).id,
+            "value_coded_or_text" => multiple_array[1],
             "obs_group_id" => "#{obs_group_id}",
             "obs_datetime" => params['encounter']['encounter_datetime']
           }
@@ -817,7 +828,7 @@ class EncountersController < GenericEncountersController
             "patient_id" => params['encounter']['patient_id'],
 						"concept_name" => "Tests ordered".upcase,
             "accession_number" => Observation.new_accession_number,
-						"value_coded" => Concept.find_by_name(order).id,
+						"value_coded_or_text" => order,
 						"obs_datetime" => params['encounter']['encounter_datetime']
           }
           Observation.create(obs)
