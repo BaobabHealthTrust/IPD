@@ -632,6 +632,9 @@ class PatientsController < GenericPatientsController
               o.concept_id=(SELECT concept_id FROM concept_name WHERE name = 'ADMIT TO WARD')
               AND o.voided = 0 ORDER BY o.obs_datetime DESC LIMIT 1").first rescue nil
     ward = obs.value_text.humanize rescue nil
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    @patient = person.patient
+    date_enrolled = @patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.date_enrolled.to_date rescue nil
     patient_name = patient_bean.name rescue nil
     unless patient_name.blank?
       if (patient_name.size > 17)
@@ -658,7 +661,7 @@ class PatientsController < GenericPatientsController
   ^XA
   ^FO240,1250^ADR,36,20^FD#{(patient_name.titlecase + '(' + person.gender + ')' rescue nil)}^FS
   ^FO200,1250^ADR,36,20^FDBorn on: #{patient_bean.birth_date rescue nil}^FS
-  ^FO160,1250^ADR,36,20^FDAdmitted on: #{(obs.encounter_datetime.strftime("%d/%m/%Y") rescue nil)}^FS
+  ^FO160,1250^ADR,36,20^FDAdmitted on: #{(date_enrolled.strftime("%d/%m/%Y") rescue nil)}^FS
   ^FO120,1250^ADR,36,20^FDWard:#{ward}^FS
   ^FO80,1850^BY4^BCR,200,N,N,N^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
   ^FO40,1950^ADR,36,20^FD#{(patient_bean.national_id_with_dashes rescue nil)}^FS
