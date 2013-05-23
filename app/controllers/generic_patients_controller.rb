@@ -1029,7 +1029,7 @@ class GenericPatientsController < ApplicationController
     encounters.each{|encounter|
       encounter.observations.each{|observation|
        unless observation['concept_id'] == Concept.find_by_name("Workstation location").concept_id
-          observations << ["#{ConceptName.find_by_concept_id(observation['value_coded'].to_i).name} : #{observation['date_created'].strftime("%Y-%m-%d") }",
+          observations << ["#{ConceptName.find_by_concept_id(observation['value_coded'].to_i).name rescue nil} : #{observation['date_created'].strftime("%Y-%m-%d") }",
                             "#{observation['obs_id']}"]
        end
       }
