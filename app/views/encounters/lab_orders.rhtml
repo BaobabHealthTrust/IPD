@@ -28,60 +28,60 @@
 
           <optgroup id="liver_test" label="Liver functional tests">
             <% @liver_tests .each do |test| %>
-              <option id="<%=test[0]%>" value="Liver functional tests:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Liver functional tests:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="renal_test" label="Renal functional tests">
             <% @renal_tests .each do |test| %>
-              <option id="<%=test[0]%>" value="Renal functional tests:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Renal functional tests:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="lipids" label="Lipid profile">
             <% @lipid_tests .each do |test| %>
-              <option id="<%=test[0]%>" value="Lipid profile:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Lipid profile:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="minerals" label="Minerals">
             <% @minerals .each do |test| %>
-              <option id="<%=test[0]%>" value="Minerals:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Minerals:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="enzymes" label="Enzymes">
             <% @enzymes .each do |test| %>
-              <option id="<%=test[0]%>" value="Enzymes:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Enzymes:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="hormones" label="Hormones">
             <% @hormones .each do |test| %>
-              <option id="<%=test[0]%>" value="Hormones:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Hormones:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="fbc" label="Full blood count">
             <% @fbc .each do |test| %>
-              <option id="<%=test[0]%>" value="Full blood count:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="Full blood count:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="urinalysis" label="Urinalysis">
             <% @urinalysis .each do |test| %>
-              <option id="<%=test%>" value="Urinalysis:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test.squish%>" value="Urinalysis:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="csf" label="CSF analysis">
             <% @csf .each do |test| %>
-              <option id="<%=test[0]%>" value="CSF analysis:<%= test[0] %>"><%= test[0] %></option>
+              <option id="<%=test[0].squish%>" value="CSF analysis:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
           <% @other_tests .each do |test| %>
-              <option id="<%=test%>" value="<%= test %>"><%= test%></option>
+              <option id="<%=test.squish%>" value="<%= test.squish %>"><%= test.squish%></option>
             <% end %>
         </select>
     <% else %>
@@ -91,43 +91,43 @@
 
           <optgroup id="blood_test" label="Blood Tests">
             <% @blood.each do |test| %>
-              <option id="<%=test%>" value="Blood:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Blood:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="csf_test" label="CSF">
             <% @csf.each do |test| %>
-              <option id="<%=test%>" value="CSF:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="CSF:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="urine_test" label="Urine">
             <% @urine.each do |test| %>
-              <option id="<%=test%>" value="Urine:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Urine:<%= tes.squisht %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="aspirate_test" label="Aspirate">
             <% @aspirate.each do |test| %>
-              <option id="<%=test%>" value="Full aspirate analysis:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Full aspirate analysis:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="sputum" label="Sputum">
             <% @sputum.each do |test| %>
-              <option id="<%=test%>" value="Sputum:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Sputum:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="stool" label="Stool">
             <% @stool.each do |test| %>
-              <option id="<%=test%>" value="Stool exam:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Stool exam:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
           <optgroup id="fbc" label="Swab">
             <% @swab.each do |test| %>
-              <option id="<%=test%>" value="Swab sample:<%= test %>"><%= test %></option>
+              <option id="<%=test.squish%>" value="Swab sample:<%= test.squish %>"><%= test.squish %></option>
             <% end %>
           </optgroup>
 
