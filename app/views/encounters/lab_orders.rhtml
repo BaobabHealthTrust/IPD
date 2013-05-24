@@ -70,7 +70,7 @@
 
           <optgroup id="urinalysis" label="Urinalysis">
             <% @urinalysis .each do |test| %>
-              <option id="<%=test.squish%>" value="Urinalysis:<%= test[0].squish %>"><%= test[0].squish %></option>
+              <option id="<%=test[0].squish%>" value="Urinalysis:<%= test[0].squish %>"><%= test[0].squish %></option>
             <% end %>
           </optgroup>
 
