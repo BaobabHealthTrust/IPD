@@ -544,6 +544,30 @@ class GenericReportController < ApplicationController
       @admission_by_ward[ward]['patient_ids'] = obs.map(&:person_id)
     end
 
+    @admission_diagnoses = {}
+    admission_diagnosis_enc = EncounterType.find_by_name('ADMISSION DIAGNOSIS')
+    diagnosis_concept_id = Concept.find_by_name('PRIMARY DIAGNOSIS').id
+    diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+  DATE(encounter_datetime) <= ? AND
+      encounter_type =?", start_date, end_date, admission_diagnosis_enc.id])
+
+
+    diagnosis_encs.each do |enc|
+     observations = enc.observations.find(:all, :conditions => ["concept_id =? ", diagnosis_concept_id])
+       observations.each do |obs|
+         if (@admission_diagnoses[obs.answer_string.squish].blank?)
+          @admission_diagnoses[obs.answer_string.squish] = {}
+          @admission_diagnoses[obs.answer_string.squish]["count"] = 0
+          @admission_diagnoses[obs.answer_string.squish]["patient_ids"] = []
+         end
+
+         unless (@admission_diagnoses[obs.answer_string.squish].blank?)
+          @admission_diagnoses[obs.answer_string.squish]["count"]+=1
+          @admission_diagnoses[obs.answer_string.squish]["patient_ids"] << obs.person_id
+         end
+       end
+    end
+    @admission_diagnoses = @admission_diagnoses.sort_by{|key, value|value["count"]}.reverse
     render :layout => "menu"
   end
 end
