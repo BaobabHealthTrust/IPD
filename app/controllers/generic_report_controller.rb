@@ -499,4 +499,51 @@ class GenericReportController < ApplicationController
     render :layout => 'menu'
   end
 
+  def adt_generic_report
+    @location_name = Location.current_health_center.name rescue nil
+    @logo = CoreService.get_global_property_value('logo').to_s rescue nil
+    start_date = Date.today - 5.months
+    @start_date = start_date
+    end_date = Date.today
+    @end_date = end_date
+    encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+
+    @total_admissions = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+      DATE(encounter_datetime) <= ? AND encounter_type =?",start_date.to_date, end_date.to_date, encounter_type.id])
+    
+    @total_admissions_males = Encounter.find(:all, :joins => [:patient => :person], 
+      :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND gender =?",start_date.to_date, end_date.to_date, encounter_type.id, "M"])
+
+    @total_admissions_females = Encounter.find(:all, :joins => [:patient => :person],
+      :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND gender =?",start_date.to_date, end_date.to_date, encounter_type.id, "F"])
+
+    @total_admissions_infants = Encounter.find(:all, :joins => [:patient => :person],
+      :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 <= 2",start_date.to_date, end_date.to_date, encounter_type.id])
+    
+    @total_admissions_children = Encounter.find(:all, :joins => [:patient => :person],
+      :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > ? AND
+      DATEDIFF(NOW(), person.birthdate)/365 <= ?",start_date.to_date, end_date.to_date, encounter_type.id, 2, 14])
+
+    @total_admissions_adults = Encounter.find(:all, :joins => [:patient => :person],
+      :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14",start_date.to_date, end_date.to_date, encounter_type.id])
+
+    available_wards = CoreService.get_global_property_value('kch_wards').split(",") rescue nil
+    concept_id = Concept.find_by_name('ADMIT TO WARD').id
+    @admission_by_ward = {}
+    available_wards.each do |ward|
+      obs = Observation.find(:all, :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <=? AND
+          concept_id =? AND value_text =?", start_date, end_date, concept_id, ward])
+      next if obs.blank?
+      @admission_by_ward[ward] = {}
+      @admission_by_ward[ward]['count'] = obs.count
+      @admission_by_ward[ward]['patient_ids'] = obs.map(&:person_id)
+    end
+
+    render :layout => "menu"
+  end
 end
