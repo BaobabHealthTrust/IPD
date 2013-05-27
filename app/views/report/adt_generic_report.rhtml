@@ -333,6 +333,17 @@
                 :ids => value["patient_ids"]}) %></td>
           </tr>
         <%  end %>
+      <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Discharge Diagnosis</span></td>
+       </tr>
+        <% @discharge_diagnoses.each do |key, value| %>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.squish %></td>
+             <td id="number"><%= link_to((value["count"]), {
+                :action=>"decompose_report",
+                :ids => value["patient_ids"]}) %></td>
+          </tr>
+        <%  end %>
      </table>
 </div>
      <div class="horizontal_line">
