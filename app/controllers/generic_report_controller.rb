@@ -547,12 +547,12 @@ class GenericReportController < ApplicationController
     @admission_diagnoses = {}
     admission_diagnosis_enc = EncounterType.find_by_name('ADMISSION DIAGNOSIS')
     diagnosis_concept_id = Concept.find_by_name('PRIMARY DIAGNOSIS').id
-    diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+    admission_diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
   DATE(encounter_datetime) <= ? AND
       encounter_type =?", start_date, end_date, admission_diagnosis_enc.id])
 
 
-    diagnosis_encs.each do |enc|
+    admission_diagnosis_encs.each do |enc|
      observations = enc.observations.find(:all, :conditions => ["concept_id =? ", diagnosis_concept_id])
        observations.each do |obs|
          if (@admission_diagnoses[obs.answer_string.squish].blank?)
@@ -568,6 +568,28 @@ class GenericReportController < ApplicationController
        end
     end
     @admission_diagnoses = @admission_diagnoses.sort_by{|key, value|value["count"]}.reverse
+
+    @discharge_diagnoses = {}
+    discharge_diagnosis_enc = EncounterType.find_by_name('DISCHARGE DIAGNOSIS')
+     discharge_diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+      DATE(encounter_datetime) <= ? AND
+      encounter_type =?", start_date, end_date, discharge_diagnosis_enc.id])
+    discharge_diagnosis_encs.each do |enc|
+     observations = enc.observations.find(:all, :conditions => ["concept_id =? ", diagnosis_concept_id])
+       observations.each do |obs|
+         if (@discharge_diagnoses[obs.answer_string.squish].blank?)
+          @discharge_diagnoses[obs.answer_string.squish] = {}
+          @discharge_diagnoses[obs.answer_string.squish]["count"] = 0
+          @discharge_diagnoses[obs.answer_string.squish]["patient_ids"] = []
+         end
+
+         unless (@discharge_diagnoses[obs.answer_string.squish].blank?)
+          @discharge_diagnoses[obs.answer_string.squish]["count"]+=1
+          @discharge_diagnoses[obs.answer_string.squish]["patient_ids"] << obs.person_id
+         end
+       end
+    end
+    @discharge_diagnoses = @discharge_diagnoses.sort_by{|key, value|value["count"]}.reverse
     render :layout => "menu"
   end
 end
