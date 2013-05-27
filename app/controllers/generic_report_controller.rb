@@ -590,6 +590,24 @@ class GenericReportController < ApplicationController
        end
     end
     @discharge_diagnoses = @discharge_diagnoses.sort_by{|key, value|value["count"]}.reverse
+
+    @patient_states = {}
+    patient_states = PatientState.find(:all, :conditions => ["start_date >= ?", start_date])
+    patient_states.each do |state|
+      fullname = state.program_workflow_state.concept.fullname
+      next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)
+      if (@patient_states[fullname].blank?)
+        @patient_states[fullname] = {}
+        @patient_states[fullname]["count"] = 0
+        @patient_states[fullname]["patient_ids"] = []
+      end
+
+      unless (@patient_states[fullname].blank?)
+        @patient_states[fullname]["count"]+=1
+        @patient_states[fullname]["patient_ids"] << state.patient_program.patient_id
+      end
+    end
+    @patient_states = @patient_states.sort_by{|key, value|value["count"]}.reverse
     render :layout => "menu"
   end
 end
