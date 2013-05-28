@@ -62,7 +62,7 @@
         <%= yield %>  
         <div id="footer">
           <div id="buttons" class="buttonsDiv" style="top:0px">
-            <button id="finishButton" class="button navButton green" style="left: 100%; position: absolute" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;"><span>Finish</span></button>
+            <button id="finishButton" class="button navButton green" style="left: 1100px;" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;"><span>Finish</span></button>
                   <% if 'mastercard' == params[:action].to_s %>
                     <% if session[:mastercard_ids].length.to_i != 0 %>
                         <script>
