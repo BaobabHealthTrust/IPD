@@ -2862,6 +2862,9 @@ class CohortToolController < ApplicationController
      render :layout => 'reports'
 
   end
-  
+
+  def adt_report_menu
+    
+  end
 end
 
