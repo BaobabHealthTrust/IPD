@@ -1,0 +1,35 @@
+<%= javascript_include_tag 'touchscreentoolkit' %>
+<%= javascript_include_tag "prototype" %>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<link href="/stylesheets/opd_cohort.css" media="screen" rel="stylesheet" type="text/css" />
+<style>
+
+  .tt_controls_start_month .keyboard{display:none;}
+  #tt_page_start_month .options{height:515px;}
+  #tt_page_start_month .options li{font-size:30px;}
+
+  .tt_controls_end_month .keyboard{display:none;}
+  #tt_page_end_month .options{height:515px;}
+  #tt_page_end_month .options li{font-size:30px;}
+
+  #tt_page_select_age_group_s .options{height:515px;}
+
+  .tt_controls_start_day #Unknown { display:none; }
+  .tt_controls_end_day #Unknown { display:none; }
+
+</style>
+
+<form method='post' action="" >
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+  <%= text_field_tag "start_date", nil, {
+          :helpText => 'Select Start Date',
+          :field_type => 'date',
+          :id => 'start_date'}  %>
+  
+  <%= text_field_tag "end_date", nil, {
+          :helpText => 'Select End Time',
+          :field_type => 'date',
+          :id => 'end_date'}  %>
+</form>
+

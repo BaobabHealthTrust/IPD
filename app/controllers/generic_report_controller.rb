@@ -614,4 +614,43 @@ class GenericReportController < ApplicationController
     @patient_states = @patient_states.sort_by{|key, value|value["count"]}.reverse
     render :layout => "menu"
   end
+
+  def decompose_report
+    patient_ids = params[:ids]
+    @current_location_name = Location.current_health_center.name rescue nil
+    @report_name = params[:report_name]
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    @patients = {}
+    count = Hash.new(0)
+    patient_ids.each do |id|
+      count[id]+=1
+    end
+    #raise count["9855"].class.inspect
+    patient_ids.each do |id|
+      patient = Patient.find(id)
+      #raise id.class.inspect
+      date_admitted = patient.patient_programs.current.local.select{|p|
+        p.program_id == program_id
+      }.last.date_enrolled rescue nil
+
+      if (date_admitted.blank?)
+        date_admitted = patient.patient_programs.local.select{|p|
+          p.program_id == program_id
+        }.last.date_enrolled rescue nil
+
+      end
+      patient_bean = PatientService.get_patient(patient.person)
+
+          @patients[id] = {}
+          @patients[id]["name"] = patient_bean.name
+          @patients[id]["date_of_birth"] = patient_bean.birth_date
+          @patients[id]["cell_phone"] = patient_bean.cell_phone_number
+          @patients[id]["home_district"] = patient_bean.home_district
+          @patients[id]["current_residence"] = patient_bean.current_residence
+          @patients[id]["traditional_authority"] = patient_bean.traditional_authority
+          @patients[id]["date_admitted"] = date_admitted.strftime("%a, %d/%b/%Y") rescue nil
+ 
+    end
+    render :layout => "menu"
+  end
 end
