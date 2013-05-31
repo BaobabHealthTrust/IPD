@@ -514,19 +514,19 @@ class GenericReportController < ApplicationController
 
     @total_admissions = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
       DATE(encounter_datetime) <= ? AND encounter_type =?",start_date.to_date, end_date.to_date, encounter_type.id])
-    
+    @total_admissions_ids = @total_admissions.map(&:patient_id)
     @total_admissions_males = Encounter.find(:all, :joins => [:patient => :person], 
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND gender =?",start_date.to_date, end_date.to_date, encounter_type.id, "M"])
-
+    @total_admissions_males_ids = @total_admissions_males.map(&:patient_id)
     @total_admissions_females = Encounter.find(:all, :joins => [:patient => :person],
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND gender =?",start_date.to_date, end_date.to_date, encounter_type.id, "F"])
-
+    @total_admissions_females_ids = @total_admissions_females.map(&:patient_id)
     @total_admissions_infants = Encounter.find(:all, :joins => [:patient => :person],
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 <= 2",start_date.to_date, end_date.to_date, encounter_type.id])
-    
+    @total_admissions_infants_ids = @total_admissions_infants.map(&:patient_id) rescue nil
     @total_admissions_children = Encounter.find(:all, :joins => [:patient => :person],
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > ? AND
@@ -535,7 +535,7 @@ class GenericReportController < ApplicationController
     @total_admissions_adults = Encounter.find(:all, :joins => [:patient => :person],
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14",start_date.to_date, end_date.to_date, encounter_type.id])
-
+      @total_admissions_adults_ids = @total_admissions_adults.map(&:patient_id) rescue nil
     available_wards = CoreService.get_global_property_value('kch_wards').split(",") rescue nil
     concept_id = Concept.find_by_name('ADMIT TO WARD').id
     @admission_by_ward = {}
@@ -594,7 +594,83 @@ class GenericReportController < ApplicationController
        end
     end
     @discharge_diagnoses = @discharge_diagnoses.sort_by{|key, value|value["count"]}.reverse
+    
+=begin
+    Building a hash that looks like the one below to find admission diagnosis by ward
+    data = {22=>{:ward=>"1A", :diagnosis=>"malaria"},
+    20=>{:ward=>"2A", :diagnosis=>"malaria"}, 21=>{:ward=>"1A", :diagnosis=>"malaria"}}
+=end
+    admission_diagnosis_by_ward = {}
+    admit_to_ward_concept = Concept.find_by_name("ADMIT TO WARD")
+    patient_admission_enc_ids = admission_diagnosis_encs.map(&:patient_id)
+    patient_admission_enc_ids.each do |patient_id|
+     admission_obs  = Observation.find(:last, :conditions => ["person_id =? AND concept_id =?", patient_id, admit_to_ward_concept.id]) rescue nil
+     ward_admitted  = admission_obs.answer_string.squish rescue nil
+     admission_diagnosis_enc = Encounter.find(:last, :conditions => ["patient_id =? AND DATE(encounter_datetime) >= ? \
+          AND DATE(encounter_datetime) <= ? AND
+          encounter_type =?", patient_id, start_date, end_date, EncounterType.find_by_name('ADMISSION DIAGNOSIS').id])
+     admission_diagnosis_obs = admission_diagnosis_enc.observations.find(:last, :conditions => ["concept_id =? ", diagnosis_concept_id]) rescue nil
+     diagnosis = admission_diagnosis_obs.answer_string.squish rescue nil
+     next if diagnosis.blank?
+     next if ward_admitted.blank?
+     admission_diagnosis_by_ward[patient_id] = {}
+     admission_diagnosis_by_ward[patient_id][:ward] = ward_admitted
+     admission_diagnosis_by_ward[patient_id][:diagnosis] =  diagnosis
+    end
+    @total_admission_diagnosis_by_ward = Hash.new
+    admission_diagnosis_by_ward.each do |key, value|
+      if (@total_admission_diagnosis_by_ward[value[:ward]].blank?)
+        @total_admission_diagnosis_by_ward[value[:ward]] = {}
+        @total_admission_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 0
+      end
+      unless (@total_admission_diagnosis_by_ward[value[:ward]].blank?)
+        unless (@total_admission_diagnosis_by_ward[value[:ward]][value[:diagnosis]].blank?)
+          @total_admission_diagnosis_by_ward[value[:ward]][value[:diagnosis]] += 1
+        else
+          @total_admission_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 1
+        end
+      end
+    end
 
+    ############################################################################################
+
+
+    discharge_diagnosis_by_ward = {}
+    primary_diagnosis_concept = Concept.find_by_name("PRIMARY DIAGNOSIS")
+    patient_discharge_enc_ids =  discharge_diagnosis_encs.map(&:patient_id)
+    patient_discharge_enc_ids.each do |patient_id|
+     admission_obs  = Observation.find(:last, :conditions => ["person_id =? AND concept_id =?", patient_id, Concept.find_by_name('ADMIT TO WARD').id]) rescue nil
+     ward_admitted  = admission_obs.answer_string.squish rescue nil
+     discharge_diagnosis_enc = Encounter.find(:last, :conditions => ["patient_id =? AND DATE(encounter_datetime) >= ? \
+          AND DATE(encounter_datetime) <= ? AND
+          encounter_type =?", patient_id, start_date, end_date, EncounterType.find_by_name('DISCHARGE DIAGNOSIS').id])
+     discharge_diagnosis_obs = discharge_diagnosis_enc.observations.find(:last, :conditions => ["concept_id =? ", primary_diagnosis_concept.id]) rescue nil
+     diagnosis = discharge_diagnosis_obs.answer_string.squish rescue nil
+     next if diagnosis.blank?
+     next if ward_admitted.blank?
+     discharge_diagnosis_by_ward[patient_id] = {}
+     discharge_diagnosis_by_ward[patient_id][:ward] = ward_admitted
+     discharge_diagnosis_by_ward[patient_id][:diagnosis] =  diagnosis
+    end
+
+    @total_discharge_diagnosis_by_ward = Hash.new
+    discharge_diagnosis_by_ward.each do |key, value|
+      if (@total_discharge_diagnosis_by_ward[value[:ward]].blank?)
+        @total_discharge_diagnosis_by_ward[value[:ward]] = {}
+        @total_discharge_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 0
+      end
+      unless (@total_discharge_diagnosis_by_ward[value[:ward]].blank?)
+        unless (@total_discharge_diagnosis_by_ward[value[:ward]][value[:diagnosis]].blank?)
+          @total_discharge_diagnosis_by_ward[value[:ward]][value[:diagnosis]] += 1
+        else
+          @total_discharge_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 1
+        end
+      end
+    end
+
+
+
+    #############################################################################################
     @patient_states = {}
     patient_states = PatientState.find(:all, :conditions => ["start_date >= ?", start_date])
     patient_states.each do |state|
