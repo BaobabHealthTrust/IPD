@@ -255,7 +255,7 @@
   </head>
   <body >
     <%= image_tag(@logo, :class => "logo")%>
-    <br /><b style="margin-left:75px"><%= @location_name %></b><br />
+    <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
      <b style="position:relative; top:0px;margin-left:75px">ADT Report</b><br />
      <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
      <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
@@ -267,7 +267,7 @@
          <td style="background-color: #9ACD32; font-size: 14pt;">Total Admissions</td>
          <td id="number"><%= link_to((@total_admissions.count), {
             :action=>"decompose_report",
-            :ids =>"",
+            :ids =>@total_admissions_ids,
             :report_name => "Total Admissions"})
           %>
          </td>
@@ -279,14 +279,14 @@
          <td style="background-color: #F5F5F5; font-size: 14pt;">Males</td>
          <td id="number"><%= link_to((@total_admissions_males.count), {
               :action=>"decompose_report",
-              :ids =>"",
+              :ids =>@total_admissions_males_ids,
               :report_name => "Males Total Admissions"})  %></td>
        </tr>
        <tr>
          <td  style="background-color: #F5F5F5; font-size: 14pt;">Females</td>
          <td id="number"><%=link_to((@total_admissions_females.count), {
             :action=>"decompose_report",
-            :ids =>"",
+            :ids =>@total_admissions_females_ids,
             :report_name => "Females Total Admissions"}) %></td>
        </tr>
        <tr style="background-color: gray">
@@ -297,7 +297,7 @@
 </td>
          <td id="number"><%= link_to((@total_admissions_infants.count), {
             :action=>"decompose_report",
-            :ids => "",
+            :ids => @total_admissions_infants_ids,
             :report_name => "Infants Total Admissions"}) %></td>
        </tr>
        <tr>
@@ -311,7 +311,7 @@
          <td  style="background-color: #F5F5F5; font-size: 14pt;">Adults (>14)</td>
          <td id="number"><%= link_to((@total_admissions_adults.count), {
             :action=>"decompose_report",
-            :ids =>"",
+            :ids =>@total_admissions_adults_ids,
             :report_name => "Adults Total Admissions"}) %></td>
        </tr>
        <tr style="background-color: gray">
@@ -353,6 +353,48 @@
                 :report_name => "Discharge Diagnosis(#{key.squish})"}) %></td>
           </tr>
         <%  end %>
+
+
+       <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Admission Diagnosis By Ward</span></td>
+       </tr>
+        <% @total_admission_diagnosis_by_ward.each do |key, value| %>
+         <tr>
+          <td  style="background-color: #CDB5CD; font-size: 14pt;" colspan="2" "><%= key.squish %></td>
+         </tr>
+          <%
+            diagnosis = 0
+            total = 1
+          %>
+         <% value.each do |details| %>
+            <tr>
+              <td><%= details[diagnosis] %></td>
+              <td id="number"><%= details[total] %></td>
+            </tr>
+         <% end %>
+        <%  end %>
+
+
+         <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Discharge Diagnosis By Ward</span></td>
+       </tr>
+        <% @total_discharge_diagnosis_by_ward.each do |key, value| %>
+         <tr>
+          <td  style="background-color: #CDB5CD; font-size: 14pt;" colspan="2" ><%= key.squish %></td>
+         </tr>
+          <%
+            diagnosis = 0
+            total = 1
+          %>
+         <% value.each do |details| %>
+            <tr>
+              <td><%= details[diagnosis] %></td>
+              <td id="number"><%= details[total] %></td>
+            </tr>
+         <% end %>
+
+        <%  end %>
+
         <tr>
             <td colspan="2" style="background-color: #9ACD32; font-size: 14pt; line-height: 2em;">Outcomes</td>
           </tr>
@@ -379,7 +421,7 @@
   function setPosition(){
     finish = document.getElementById('finishButton')
     finish.style.position = 'absolute'
-    finish.style.right = '0px'
+    finish.style.left = '125%'
   }
   setTimeout("setPosition()",10);
 </script>
