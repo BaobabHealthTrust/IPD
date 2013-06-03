@@ -226,22 +226,27 @@
         width: 1504px;
       }
 
-      #number{
-      background-color: #4A708B;
-      border-bottom: 1px outset black;
-      text-decoration: none;
-      color: white;
-      padding: 10px 16px 10px 10px;
-      text-align: center;
-      text-decoration: none;
-    }
 
-    #number a{
-    
-      text-decoration: none;
-      color: white;
+    #number {
+    width:20%;
+    margin:10px;
+    background:white;
+    -moz-user-select:none;
+  }
 
-    }
+  #number a {
+          border-radius: 7px;
+          background-color: #669999;
+          border-bottom: 1px outset black;
+          border-style: outset;
+          border-top: 1px outset black;
+          color: white;
+          display: block;
+          padding: 10px 16px 10px 10px;
+          text-align: center;
+          text-decoration: none;
+  }
+
     #gender_distribution{
       text-align: center;
       font-size: 14pt;
@@ -319,11 +324,11 @@
        </tr>
         <% @admission_by_ward.each do |key, value| %>
           <tr>
-             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.squish %></td>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.to_s.squish %></td>
              <td id="number"><%= link_to((value["count"]), {
                 :action=>"decompose_report",
                 :ids => value["patient_ids"],
-                :report_name => "Admissions By Ward(#{key.squish})"}) %></td>
+                :report_name => "Admissions By Ward(#{key.to_s.squish})"}) %></td>
           </tr>
         <%  end %>
           <tr>
@@ -369,7 +374,10 @@
          <% value.each do |details| %>
             <tr>
               <td><%= details[diagnosis] %></td>
-              <td id="number"><%= details[total] %></td>
+              <td id="number"><%= link_to((details[total]), {
+                :action=>"decompose_report",
+                :ids => "",
+                :report_name => "#{key.squish}(#{details[diagnosis]})"})  %></td>
             </tr>
          <% end %>
         <%  end %>
