@@ -668,7 +668,23 @@ class GenericReportController < ApplicationController
     end
 
     @total_discharge_diagnosis_by_ward = Hash.new
+    @ward_patients_discharge_diagnosis = {}
     discharge_diagnosis_by_ward.each do |key, value|
+
+      #==============================================================
+      if (@ward_patients_discharge_diagnosis[value[:ward]].blank?)
+        @ward_patients_discharge_diagnosis[value[:ward]] = {}
+      end
+      if (@ward_patients_discharge_diagnosis[value[:ward]][value[:diagnosis]].blank?)
+        @ward_patients_discharge_diagnosis[value[:ward]][value[:diagnosis]] = ""
+        @ward_patients_discharge_diagnosis[value[:ward]][value[:diagnosis]] +=key.to_s
+      else
+        @ward_patients_discharge_diagnosis[value[:ward]][value[:diagnosis]] +=", " + key.to_s
+      end
+
+      #=============================================================
+
+
       if (@total_discharge_diagnosis_by_ward[value[:ward]].blank?)
         @total_discharge_diagnosis_by_ward[value[:ward]] = {}
         @total_discharge_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 0
