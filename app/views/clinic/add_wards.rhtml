@@ -1,7 +1,6 @@
 <%= javascript_include_tag "jquery" %>
 <%= javascript_include_tag 'utils' %>
 
-
 <form action="/clinic/save_wards" method='post'>
 <!--
  <%= text_area_tag "wards" , nil, {
@@ -20,10 +19,12 @@
        :helpText => "Enter ward name",
      } %>
 
- <%= text_field "bed_number" , nil, {
+ <%= text_field_tag "bed_number" , nil, {
+   :allowFreeText => true,
    :field_type => "number",
-   :tt_pageStyleClass => "Numeric NumbersOnly",
-   :helpText => 'Number of Beds'}%>
+   :tt_pageStyleClass => "NumbersWithUnknown",
+   :helpText => 'Number of Beds'
+ }%>
 
   <%= submit_tag "Finish" %>
 </form>
