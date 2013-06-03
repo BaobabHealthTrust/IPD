@@ -702,6 +702,32 @@ class GenericReportController < ApplicationController
       end
     end
     @patient_states = @patient_states.sort_by{|key, value|value["count"]}.reverse
+
+    ##########################################################################################
+    bed_sum = 0
+    all_beds = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|ward.bed_number}
+    all_beds.each do |bed|
+      bed_sum += bed.to_i
+    end
+    @bed_occupacy_ratio = @total_admissions.count/bed_sum
+
+    total_discharges = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+      DATE(encounter_datetime) <= ? AND encounter_type =?",start_date.to_date, end_date.to_date,\
+        EncounterType.find_by_name('DISCHARGE PATIENT').id])
+    @turn_over_rate = total_discharges.count/bed_sum
+    @total_died = {}
+    patient_states.each do |state|
+      fullname = state.program_workflow_state.concept.fullname
+      next unless fullname.match(/died/i)
+      if (@total_died[fullname].blank?)
+        @total_died[fullname] = {}
+        @total_died[fullname]["count"] = 0
+      end
+
+      unless (@total_died[fullname].blank?)
+        @total_died[fullname]["count"]+=1
+      end
+    end
     render :layout => "menu"
   end
 
