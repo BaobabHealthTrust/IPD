@@ -376,7 +376,7 @@
               <td><%= details[diagnosis] %></td>
               <td id="number"><%= link_to((details[total]), {
                 :action=>"decompose_report",
-                :ids => "",
+                :patient_ids => "#{@ward_patients_diagnosis[key][details[diagnosis]].split(',')}",
                 :report_name => "#{key.squish}(#{details[diagnosis]})"})  %></td>
             </tr>
          <% end %>
