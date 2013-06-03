@@ -1,0 +1,21 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<style>
+  #tt_page_select_wards_to_be_voided .inputFrameClass{
+
+  }
+  #tt_page_select_wards_to_be_voided .inputFrameClass .options{
+    height: 20em;
+
+  }
+</style>
+<form action="/clinic/void_wards" method='post'>
+<%= select_tag 'wards[]', options_for_select(@kch_wards),
+      {:id => 'wards_id',
+        :multiple => "multiple",
+       :helpText => "Select Wards to be voided",
+     } %>
+
+  <%= submit_tag "Finish" %>
+</form>
