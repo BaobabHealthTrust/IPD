@@ -60,7 +60,7 @@ class ClinicController < GenericClinicController
 		if current_user.admin?
 		  @reports << ['/clinic/management_tab','Drug Management']
       @reports << ['/clinic/manage_wards','Manage Wards']
-      @reports << ['','Add Wards']
+      @reports << ['/clinic/add_wards','Add Wards']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -68,7 +68,35 @@ class ClinicController < GenericClinicController
 
   def manage_wards
     @logo = CoreService.get_global_property_value('logo')
-    @kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
+    #@kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
+    @kch_wards = Ward.find(:all).collect{|ward|[ward.name, ward.id]}
     render :layout => "application"
+  end
+
+  def create_ward_beds
+    ward_id = params[:ward_id]
+    total_beds = params[:bed_number].to_s rescue nil
+    ward = Ward.find(ward_id)
+    ward.bed_number = total_beds
+    ward.save!
+    redirect_to :action => "manage_wards"
+  end
+
+  def add_wards
+    render :layout => "application"
+  end
+
+  def save_wards
+  wards = params[:wards]
+  wards = wards.split(",").compact rescue nil
+    unless wards.blank?
+      wards.each do |ward|
+        available_ward = Ward.find(:first, :conditions => ["name =? ", ward]) rescue nil
+        next unless available_ward.blank?
+        new_ward = Ward.new
+        new_ward.name = ward
+        new_ward.save!
+      end
+    end
   end
 end
