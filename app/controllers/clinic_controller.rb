@@ -61,6 +61,7 @@ class ClinicController < GenericClinicController
 		  @reports << ['/clinic/management_tab','Drug Management']
       @reports << ['/clinic/manage_wards','Manage Wards']
       @reports << ['/clinic/add_wards','Add Wards']
+      @reports << ['/clinic/list_wards','Void Wards']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -69,7 +70,7 @@ class ClinicController < GenericClinicController
   def manage_wards
     @logo = CoreService.get_global_property_value('logo')
     #@kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
-    @kch_wards = Ward.find(:all).collect{|ward|[ward.name, ward.id]}
+    @kch_wards = Ward.find(:all).collect{|ward|[ward.name.squish, ward.id]}
     render :layout => "application"
   end
 
@@ -98,5 +99,23 @@ class ClinicController < GenericClinicController
         new_ward.save!
       end
     end
+  redirect_to("/clinic")
+  end
+
+  def list_wards
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.id]}
+    render :layout => "application"
+  end
+
+  def void_wards
+    ward_ids = params[:wards]
+    ward_ids.each do |ward_id|
+      ward = Ward.find(ward_id)
+      ward.voided = 1
+      ward.voided_by = User.current.id
+      ward.date_voided = Time.now
+      ward.save!
+    end
+    redirect_to("/clinic")
   end
 end
