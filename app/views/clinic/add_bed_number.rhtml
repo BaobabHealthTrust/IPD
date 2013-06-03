@@ -1,0 +1,18 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+
+<form action="/clinic/create_ward_beds" method='post'>
+<%= select_tag 'ward_id', options_for_select(@kch_wards),
+      {:id => 'transfer_out_location_id',
+       :field_type => 'alpha',
+       :helpText => "Select Ward",
+     } %>
+
+ <%= text_field "bed_number" , nil, {
+   :field_type => "number",
+   :tt_pageStyleClass => "Numeric NumbersOnly",
+   :helpText => 'Number of Beds'}%>
+
+  <%= submit_tag "Finish" %>
+</form>
