@@ -59,19 +59,49 @@ class ClinicController < GenericClinicController
 				    ]
 		if current_user.admin?
 		  @reports << ['/clinic/management_tab','Drug Management']
-      @reports << ['/clinic/manage_wards','Add Bed Numbers']
-      @reports << ['/clinic/add_wards','Add Wards']
-      @reports << ['/clinic/list_wards','Void Wards']
+      #@reports << ['/clinic/add_bed_number','Add Bed Numbers']
+      #@reports << ['/clinic/add_wards','Add Wards']
+      #@reports << ['/clinic/list_wards','Void Wards']
+      @reports << ['/clinic/manage_wards_tab','Manage Wards']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
 	end
 
-  def manage_wards
+  def view_wards
+    @logo = CoreService.get_global_property_value('logo')
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.id, ward.name.squish, ward.bed_number]}
+
+    available_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish]}
+    concept_id = Concept.find_by_name('ADMIT TO WARD').id
+    @admission_by_ward = {}
+    available_wards.each do |ward|
+      obs = Observation.find(:all, :conditions => ["concept_id =? AND value_text =?", concept_id, ward])
+      @admission_by_ward[ward.to_s] = {}
+      @admission_by_ward[ward.to_s]['count'] = obs.map(&:person_id).uniq.count
+    end
+
+    render :layout => "menu"
+  end
+
+  def add_bed_number
     @logo = CoreService.get_global_property_value('logo')
     #@kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
     @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.id]}
     render :layout => "application"
+  end
+  
+  def manage_wards_tab
+    @reports =  []
+		if current_user.admin?
+      @reports << ['/clinic/add_bed_number','Add Bed Numbers']
+      @reports << ['/clinic/add_wards','Add Wards']
+      @reports << ['/clinic/list_wards','Void Wards']
+      @reports << ['/clinic/view_wards','View Wards']
+      @reports << ['','Undo Voiding of wards']
+		end
+		@landing_dashboard = 'clinic_administration'
+		render :layout => false
   end
 
   def create_ward_beds
