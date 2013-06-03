@@ -246,6 +246,17 @@
           text-align: center;
           text-decoration: none;
   }
+  #display_only {
+          border-radius: 7px;
+          background-color: #669999;
+          border-bottom: 1px outset black;
+          border-style: outset;
+          border-top: 1px outset black;
+          color: white;
+          padding: 10px 16px 10px 10px;
+          text-align: center;
+          text-decoration: none;
+  }
 
     #gender_distribution{
       text-align: center;
@@ -415,6 +426,24 @@
                 :report_name => "Patient Outcomes(#{key.squish})"}) %></td>
           </tr>
         <%  end %>
+
+          <tr>
+            <td colspan="2" style="background-color: #9ACD32; font-size: 14pt; line-height: 2em;">Admission Indicators</td>
+          </tr>
+ 
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Bed Occupancy Ratio</td>
+             <td id="display_only" style="background-color: #FFB90F"><%= @bed_occupacy_ratio %></td>
+          </tr>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Hospital Bed Turnover Rate</td>
+             <td id="display_only" style="background-color: #FFB90F"><%= @turn_over_rate %></td>
+          </tr>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Death Rate</td>
+             <td id="display_only" style="background-color: #FFB90F"><%= @total_died["Patient died"]["count"].to_s + ' per given period' %></td>
+          </tr>
+
      </table>
 </div>
      <div class="horizontal_line">
