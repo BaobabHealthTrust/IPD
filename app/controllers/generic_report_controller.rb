@@ -619,7 +619,20 @@ class GenericReportController < ApplicationController
      admission_diagnosis_by_ward[patient_id][:diagnosis] =  diagnosis
     end
     @total_admission_diagnosis_by_ward = Hash.new
+    @ward_patients_diagnosis = {}
     admission_diagnosis_by_ward.each do |key, value|
+      #==============================================================
+      if (@ward_patients_diagnosis[value[:ward]].blank?)
+        @ward_patients_diagnosis[value[:ward]] = {}
+      end
+      if (@ward_patients_diagnosis[value[:ward]][value[:diagnosis]].blank?)
+        @ward_patients_diagnosis[value[:ward]][value[:diagnosis]] = ""
+        @ward_patients_diagnosis[value[:ward]][value[:diagnosis]] +=key.to_s
+      else
+        @ward_patients_diagnosis[value[:ward]][value[:diagnosis]] +=", " + key.to_s
+      end
+
+      #=============================================================
       if (@total_admission_diagnosis_by_ward[value[:ward]].blank?)
         @total_admission_diagnosis_by_ward[value[:ward]] = {}
         @total_admission_diagnosis_by_ward[value[:ward]][value[:diagnosis]] = 0
@@ -632,7 +645,7 @@ class GenericReportController < ApplicationController
         end
       end
     end
-
+    #raise @ward_patients_diagnosis.inspect
     ############################################################################################
 
 
@@ -693,15 +706,16 @@ class GenericReportController < ApplicationController
   end
 
   def decompose_report
-    patient_ids = params[:ids]
+    #raise params.inspect
+    if params[:patient_ids]
+      patient_ids = params[:patient_ids].split()#Split patient ids by space
+    else
+      patient_ids = params[:ids]
+    end
     @current_location_name = Location.current_health_center.name rescue nil
     @report_name = params[:report_name]
     program_id = Program.find_by_name('IPD PROGRAM').id
     @patients = {}
-    count = Hash.new(0)
-    patient_ids.each do |id|
-      count[id]+=1
-    end
     #raise count["9855"].class.inspect
     patient_ids.each do |id|
       patient = Patient.find(id)
@@ -730,4 +744,22 @@ class GenericReportController < ApplicationController
     end
     render :layout => "menu"
   end
+
+  def search_ward
+    render :text => search(params[:search_string])
+  end
+
+private
+  def search(search_string)
+    if search_string.blank?
+      names = Ward.find(:all, :limit => 10).collect{|ward| ward.name}
+    else
+      names = Ward.find(:all, :limit => 10,
+        :conditions => ["name LIKE ?","%#{search_string}%"]).collect{|ward| ward.name}
+    end
+
+    result = "<li>" + names.map{|n| n } .join("</li><li>") + "</li>"
+    return result
+  end
+
 end
