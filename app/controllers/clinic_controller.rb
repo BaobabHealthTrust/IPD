@@ -59,7 +59,7 @@ class ClinicController < GenericClinicController
 				    ]
 		if current_user.admin?
 		  @reports << ['/clinic/management_tab','Drug Management']
-      @reports << ['/clinic/manage_wards','Manage Wards']
+      @reports << ['/clinic/manage_wards','Add Bed Numbers']
       @reports << ['/clinic/add_wards','Add Wards']
       @reports << ['/clinic/list_wards','Void Wards']
 		end
@@ -70,7 +70,7 @@ class ClinicController < GenericClinicController
   def manage_wards
     @logo = CoreService.get_global_property_value('logo')
     #@kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
-    @kch_wards = Ward.find(:all).collect{|ward|[ward.name.squish, ward.id]}
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.id]}
     render :layout => "application"
   end
 
@@ -92,7 +92,7 @@ class ClinicController < GenericClinicController
   wards = wards.split(",").compact rescue nil
     unless wards.blank?
       wards.each do |ward|
-        available_ward = Ward.find(:first, :conditions => ["name =? ", ward]) rescue nil
+        available_ward = Ward.find(:first, :conditions => ["name =?  AND voided =?", ward, 0]) rescue nil
         next unless available_ward.blank?
         new_ward = Ward.new
         new_ward.name = ward
