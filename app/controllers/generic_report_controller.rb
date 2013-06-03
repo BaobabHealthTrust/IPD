@@ -536,7 +536,8 @@ class GenericReportController < ApplicationController
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14",start_date.to_date, end_date.to_date, encounter_type.id])
       @total_admissions_adults_ids = @total_admissions_adults.map(&:patient_id) rescue nil
-    available_wards = CoreService.get_global_property_value('kch_wards').split(",") rescue nil
+    #available_wards = CoreService.get_global_property_value('kch_wards').split(",") rescue nil
+    available_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish]}
     concept_id = Concept.find_by_name('ADMIT TO WARD').id
     @admission_by_ward = {}
     available_wards.each do |ward|
