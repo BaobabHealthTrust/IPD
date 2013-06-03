@@ -59,9 +59,16 @@ class ClinicController < GenericClinicController
 				    ]
 		if current_user.admin?
 		  @reports << ['/clinic/management_tab','Drug Management']
+      @reports << ['/clinic/manage_wards','Manage Wards']
+      @reports << ['','Add Wards']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
 	end
-  
+
+  def manage_wards
+    @logo = CoreService.get_global_property_value('logo')
+    @kch_wards = CoreService.get_global_property_value('kch_wards').split(',')
+    render :layout => "application"
+  end
 end
