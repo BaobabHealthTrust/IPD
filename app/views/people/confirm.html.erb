@@ -31,11 +31,7 @@
 		<script>
 
 			tt_cancel_destination = "/clinic";                     
-                       <% unless @ipd_program_id.blank? %>
-                          tt_cancel_show = '<%= next_task(@person.patient) rescue nil%>'
-                        <% else  %>
-                          tt_cancel_show = "/encounters/new/admit_patient?patient_id=<%=@person.patient.id %>"
-                        <% end %>
+                        tt_cancel_show = '<%= next_task(@person.patient) rescue nil%>'
 
 			function changeAttributes(){
 				document.getElementById("btnNext").innerHTML = "<span>Continue</span>" 
