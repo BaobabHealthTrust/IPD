@@ -8,7 +8,10 @@ EOF
       CREATE TABLE `ward` (                                                
         `ward_id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(45) NOT NULL,                                             
-        `bed_number` int(11),                                                
+        `bed_number` int(11),
+        `voided` smallint(6) NOT NULL DEFAULT '0',
+        `voided_by` int(11) DEFAULT NULL,
+        `date_voided` datetime DEFAULT NULL,
         PRIMARY KEY (`ward_id`),
         UNIQUE KEY `id_UNIQUE` (`ward_id`)
       ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1; 
