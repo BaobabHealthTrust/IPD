@@ -89,6 +89,13 @@ class ClinicController < GenericClinicController
 
   def save_wards
   wards = params[:wards]
+  ward_name = params[:ward_name].to_s
+  bed_number = params[:bed_number].to_s
+  new_ward = Ward.new
+  new_ward.name = ward_name
+  new_ward.bed_number = bed_number
+  new_ward.save!
+=begin
   wards = wards.split(",").compact rescue nil
     unless wards.blank?
       wards.each do |ward|
@@ -99,6 +106,7 @@ class ClinicController < GenericClinicController
         new_ward.save!
       end
     end
+=end
   redirect_to("/clinic")
   end
 
