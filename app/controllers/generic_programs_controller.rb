@@ -116,11 +116,12 @@ class GenericProgramsController < ApplicationController
 				#[ltm.location.name] if ltm.location_tag.name == ipd_wards_tag
 			#}
 			#@ipd_wards = @ipd_wards.compact.sort
-      
+=begin
     kch_wards = CoreService.get_global_property_value('kch_wards') rescue ''
     @ipd_wards = kch_wards.split(",")
     @ipd_wards = @ipd_wards.compact.sort
-
+=end
+    @ipd_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.id]}
     if request.method == :post
       #raise params[:observations].inspect
       patient_program = PatientProgram.find(params[:patient_program_id])
