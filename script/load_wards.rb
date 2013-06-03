@@ -6,11 +6,11 @@ EOF
 
     ActiveRecord::Base.connection.execute <<EOF
       CREATE TABLE `ward` (                                                
-        `id` int(11) NOT NULL AUTO_INCREMENT,                                                
+        `ward_id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(45) NOT NULL,                                             
         `bed_number` int(11),                                                
-        PRIMARY KEY (`id`),                                                           
-        UNIQUE KEY `id_UNIQUE` (`id`)                                                 
+        PRIMARY KEY (`ward_id`),
+        UNIQUE KEY `id_UNIQUE` (`ward_id`)
       ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1; 
 EOF
 
