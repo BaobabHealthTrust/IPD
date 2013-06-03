@@ -13,16 +13,17 @@ EOF
         `voided_by` int(11) DEFAULT NULL,
         `date_voided` datetime DEFAULT NULL,
         PRIMARY KEY (`ward_id`),
-        UNIQUE KEY `id_UNIQUE` (`ward_id`)
+        UNIQUE KEY `id_UNIQUE` (`ward_id`),
+        UNIQUE KEY `name_UNIQUE` (`name`)
       ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1; 
 EOF
 
     kch_wards = CoreService.get_global_property_value('kch_wards').split(',').compact
     kch_wards.each do |kch_ward|
       ward = Ward.new()
-      ward.name = kch_ward.squish
+      ward.name = kch_ward.squish.gsub("_",' ')
       ward.save
-      puts "................. Successfully added : #{kch_ward}"
+      puts "................. Successfully added : #{ ward.name}"
     end
   end
 
