@@ -1,0 +1,11 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+
+<form action="/clinic/save_wards" method='post'>
+
+ <%= text_area_tag "wards" , nil, {
+   :helpText => 'Enter wards(Separated by commas)'}%>
+
+  <%= submit_tag "Finish" %>
+</form>
