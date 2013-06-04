@@ -744,6 +744,32 @@ class GenericReportController < ApplicationController
         @total_died[fullname]["count"]+=1
       end
     end
+    ##############################################################################################
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    admission_days = []
+    total_admission_days = 0
+    @total_admissions_ids.uniq.each do |patient_id|
+      patient = Patient.find(patient_id)
+      ipd_programs = patient.patient_programs.select{|p| p.program_id == program_id }
+      ipd_programs.each do |program|
+        start_date = program.date_enrolled.to_date
+        if (program.closed?)
+          end_date = program.date_completed.to_date
+        else
+          end_date = Date.today
+        end
+        days_in_hospital = (end_date - start_date).to_i
+        #raise days_in_hospital.inspect
+        admission_days << days_in_hospital
+      end
+    end
+    admission_days.each do |days|
+      total_admission_days+=days
+    end
+    @average_length_of_stay = total_admission_days/@total_admissions_ids.count
+
+    #raise @total_admission_days.inspect
+    ##############################################################################################
     render :layout => "menu"
   end
 
