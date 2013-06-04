@@ -1,7 +1,7 @@
 production:
- encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges,Social history:Manage Social History
+encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
  application_diagnosis_concept: Qech outpatient diagnosis list
- application_generic_medication: OPD Medication
+ #application_generic_medication: OPD Medication
  use.filing.number: false
  filing.number.limit: 300
  show.patient.confirmation: false
@@ -14,7 +14,41 @@ production:
  show.enroll.in.program.button: false
  show.dispense.button: false
  logo: mw.gif
-
+ statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
+ create.from.dde.server: false
+ use.lab.orders.from.file: true
+ blood:
+  Full blood count, Malaria parasite, Group and Cross match, Urea and electrolytes, CD4(cluster of differentiation 4) count,
+  Viral load, Cryptococcal Antigen, Lactate, Fasting blood sugar, Random blood sugar,
+  Liver function test, Hepatitis test, sickling test,ESR(erythrocyte sedimentation rate),
+  Culture and sensitivity, Widal test,ELISA(enzyme-linked immunosorbent assay),
+  ASO(Antistreptoysin-0) titre, Rheumatoid factor, Cholesterol, Tryglicerides, Calcium,
+  Creatinine, VDRL(venereal disease research laboratory), Direct Coombs, Indirect Coombs,
+  Blood Test NOS
+ csf:
+  Full CSF analysis, Indian ink, Protein and Sugar, White cell count, Culture and sensitivity
+ urine:
+  Urine microscopy, Urinalysis, Culture and sensitivity
+ aspirate:
+  Full aspirate analysis
+ sputum:
+  AAFB (1st), AAFB (2nd), AAFB (3rd)
+ stool:
+  Full stool analysis, Culture and sensitivity
+ swab:
+  Microscopy, Culture and sensitivity
+ kch_wards: 
+  Medical_Ward_4A,Medical_Ward_4B,Medical_4B HDU,Medical Short Stay,Medical Dermatology_Skin Unit,
+  Medical_Dialysis Unit,Medical Ambulatory Casualty,Medical OPD II,Epilepsy Clinic,
+  Medical_Bottom_Psychiatry,Oncology,Surgical_ward 1A,Surgical_ward 1B,Surgical_Ward 4A,Surgical_HDU Unit,
+  Surgical _Trauma Unit,Surgical_Orthopeadic,Surgical_Main_Operation Theatre,CSSD (Central Sterile Supply Department),
+  Endoscopy,Burns Unit,Ethel Mutharika Obstetrics and Gynecology,Ethel Mutharika Minor Theatre,
+  Ethel Mutharika Paying Wards,Ethel Mutharika Maternity Ward,Ethel Mutharika Labour Ward,
+  Ethel Mutharika High Risk Postnatal,Ethel Mutharika Low Risk Postnatal,Ethel Mutharika High Risk Antenatal,
+  Ethel Mutharika Low Risk Antenatal,Ethel Mutharika Operating Theatre,Ethel Mutharika _Nursery,
+  Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
+  Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
+  
 development:
  encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
  application_diagnosis_concept: Qech outpatient diagnosis list
@@ -33,8 +67,6 @@ development:
  logo: mw.gif
  statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
  create.from.dde.server: false
- ipd_url: 0.0.0.0:3005
- rad_url: 0.0.0.0:3006
  use.lab.orders.from.file: true
  blood:
   Full blood count, Malaria parasite, Group and Cross match, Urea and electrolytes, CD4(cluster of differentiation 4) count,
