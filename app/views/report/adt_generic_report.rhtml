@@ -444,9 +444,12 @@
           </tr>
           <tr>
              <td  style="background-color: #F5F5F5; font-size: 14pt;">Death Rate</td>
-             <td id="display_only" style="background-color: #FFB90F"><%= @total_died["Patient died"]["count"].to_s + ' per given period' %></td>
+             <td id="display_only" style="background-color: #FFB90F"><%= @total_died["Patient died"]["count"].to_s %></td>
           </tr>
-
+           <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Average Length of stay</td>
+             <td id="display_only" style="background-color: #FFB90F"><%= @average_length_of_stay.to_s + " days" %></td>
+          </tr>
      </table>
 </div>
      <div class="horizontal_line">
