@@ -4,6 +4,12 @@
 <script type="text/javascript">
   tt_cancel_destination = "/patients/show/<%= @patient.patient_id%>";
   tt_cancel_show = "/patients/show/<%= @patient.patient_id%>";
+  function setPosition(){
+    finish = document.getElementById('finishButton')
+    finish.style.position = 'absolute'
+    finish.style.left = '0%'
+  }
+  setTimeout("setPosition()",10);
 </script>
 
 
