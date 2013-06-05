@@ -1,6 +1,5 @@
 <%= javascript_include_tag "jquery" %>
 <%= javascript_include_tag 'utils' %>
-
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
 
@@ -78,7 +77,7 @@
       :tt_pageStyleClass => "NumbersWithUnknown",
       :helpText => "Duration of complaint in days" } %>
 
-  <%= touch_select_tag "LIFE THREATENING CONDITION", @patient, concept_set_options('LIFE THREATENING CONDITION'),
+  <%= touch_select_tag "LIFE THREATENING CONDITION", @patient, options_for_select(concept_set('LIFE THREATENING CONDITION').sort),
     {	:id => "life_threatening_conditions",
     :optional => "true",
     :helpText => "Select life threatening conditions" } %>
