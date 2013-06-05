@@ -80,6 +80,8 @@
             <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Add complications</option>
           </optgroup>
           <optgroup value='/patients/investigations_dashboard/<%= @patient.id -%>' label='Investigations'>
+            <optgroup value='/encounters/new/vitals?patient_id=<%= @patient.id %>' label='Vitals'></optgroup>
+            <optgroup value='/encounters/new/update_hiv_status?patient_id=<%= @patient.id %>' label='Update HIV status'></optgroup>
             <!--<option>Lab specimen ordering</option>
             <option>Radiology investigations</option>
             <option>Results</option>
@@ -101,7 +103,7 @@
         </select>
 
         <select id="navigation_links">
-          <option link="/encounter_types?patient_id=<%= @patient.id -%>" ttSize = "160px">Tasks</option>
+          <!--<option link="/encounter_types?patient_id=<%= @patient.id -%>" ttSize = "160px">Tasks</option>-->
           <!--<% if show_lab_results %>
             <option link="/lab/results/<%=@patient.id -%>">Lab results</option>
           <%end%>-->
