@@ -72,6 +72,12 @@
     <% presenting_label = "Additional presenting complaint" %>
   <% end %>
 
+    <%= touch_text_field_tag "DURATION OF SYMPTOM IN DAYS", @patient, nil,
+      {	:id => "complaint_duration",
+      :field_type => "number",
+      :tt_pageStyleClass => "NumbersWithUnknown",
+      :helpText => "Duration of complaint in days" } %>
+
   <%= touch_select_tag "LIFE THREATENING CONDITION", @patient, concept_set_options('LIFE THREATENING CONDITION'),
     {	:id => "life_threatening_conditions",
     :optional => "true",
