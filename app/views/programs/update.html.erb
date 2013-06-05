@@ -88,13 +88,18 @@
   <%= text_field_tag 'current_date', initial_date,
         {:id => 'current_date',
          :field_type => 'date',
-         :tt_onLoad => "changeNextButtonCaption();",
+         #:tt_onLoad => "changeNextButtonCaption();",
          :helpText => "New outcome start date",
          :max => "#{(Date.today).strftime('%Y-%m-%d')}",
          :validationJS =>"validStartDate()",
          :validationMessage => "Start date is overlapping with other states start dates",
          :tt_pageStyleClass => "Date DatesOnly"} %>
-
+  
+  <%= text_field_tag "date_of_death", nil,
+        { :id => "date_of_death",
+          :condition => "document.getElementsByName('current_state')[0].value == 3", #The id of patient died state is 3
+          :field_type => 'date',
+          :helpText => "Date of Death" } %>
   <script>
     function resetNextButtonCaption(){
       $('nextButton').innerHTML = "<span>Next</span>"
