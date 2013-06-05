@@ -222,7 +222,17 @@ class PatientsController < GenericPatientsController
           end
 
       }
-			
+     
+     program_id = Program.find_by_name('IPD PROGRAM').id
+     ipd_program = patient.patient_programs.local.select{|p| p.program_id == program_id }.last rescue nil
+     date_enrolled = ipd_program.date_enrolled.strftime("%a, %d/%b/%Y") rescue nil
+
+     admit_to_ward_concept = Concept.find_by_name("ADMIT TO WARD")
+     admission_obs  = Observation.find(:last, :conditions => ["person_id =? AND concept_id =?", patient.id, admit_to_ward_concept.id]) rescue nil
+     ward_admitted = admission_obs.answer_string.squish rescue nil
+     label.draw_multi_text("Date Admitted - " + date_enrolled, :font_reverse => false)
+     label.draw_multi_text("Ward Admitted - " + ward_admitted, :font_reverse => false)
+
 			['OPD PROGRAM','IPD PROGRAM'].each do |program_name|		
 					program_id = Program.find_by_name(program_name).id
 					state = patient.patient_programs.local.select{|p| p.program_id == program_id}.last.patient_states.last rescue nil
