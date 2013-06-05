@@ -61,8 +61,8 @@
         </div>  
         <%= yield %>  
         <div id="footer">
-          <div id="buttons" class="buttonsDiv" style="top:0px">
-            <button id="finishButton" class="button navButton green" style="left: 100%;" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;"><span>Finish</span></button>
+          <div id="buttons"  style="top:0px">
+            <button id="finishButton" class="button navButton green" style="float: right; margin-right: 20px;" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;"><span>Finish</span></button>
                   <% if 'mastercard' == params[:action].to_s %>
                     <% if session[:mastercard_ids].length.to_i != 0 %>
                         <script>
@@ -78,7 +78,7 @@
                   <%end%>
                  <%end%>
            </div>
-            <div id="tt_extraButtons"/>
+           <div id="tt_extraButtons"/>
           </div>
           
         </div>    
