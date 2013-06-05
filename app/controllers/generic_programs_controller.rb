@@ -109,7 +109,6 @@ class GenericProgramsController < ApplicationController
 
   def update
     flash[:error] = nil
-    
     #ipd_wards_tag = CoreService.get_global_property_value('ipd.wards.tag')
 			#@ipd_wards = []
 			#@ipd_wards = LocationTagMap.all.collect { | ltm |
@@ -201,7 +200,9 @@ class GenericProgramsController < ApplicationController
           if updated_state.match(/DIED/i)
             person = patient_program.patient.person
             person.dead = 1
-            unless params[:current_date].blank?
+            unless params[:date_of_death].blank?
+              person.death_date = params[:date_of_death].to_date
+            else
               person.death_date = params[:current_date].to_date
             end
             person.save
