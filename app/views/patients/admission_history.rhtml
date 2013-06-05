@@ -6,8 +6,15 @@
     <style>
       .patient_info{
         position: absolute;
-        left: 200px;
+        left: 13%;
         top: 22px;
+      }
+      .admission_history{
+        overflow: auto;
+        position: absolute;
+        left:2%;
+        width: 94%;
+        height: 480px;
       }
     </style>
     <script>
@@ -30,6 +37,13 @@
             });
         
       }
+
+     function setPosition(){
+    finish = document.getElementById('finishButton')
+    finish.style.position = 'absolute'
+    finish.style.left = document.getElementById('footer').offsetWidth -  2000 + 'px'
+  }
+  //setTimeout("setPosition()",10);
     </script>
   </head>
   <body>
