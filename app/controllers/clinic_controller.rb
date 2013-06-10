@@ -110,7 +110,7 @@ class ClinicController < GenericClinicController
     ward = Ward.find(ward_id)
     ward.bed_number = total_beds
     ward.save!
-    redirect_to :action => "manage_wards"
+    redirect_to("/")
   end
 
   def add_wards
