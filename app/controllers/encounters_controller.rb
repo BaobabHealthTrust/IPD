@@ -324,10 +324,12 @@ class EncountersController < GenericEncountersController
 				['',''],
 				['Alive (Discharged home)', 'Alive'],
 				['Dead', 'Dead'],
-				['Referred (Within facility)', 'Referred'],
-				['Transferred (Another health facility)', 'Transferred'],
+				['Transferred (Within facility)', 'Patient transferred (within facility)'],
+        ['Referred (External)', 'Patient transferred (External facility)'],
+        ['Referred (Abroad)', 'Patient transferred (External) Abroad'],
+				#['Transferred (Another health facility)', 'Transferred'],
 				['Absconded', 'Absconded'],
-				['Discharged (Home based care)', 'Home based care']]
+				['Discharged (Home based care)', 'Home based care']].sort
 		end
 
 =begin
