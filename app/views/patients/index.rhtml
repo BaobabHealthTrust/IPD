@@ -90,12 +90,11 @@
                 <option>Lab results</option>
             </optgroup>-->
           </optgroup>
-          <optgroup value='/patients/programs_dashboard/<%= @patient.id -%>' label='Add patient outcome'></optgroup>
           
           <!--<optgroup value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Complaints</optgroup>-->
           <optgroup value='/patients/treatment_dashboard/<%= @patient.id -%>' label="Treatment"></optgroup>
           <!--<optgroup value='/patients/programs_dashboard/<%= @patient.id -%>'>Outcomes</optgroup>-->
-
+           <optgroup value='/patients/programs_dashboard/<%= @patient.id -%>' label='patient outcome'></optgroup>
           <%  if @spine_clinician  %>
             <option value='/patients/influenza?patient_id=<%= @patient.id -%>'>Influenza data</option>
             <option value='/patients/chronic_conditions?patient_id=<%= @patient.id -%>'>Chronic Conditions</option>
