@@ -1908,7 +1908,7 @@ function processDrug(concept_id, statdose){
     var night = (__$("editNightDose") ? __$("editNightDose").value : null);
     
     drug += "Drug: <i>" + __$("editDosage").value + "</i>; Type: <i>" + type + 
-    "</i>; Dur.: <i>" + duration + "</i>; PRN: <i>" + prn + "</i>";
+    "</i>; Frequency: <i>" + frequency +  "</i>; Dur.: <i>" + duration + "</i>; PRN: <i>" + prn + "</i>";
 
     if(type == "Standard"){
 
