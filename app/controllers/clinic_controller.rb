@@ -98,7 +98,7 @@ class ClinicController < GenericClinicController
       @reports << ['/clinic/add_wards','Add Wards']
       @reports << ['/clinic/list_wards','Void Wards']
       @reports << ['/clinic/view_wards','View Wards']
-      @reports << ['','Undo Voiding of wards']
+      @reports << ['/clinic/voided_wards_list','Undo Voiding of wards']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -152,6 +152,23 @@ class ClinicController < GenericClinicController
       ward.voided = 1
       ward.voided_by = User.current.id
       ward.date_voided = Time.now
+      ward.save!
+    end
+    redirect_to("/clinic")
+  end
+
+  def voided_wards_list
+    @kch_voided_wards = Ward.find(:all, :conditions => ["voided =?",1]).collect{|ward|[ward.name.squish, ward.id]}
+    render :layout => "application"
+  end
+
+  def undo_void_wards
+    ward_ids = params[:wards]
+    ward_ids.each do |ward_id|
+      ward = Ward.find(ward_id)
+      ward.voided = 0
+      ward.voided_by = nil
+      ward.date_voided = nil
       ward.save!
     end
     redirect_to("/clinic")
