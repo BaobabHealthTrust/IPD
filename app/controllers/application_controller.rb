@@ -13,14 +13,29 @@ class ApplicationController < GenericApplicationController
 	# Try to find the next task for the patient at the given location
 	def main_next_task(location, patient, session_date = Date.today)
 		task = Task.new()
-
+=begin
     program_id = Program.find_by_name('IPD PROGRAM').id
     ipd_program = patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last rescue nil
     if ipd_program.blank?
       task.encounter_type = 'ADMIT PATIENT'
 			task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
     end
+=end
 
+########################################################################################
+    program_id = Program.find_by_name('IPD PROGRAM').id
+    ipd_program = patient.patient_programs.local.select{|p| p.program_id == program_id }.last rescue nil
+    if ipd_program.blank?
+      task.encounter_type = 'ADMIT PATIENT'
+			task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
+    else
+      if (ipd_program.closed? && ipd_program.date_completed.to_date != Date.today)
+       
+        task.encounter_type = 'ADMIT PATIENT'
+        task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
+      end
+    end
+########################################################################################
 		if is_encounter_available(patient, 'DISCHARGE PATIENT', session_date)
 			if !is_encounter_available(patient, 'DISCHARGE DIAGNOSIS', session_date)
 				task.encounter_type = 'DISCHARGE DIAGNOSIS'
