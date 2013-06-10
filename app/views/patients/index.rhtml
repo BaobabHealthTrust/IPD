@@ -76,7 +76,7 @@
           <!--<optgroup value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>' label='Inpatient Diagnosis'></optgroup>-->
           <optgroup value='/encounters/new/admit_patient?patient_id=<%= @patient.id %>' label='Admit patient'></optgroup>
           <optgroup label='Add admission details'>
-            <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Add complications</option>
+            <option value='/encounters/new/presenting_complaints?patient_id=<%= @patient.id %>'>Complaints</option>
             <option value='/encounters/new/inpatient_diagnosis?patient_id=<%= @patient.id %>'>Add diagnosis</option>
           </optgroup>
           <optgroup value='/patients/investigations_dashboard/<%= @patient.id -%>' label='Investigations'>
