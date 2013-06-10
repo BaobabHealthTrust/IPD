@@ -766,7 +766,7 @@ class GenericReportController < ApplicationController
     admission_days.each do |days|
       total_admission_days+=days
     end
-    @average_length_of_stay = total_admission_days/@total_admissions_ids.count
+    @average_length_of_stay = total_admission_days/@total_admissions_ids.count rescue 0
 
     #raise @total_admission_days.inspect
     ##############################################################################################

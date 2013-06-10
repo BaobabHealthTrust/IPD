@@ -438,7 +438,7 @@
           </tr>
           <tr>
              <td  style="background-color: #F5F5F5; font-size: 14pt;">Death Rate</td>
-             <td id="display_only"><%= @total_died["Patient died"]["count"].to_s %></td>
+             <td id="display_only"><%= @total_died["Patient died"]["count"].to_s rescue 0%></td>
           </tr>
            <tr>
              <td  style="background-color: #F5F5F5; font-size: 14pt;">Average Length of stay</td>
