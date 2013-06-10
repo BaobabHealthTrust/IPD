@@ -835,4 +835,10 @@ class PatientsController < GenericPatientsController
         "return_uri=http://#{ipd_link}/patients/show/#{@patient.id}&destination_uri=http://#{rad_link}" +
         "/investigation/new/#{@patient.id}?from_ipd=true&auth_token=#{token}" and return
   end
+
+  def admission_form
+    @logo = CoreService.get_global_property_value('logo')
+    @current_location_name = Location.current_health_center.name
+    render :layout => "menu"
+  end
 end

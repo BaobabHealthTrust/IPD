@@ -1,0 +1,234 @@
+
+<style>
+
+
+  #details{
+   position: absolute;
+   left: 5%;
+   top: 25%;
+   width: 80%;
+   overflow: auto;
+   height: 480px;
+  }
+
+  #location_name{
+  font-family: "Brush Script MT", cursive;
+  font-size: 18pt;
+  }
+  #header{
+    left: 16%;
+    position: absolute;
+    top: 3%;
+    width: 100%;
+  }
+  #logo{
+    position: absolute;
+    left: -11%
+  }
+  #admission_form{
+    width: 95%;
+  }
+</style>
+<div id="header">
+  <%= image_tag(@logo, :id => "logo") %>
+    <b id="location_name"><%= @current_location_name %></b><br />
+    <b>Patient Master Form</b><br />
+    <b>Department: </b><br />
+    <b>Admission No:</b><br />
+    <b>Admission Date/Time:</b>
+</div><br /><br />
+<div id="details">
+
+  <table align="center" id="admission_form">
+    <tr>
+      <td cospan="2"><b style="text-align: center">Patient Demographics</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>First Name</td>
+      <td style="text-align:right;">.......................</td>
+    </tr>
+    <tr>
+      <td>Last Name</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td>Gender</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td>Birth Date</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td>Address</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td>Phone number</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Clinician: (Signature)</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td>Nurse: (Signature)</td>
+      <td  style="text-align:right;"> .......................</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Chief complaint</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>History of present illness</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 4.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>HIV Status</td>
+      <td  style="text-align:right;">
+      <%= check_box_tag("positive") %> Positive
+      <%= check_box_tag("negative") %> Negative
+      <%= check_box_tag("unkn") %> Unknown</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Current ART status</td>
+      <td  style="text-align:right;">
+<%= check_box_tag("positive") %> 1<sup>st</sup>line, no change
+      <%= check_box_tag("negative") %> alternate 1<sup>st</sup>line
+      <%= check_box_tag("unkn") %>2<sup>nd</sup>line, no change </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td  style="text-align:right;"><%= check_box_tag("negative")%> stopped ART <%= check_box_tag("negative")%> ART not initiated</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td>Medical History(tick all that apply)</td>
+      <td  style="text-align:right;">
+        <%= check_box_tag("negative")%> HIV <%= check_box_tag("negative")%> Peripheral neuropathy
+        <%= check_box_tag("negative")%> Cancer
+        <%= check_box_tag("negative")%> Hypertension<br />
+        <%= check_box_tag("negative")%> Diabetes
+        <%= check_box_tag("negative")%> Congestive Heart Failure
+        <%= check_box_tag("negative")%> Chronic renal failure<br />
+        <%= check_box_tag("negative")%> Other
+
+      </td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Surgical History</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Current Medications</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Allergies</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Vital Signs</td>
+      <td style="text-align:right;">
+        <% space = "&nbsp;" * 10 %>
+        Temp <%= space %>
+        Pulse <%= space %>
+        BP <%= space %>
+        RR <%= space %>
+        Ht <%= space %>
+        Wt <%= space %> 0<sub>2</sub>sat <%= space %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="font-weight: bold">Physical exam findings</td>
+    </tr>
+    <tr>
+      <td>General</td>
+      <td>HEENT</td>
+    </tr>
+    <tr>
+      <td>Neck</td>
+      <td>CV</td>
+    </tr>
+    <tr>
+      <td>Pulm</td>
+      <td>Abd</td>
+    </tr>
+    <tr>
+      <td>GU</td>
+      <td>Extremities</td>
+    </tr>
+    <tr>
+      <td>Lymph nodes</td>
+      <td>Skin</td>
+    </tr>
+    <tr>
+      <td>Neuro</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+  </table>
+
+ 
+</div>
