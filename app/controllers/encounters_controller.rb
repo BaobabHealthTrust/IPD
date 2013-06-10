@@ -329,6 +329,7 @@ class EncountersController < GenericEncountersController
         ['Referred (Abroad)', 'Patient transferred (External) Abroad'],
 				#['Transferred (Another health facility)', 'Transferred'],
 				['Absconded', 'Absconded'],
+        ['Home on Request', 'Home on request'],
 				['Discharged (Home based care)', 'Home based care']].sort
 		end
 
