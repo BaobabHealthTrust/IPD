@@ -56,6 +56,10 @@ url = url[url.index("/"), url.length - url.index("/")]
 }
 </style>
 
+<div id="alertBox">
+  Hello World!
+</div>
+
 <form id='prescription' action="/prescriptions/create_advanced_prescription" method='post'>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "TREATMENT" %>
@@ -63,7 +67,10 @@ url = url[url.index("/"), url.length - url.index("/")]
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
-  <input type='text' name='drugs' tt_onLoad='generateGenerics(<%= @patient.id %>)' tt_onUnLoad='removeGenerics()' tt_pageStyleClass='NoControls'/>
+  <input
+    type='text' name='drugs' tt_onLoad='generateGenerics(<%= @patient.id %>)'
+    tt_onUnLoad='removeGenerics()' tt_pageStyleClass='NoControls'
+    optional />
 
   <input type="hidden" value="<%= @patient.id %>" id="patient_id" name="patient_id" />
 
@@ -71,3 +78,22 @@ url = url[url.index("/"), url.length - url.index("/")]
   <%= submit_tag "Finish" %>
 
 </form>
+
+<div style="z-index:11;bottom:28px; height: 64px; width: 435px; left: 230px;
+     right: -66px; position: absolute;">
+  <!--button id="viewSelectedOnlyButton" class="button navButton blue" style="min-width:350px;"
+          onclick="if(this.innerHTML=='<span>Show Selected Drugs Only</span>'){
+            this.innerHTML = '<span>Show All Drugs</span>';
+            showSelectedDrugsOnly();
+          } else {
+            this.innerHTML = '<span>Show Selected Drugs Only</span>';
+            $('inputTxt').value = '';
+            searchDrug();
+          }">
+    <span>
+      Show Selected Drugs Only
+    </span>
+  </button-->
+</div>
+<script type="text/javascript" language="javascript">
+</script>
