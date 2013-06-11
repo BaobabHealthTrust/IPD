@@ -21,7 +21,6 @@ class ApplicationController < GenericApplicationController
 			task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
     end
 =end
-
 ########################################################################################
     program_id = Program.find_by_name('IPD PROGRAM').id
     ipd_program = patient.patient_programs.local.select{|p| p.program_id == program_id }.last rescue nil
@@ -29,7 +28,7 @@ class ApplicationController < GenericApplicationController
       task.encounter_type = 'ADMIT PATIENT'
 			task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
     else
-      if (ipd_program.closed? && ipd_program.date_completed.to_date != Date.today)
+      if (ipd_program.closed? && ipd_program.date_completed.to_date != session_date)
        
         task.encounter_type = 'ADMIT PATIENT'
         task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
