@@ -107,7 +107,7 @@
     </tr>
     <tr>
       <td>HIV Status</td>
-      <td  style="text-align:right;">
+      <td  style="text-align:left;">
       <%= check_box_tag("positive") %> Positive
       <%= check_box_tag("negative") %> Negative
       <%= check_box_tag("unkn") %> Unknown</td>
@@ -118,14 +118,14 @@
     </tr>
     <tr>
       <td>Current ART status</td>
-      <td  style="text-align:right;">
-<%= check_box_tag("positive") %> 1<sup>st</sup>line, no change
+      <td  style="text-align:left;">
+      <%= check_box_tag("positive") %> 1<sup>st</sup>line, no change
       <%= check_box_tag("negative") %> alternate 1<sup>st</sup>line
       <%= check_box_tag("unkn") %>2<sup>nd</sup>line, no change </td>
     </tr>
     <tr>
       <td>&nbsp;</td>
-      <td  style="text-align:right;"><%= check_box_tag("negative")%> stopped ART <%= check_box_tag("negative")%> ART not initiated</td>
+      <td  style="text-align:left;"><%= check_box_tag("negative")%> stopped ART <%= check_box_tag("negative")%> ART not initiated</td>
     </tr>
     <tr>
       <td>&nbsp;</td>
@@ -134,7 +134,7 @@
 
     <tr>
       <td>Medical History(tick all that apply)</td>
-      <td  style="text-align:right;">
+      <td  style="text-align:left;">
         <%= check_box_tag("negative")%> HIV <%= check_box_tag("negative")%> Peripheral neuropathy
         <%= check_box_tag("negative")%> Cancer
         <%= check_box_tag("negative")%> Hypertension<br />
@@ -185,7 +185,7 @@
     <% end %>
     <tr>
       <td>Vital Signs</td>
-      <td style="text-align:right;">
+      <td style="text-align:left;">
         <% space = "&nbsp;" * 10 %>
         Temp <%= space %>
         Pulse <%= space %>
@@ -224,6 +224,29 @@
     <tr>
       <td>Neuro</td>
       <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Admission diagnosis(tick all that apply)</td>
+      <td  style="text-align:left;">
+      <%= check_box_tag("lactic_acidosis")%> Lactic acidosis
+      <%= check_box_tag("pancreas")%> Pancreatics
+      <%= check_box_tag("hepatitis")%> Hepatitis
+      <%= check_box_tag("lactic_acidosis")%> Drug rash
+      <%= check_box_tag("lactic_acidosis")%> Meningitis
+      <%= check_box_tag("lactic_acidosis")%> TB<br />
+
+      <%= check_box_tag("lactic_acidosis")%> Pneumonia
+      <%= check_box_tag("lactic_acidosis")%> Sepsis
+      <%= check_box_tag("lactic_acidosis")%> Malaria
+      <%= check_box_tag("lactic_acidosis")%> Malignant hypertension
+      <%= check_box_tag("lactic_acidosis")%> Severe anemia
+      <%= check_box_tag("lactic_acidosis")%> Gastroenteritis<br />
+      
+      <%= check_box_tag("lactic_acidosis")%> Other (list)
+      </td>
     </tr>
     <tr>
       <td colspan="2"><hr></hr></td>
