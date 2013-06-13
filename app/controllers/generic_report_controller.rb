@@ -531,7 +531,7 @@ class GenericReportController < ApplicationController
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > ? AND
       DATEDIFF(NOW(), person.birthdate)/365 <= ?",start_date.to_date, end_date.to_date, encounter_type.id, 2, 14])
-
+    @total_admissions_children_ids = @total_admissions_children.map(&:patient_id) rescue nil
     @total_admissions_adults = Encounter.find(:all, :joins => [:patient => :person],
       :conditions => ["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ? AND
       encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14",start_date.to_date, end_date.to_date, encounter_type.id])
