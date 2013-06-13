@@ -266,7 +266,7 @@
   <body >
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
-     <b style="position:relative; top:0px;margin-left:75px">ADT Report</b><br />
+     <b style="position:relative; top:0px;margin-left:75px">ADT General Report</b><br />
      <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
      <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
 <%#= raise (@end_date ).inspect %><br /><br />
@@ -314,7 +314,7 @@
          <td  style="background-color: #F5F5F5; font-size: 14pt;">Children(2-14)</td>
          <td id="number"><%= link_to((@total_admissions_children.count), {
             :action=>"decompose_report",
-            :ids =>"",
+            :ids =>@total_admissions_children_ids,
             :report_name => "Children Total Admissions"}) %></td>
        </tr>
        <tr>
