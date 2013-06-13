@@ -11,7 +11,8 @@ class ClinicController < GenericClinicController
 		  #["Discharge Diagnosis", "/cohort_tool/ipd_menu?report_name=discharge_diagnosis_report"],
 			#["Specific HIV Related data (By Wards)", "/cohort_tool/ipd_menu?report_name=specific_hiv_related_data"],
       #["Deaths (By Wards)", "/cohort_tool/ipd_menu?report_name=dead_patients_statistic_per_ward"],
-      ["ADT report", "/cohort_tool/adt_report_menu"]
+      ["ADT report", "/cohort_tool/adt_report_menu"],
+      ["ADT report By Ward", "/cohort_tool/adt_report_menu_by_ward"]
       #["IPD Reports", "/cohort_tool/ipd_report_index"]
       #["Graphical Reports", "/clinic/reports_tab_graphs"]
 		]
