@@ -292,7 +292,7 @@
   </div>
      <script>
         function showBack(){
-        buttonsDiv = document.getElementsByClassName("buttonsDiv")[0]
+        buttonsDiv = document.getElementById("buttons")
         back = document.createElement('button')
         back.innerHTML="<span>Back</span>"
         back.setAttribute("class","blue left")
@@ -301,13 +301,6 @@
         setTimeout("showBack()",200)
      </script>
 
-     <script>
-  function setPosition(){
-    finish = document.getElementById('finishButton')
-    finish.style.position = 'absolute'
-    finish.style.left = '115%'
-  }
-  setTimeout("setPosition()",10);
-</script>
+
 </body>
 </html>
