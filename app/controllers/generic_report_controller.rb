@@ -823,7 +823,7 @@ class GenericReportController < ApplicationController
 	ward = params[:ward]
 	@start_date = start_date
 	@end_date = end_date
-
+  @ward = ward
 	encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
 
     @total_admissions = Encounter.find(:all, :joins => [:observations],:conditions => ["DATE(encounter_datetime) >= ? AND
@@ -909,7 +909,11 @@ class GenericReportController < ApplicationController
   #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     bed_size = Ward.find(:first, :conditions => ["name =? AND voided =?",ward, 0]).bed_number.to_i rescue 0
-
+    total_discharges = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+      DATE(encounter_datetime) <= ? AND
+      encounter_type =? AND patient_id IN (?)", start_date, end_date, discharge_diagnosis_enc.id, @total_admissions_ids])
+    
+    @turn_over_rate = total_discharges.count/bed_size rescue 0
     @bed_occupacy_ratio = @total_admissions.count/bed_size rescue 0
   #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   @patient_states = {}
