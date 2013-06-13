@@ -2864,7 +2864,12 @@ class CohortToolController < ApplicationController
   end
 
   def adt_report_menu
-    
+
+  end
+
+  def adt_report_menu_by_ward
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
+    @kch_wards = @kch_wards.sort
   end
 end
 
