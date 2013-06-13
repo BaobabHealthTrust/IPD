@@ -117,13 +117,13 @@
        :field_type => 'alpha',
        :helpText => "Transfer out to location",
        :ajaxURL => '/programs/locations?q=',
-       :condition => "current_state_input_box.value.toUpperCase() == 'PATIENT TRANSFERRED OUT'",
+       :condition => "current_state_input_box.value.toUpperCase() == 'PATIENT TRANSFERRED (EXTERNAL) ABROAD'",
        :allowFreeText => true } %>
 
   <%= touch_yes_no_unknown_tag "TRANSFER WITHIN RESPONSIBILITY", @patient, nil,
       {:id => "transfer_within_responsibility",
        :optional => false,
-       :condition => "current_state_input_box.value.toUpperCase() == 'PATIENT TRANSFERRED OUT'",
+       :condition => "current_state_input_box.value.toUpperCase() == 'PATIENT TRANSFERRED (EXTERNAL) ABROAD'",
        :helpText => "Transfer within responsibility (e.g. District)" } %>
   
   <%= touch_select_tag "TRANSFERRED TO",@patient, options_for_select(@ipd_wards),
@@ -135,4 +135,6 @@
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  <%= hidden_field_tag"patient_id",@patient.id %>
+
 </form>
