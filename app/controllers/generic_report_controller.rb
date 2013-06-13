@@ -723,7 +723,7 @@ class GenericReportController < ApplicationController
     bed_sum = 0
     all_beds = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|ward.bed_number}
     all_beds.each do |bed|
-      bed_sum += bed.to_i
+      bed_sum += bed.to_i.abs
     end
     @bed_occupacy_ratio = @total_admissions.count/bed_sum
 
@@ -760,15 +760,13 @@ class GenericReportController < ApplicationController
         end
         days_in_hospital = (end_date - start_date).to_i
         #raise days_in_hospital.inspect
-        admission_days << days_in_hospital
+        admission_days << days_in_hospital.abs
       end
     end
     admission_days.each do |days|
       total_admission_days+=days
     end
     @average_length_of_stay = total_admission_days/@total_admissions_ids.count rescue 0
-
-    #raise @total_admission_days.inspect
     ##############################################################################################
     render :layout => "menu"
   end
