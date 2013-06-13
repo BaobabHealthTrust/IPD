@@ -120,10 +120,27 @@ class GenericProgramsController < ApplicationController
     @ipd_wards = kch_wards.split(",")
     @ipd_wards = @ipd_wards.compact.sort
 =end
-    @ipd_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.id]}
+    @ipd_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
     if request.method == :post
-      #raise params[:observations].inspect
       patient_program = PatientProgram.find(params[:patient_program_id])
+      if (patient_program.program.name.match(/IPD Program/i))
+        unless (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/ADMITTED/i))
+          encounter = Encounter.new
+          encounter.encounter_type = EncounterType.find_by_name('DISCHARGE PATIENT').id
+          encounter.patient_id  = params[:patient_id]
+          encounter.provider_id = User.current.id
+          encounter.encounter_datetime = session[:datetime] rescue Time.now()
+          encounter.save
+
+          observation = {}
+          observation[:concept_name] = "OUTCOME"
+          observation[:encounter_id] = encounter.id
+          observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+          observation[:person_id] ||= encounter.patient_id
+          observation[:value_coded_or_text] = ProgramWorkflowState.find(params[:current_state]).concept.fullname
+          Observation.create(observation)
+        end
+      end
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
 
       current_active_state = patient_program.patient_states.last
@@ -135,13 +152,13 @@ class GenericProgramsController < ApplicationController
       patient_state = patient_program.patient_states.build(
         :state => params[:current_state],
         :start_date => params[:current_date])
-      transfered_internally = (patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED INTERNALLY')
+      transfered_internally = (patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED (WITHIN FACILITY)')
       if patient_state.save
 		    # Close and save current_active_state if a new state has been created
 		   current_active_state.save
        #raise patient_state.program_workflow_state.concept.fullname.upcase.inspect
-        if patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED OUT' ||
-            patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED INTERNALLY'
+        if patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED (EXTERNAL FACILITY)' ||
+            patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED (WITHIN FACILITY)'
           encounter = Encounter.new(params[:encounter])
           encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
           encounter.save
@@ -244,10 +261,11 @@ class GenericProgramsController < ApplicationController
           PatientProgram.update_all "date_completed = NULL",
                                      "patient_program_id = #{patient_program.patient_program_id}"
         end
+
         #for import
+         patient = Patient.find(params[:patient_id])
+         next_task = next_task(patient)
          unless params[:location]
-            patient = Patient.find(params[:patient_id])
-            next_task = next_task(patient)
             redirect_to(next_task) and return if transfered_internally
             redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id]
          else
@@ -257,7 +275,8 @@ class GenericProgramsController < ApplicationController
       else
         #for import
         unless params[:location]
-          redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id],:error => "Unable to update state"
+          redirect_to(next_task) and return
+          #redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id],:error => "Unable to update state"
         else
             render :text => "import suceeded" and return
         end
