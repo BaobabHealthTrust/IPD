@@ -1,5 +1,5 @@
 production:
-encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
+ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
  application_diagnosis_concept: Qech outpatient diagnosis list
  #application_generic_medication: OPD Medication
  use.filing.number: false
@@ -14,7 +14,7 @@ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagn
  show.enroll.in.program.button: false
  show.dispense.button: false
  logo: mw.gif
- statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
+ statistics.show_encounter_types: ADMIT PATIENT,DISCHARGE PATIENT,VITALS,INPATIENT DIAGNOSIS,TREATMENT
  create.from.dde.server: false
  use.lab.orders.from.file: true
  blood:
@@ -37,7 +37,7 @@ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagn
   Full stool analysis, Culture and sensitivity
  swab:
   Microscopy, Culture and sensitivity
- kch_wards: 
+ kch_wards:
   Medical_Ward_4A,Medical_Ward_4B,Medical_4B HDU,Medical Short Stay,Medical Dermatology_Skin Unit,
   Medical_Dialysis Unit,Medical Ambulatory Casualty,Medical OPD II,Epilepsy Clinic,
   Medical_Bottom_Psychiatry,Oncology,Surgical_ward 1A,Surgical_ward 1B,Surgical_Ward 4A,Surgical_HDU Unit,
@@ -48,7 +48,7 @@ encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagn
   Ethel Mutharika Low Risk Antenatal,Ethel Mutharika Operating Theatre,Ethel Mutharika _Nursery,
   Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
-  
+
 development:
  encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
  application_diagnosis_concept: Qech outpatient diagnosis list
@@ -65,7 +65,7 @@ development:
  show.enroll.in.program.button: false
  show.dispense.button: false
  logo: mw.gif
- statistics.show_encounter_types: REGISTRATION,VITALS,INPATIENT DIAGNOSIS,TREATMENT,APPOINTMENT
+ statistics.show_encounter_types: ADMIT PATIENT,DISCHARGE PATIENT,VITALS,INPATIENT DIAGNOSIS,TREATMENT
  create.from.dde.server: false
  use.lab.orders.from.file: true
  blood:
