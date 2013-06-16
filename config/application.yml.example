@@ -48,6 +48,7 @@ production:
   Ethel Mutharika Low Risk Antenatal,Ethel Mutharika Operating Theatre,Ethel Mutharika _Nursery,
   Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
+ use_teams: yes
 
 development:
  encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
@@ -99,6 +100,7 @@ development:
   Ethel Mutharika Low Risk Antenatal,Ethel Mutharika Operating Theatre,Ethel Mutharika _Nursery,
   Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
+ use_teams: yes
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes
