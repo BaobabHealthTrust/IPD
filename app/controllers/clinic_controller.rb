@@ -178,7 +178,10 @@ class ClinicController < GenericClinicController
 
   def add_teams
     if request.method == :post
-      
+      team = Team.new()
+      team.name = params[:team_name].squish
+      team.save
+      redirect_to :action => "add_teams" and return
     end
     render :layout => "application"
   end
