@@ -64,6 +64,7 @@ class ClinicController < GenericClinicController
       #@reports << ['/clinic/add_wards','Add Wards']
       #@reports << ['/clinic/list_wards','Void Wards']
       @reports << ['/clinic/manage_wards_tab','Manage Wards']
+      @reports << ['/clinic/add_teams','Add Teams']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -174,4 +175,12 @@ class ClinicController < GenericClinicController
     end
     redirect_to("/clinic")
   end
+
+  def add_teams
+    if request.method == :post
+      
+    end
+    render :layout => "application"
+  end
+  
 end
