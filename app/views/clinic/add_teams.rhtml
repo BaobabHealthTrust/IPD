@@ -1,0 +1,14 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<form action="/clinic/add_teams" method='post'>
+
+<%= text_field_tag "team_name", nil,
+  {
+  :field_type => 'alpha',
+  :helpText => 'Enter Team Name',
+  :allowFreeText => true
+  }%>
+  
+  <%= submit_tag "Finish" %>
+</form>
