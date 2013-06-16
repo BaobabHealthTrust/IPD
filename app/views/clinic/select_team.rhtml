@@ -1,0 +1,13 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+<script>
+  var tt_cancel_destination='/logout'
+</script>
+<form action="/clinic/select_team" method='post'>
+<%= select_tag 'team_name', options_for_select(@kch_teams),
+      {:id => 'team_id',
+       :helpText => "Select Team",
+     } %>
+
+  <%= submit_tag "Finish" %>
+</form>

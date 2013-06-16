@@ -54,6 +54,7 @@ class GenericSessionsController < ApplicationController
 			return    
 		end
 		self.current_location = location
+    redirect_to :controller => 'clinic', :action=>'select_team' and return
 		if use_user_selected_activities and not location.name.match(/Outpatient/i)
 			redirect_to "/user/activities/#{current_user.id}"
 		else
