@@ -1,10 +1,11 @@
 
   def load_wards
     ActiveRecord::Base.connection.execute <<EOF
-      DROP TABLE IF EXISTS `ward`;
-      DROP TABLE IF EXISTS `team`;
+      DROP TABLE IF EXISTS `ward`; 
 EOF
-
+	ActiveRecord::Base.connection.execute <<EOF
+		  DROP TABLE IF EXISTS `team`; 
+EOF
     ActiveRecord::Base.connection.execute <<EOF
       CREATE TABLE `ward` (                                                
         `ward_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -17,12 +18,14 @@ EOF
         UNIQUE KEY `id_UNIQUE` (`ward_id`),
         UNIQUE KEY `name_UNIQUE` (`name`)
       ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1; 
-      
+            
+EOF
+ActiveRecord::Base.connection.execute <<EOF
       CREATE TABLE `team` (                                                
         `team_id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(45) NOT NULL,                                             
         PRIMARY KEY (`team_id`),
-        UNIQUE KEY `id_UNIQUE` (`ward_id`),
+        UNIQUE KEY `id_UNIQUE` (`team_id`),
         UNIQUE KEY `name_UNIQUE` (`name`)
       ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1; 
 EOF
