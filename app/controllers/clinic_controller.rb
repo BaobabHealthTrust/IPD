@@ -185,5 +185,13 @@ class ClinicController < GenericClinicController
     end
     render :layout => "application"
   end
-  
+
+  def select_team
+    @kch_teams = Team.all.collect{|ward|[ward.name.squish, ward.name.squish]}
+    if request.method == :post
+      session[:team_name] = params[:team_name]
+      redirect_to("/clinic") and return
+    end
+    render :layout => "application"
+  end
 end

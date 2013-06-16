@@ -1292,6 +1292,17 @@ class GenericEncountersController < ApplicationController
 	def create_obs(encounter , params)
 		# Observation handling
 		# raise params.to_yaml
+     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+      obs = Observation.new()
+      obs.person_id = encounter.patient_id
+      obs.encounter_id = encounter.id
+      obs.concept_id = ConceptName.find_by_name("GROUP FOLLOWING").concept_id
+      obs.value_text = session[:team_name]
+      obs.obs_datetime = encounter.encounter_datetime
+      obs.save
+
+     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 		(params[:observations] || []).each do |observation|
 			# Check to see if any values are part of this observation
 			# This keeps us from saving empty observations
