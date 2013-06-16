@@ -799,6 +799,18 @@ class EncountersController < GenericEncountersController
       end rescue user_person_id = current_user.person.person_id
       encounter.provider_id = user_person_id
       encounter.save
+      
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     if (CoreService.get_global_property_value('use_teams') == true)
+      obs = Observation.new()
+      obs.person_id = encounter.patient_id
+      obs.encounter_id = encounter.id
+      obs.concept_id = ConceptName.find_by_name("GROUP FOLLOWING").concept_id
+      obs.value_text = session[:team_name]
+      obs.obs_datetime = encounter.encounter_datetime
+      obs.save
+     end
+     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     (params[:lab_orders] || []).each do |order|
           encounter_id = Encounter.find(:last, :order => 'encounter_id ASC').id
