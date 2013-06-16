@@ -54,7 +54,11 @@ class GenericSessionsController < ApplicationController
 			return    
 		end
 		self.current_location = location
-    redirect_to :controller => 'clinic', :action=>'select_team' and return
+
+    if (CoreService.get_global_property_value('use_teams') == true)
+      redirect_to :controller => 'clinic', :action=>'select_team' and return
+    end
+
 		if use_user_selected_activities and not location.name.match(/Outpatient/i)
 			redirect_to "/user/activities/#{current_user.id}"
 		else
