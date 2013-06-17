@@ -20,7 +20,10 @@ class Encounter < ActiveRecord::Base
 
   def after_save
     self.add_location_obs
-    self.add_teams_obs
+
+     if (CoreService.get_global_property_value('use_teams') == true)
+      self.add_teams_obs
+     end
   end
 
   def after_void(reason = nil)
@@ -82,8 +85,6 @@ EOF
   end
 
   def add_teams_obs
-     
-     if (CoreService.get_global_property_value('use_teams') == true)
       obs = Observation.new()
       obs.person_id = self.patient_id
       obs.encounter_id = self.id
@@ -91,6 +92,5 @@ EOF
       obs.value_text = Location.current_team#session[:team_name]
       obs.obs_datetime = self.encounter_datetime
       obs.save
-     end
   end
 end
