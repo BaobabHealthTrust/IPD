@@ -37,6 +37,11 @@ EOF
       ward.save
       puts "................. Successfully added : #{ ward.name}"
     end
+    puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    team = Team.new
+    team.name = "Team A"
+    team.save
+    puts "Added default team: #{team.name}"
   end
 
   load_wards

@@ -181,7 +181,7 @@ class ClinicController < GenericClinicController
       team = Team.new()
       team.name = params[:team_name].squish
       team.save
-      redirect_to :action => "add_teams" and return
+      redirect_to("/clinic") and return
     end
     render :layout => "application"
   end
