@@ -34,7 +34,7 @@ class GenericApplicationController < ActionController::Base
 		                                        'demographics','create_remote',
 		                                         'mastercard_printable',
 		                                        'remote_demographics', 'get_token', 'single_sign_in', 'admission_form']
-  
+  before_filter :set_current_team
 	def rescue_action_in_public(exception)
 		@message = exception.message
 		@backtrace = exception.backtrace.join("\n") unless exception.nil?
@@ -176,7 +176,12 @@ class GenericApplicationController < ActionController::Base
       
       self.current_location
     end
-
+    def set_current_team
+      if (CoreService.get_global_property_value('use_teams') == true)
+        @current_team = session[:team_name]
+        Location.current_team = @current_team
+      end
+    end
     # Redirect as appropriate when an access request fails.
     #
     # The default action is to redirect to the location screen.
@@ -219,6 +224,16 @@ class GenericApplicationController < ActionController::Base
       @current_location = new_location || false
     end
 
+    def current_team
+      raise "@current_location".inspect
+      Location.current_team = @current_location
+      @current_location
+    end
+    
+    def current_team=(new_team)
+      @current_location = new_team
+       Location.current_team = @current_location
+    end
     # Called from #current_location.  First attempt to get the location id stored in the session.
     def location_from_session
       self.current_location = Location.find_by_location_id(session[:location_id]) if session[:location_id]
