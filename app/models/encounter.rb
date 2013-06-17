@@ -84,7 +84,6 @@ EOF
   def add_teams_obs
      
      if (CoreService.get_global_property_value('use_teams') == true)
-       raise Location.current_team.inspect
       obs = Observation.new()
       obs.person_id = self.patient_id
       obs.encounter_id = self.id
