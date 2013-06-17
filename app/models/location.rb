@@ -4,7 +4,7 @@ class Location < ActiveRecord::Base
   include Openmrs
 
   cattr_accessor :current_location
-
+  cattr_accessor :current_team
   def site_id
     Location.current_health_center.location_id.to_s
   rescue 

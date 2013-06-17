@@ -20,6 +20,7 @@ class Encounter < ActiveRecord::Base
 
   def after_save
     self.add_location_obs
+    self.add_teams_obs
   end
 
   def after_void(reason = nil)
@@ -78,5 +79,19 @@ EOF
          :conditions => ['encounter_type IN (?)', encounter_types.map(&:encounter_type_id)]) 
       return rows.inject({}) {|result, row| result[encounter_types_hash[row['encounter_type']]] = row['number']; result }
     end     
+  end
+
+  def add_teams_obs
+     
+     if (CoreService.get_global_property_value('use_teams') == true)
+       raise Location.current_team.inspect
+      obs = Observation.new()
+      obs.person_id = self.patient_id
+      obs.encounter_id = self.id
+      obs.concept_id = ConceptName.find_by_name("GROUP FOLLOWING").concept_id
+      obs.value_text = Location.current_team#session[:team_name]
+      obs.obs_datetime = self.encounter_datetime
+      obs.save
+     end
   end
 end
