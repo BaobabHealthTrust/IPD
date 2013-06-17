@@ -725,7 +725,7 @@ class GenericReportController < ApplicationController
     all_beds.each do |bed|
       bed_sum += bed.to_i.abs
     end
-    @bed_occupacy_ratio = @total_admissions.count/bed_sum
+    @bed_occupacy_ratio = @total_admissions.count/bed_sum rescue 0
 
     total_discharges = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
       DATE(encounter_datetime) <= ? AND encounter_type =?",start_date.to_date, end_date.to_date,\
