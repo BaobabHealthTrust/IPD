@@ -65,7 +65,7 @@ class ClinicController < GenericClinicController
       #@reports << ['/clinic/list_wards','Void Wards']
       @reports << ['/clinic/manage_wards_tab','Manage Wards']
       @reports << ['/clinic/manage_teams_tab','Manage Teams']
-      @reports << ['/clinic/add_teams','Add Teams']
+      #@reports << ['/clinic/add_teams','Add Teams']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -120,8 +120,17 @@ class ClinicController < GenericClinicController
   def remove_teams
     @kch_teams = Team.find(:all).collect{|team|team.name}
     if request.method == :post
-      
+      total_teams = Team.all.count
+      if (total_teams > 1)
+      team_name = params[:team_name]
+      team = Team.find_by_name(team_name)
+      team.delete
+      redirect_to("/clinic") and return
+      else
+        flash[:notice] = "Can't delete the last team"
+      end
     end
+    render:layout => "application"
   end
   
   def create_ward_beds
