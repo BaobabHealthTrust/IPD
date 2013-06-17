@@ -730,7 +730,7 @@ class GenericReportController < ApplicationController
     total_discharges = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
       DATE(encounter_datetime) <= ? AND encounter_type =?",start_date.to_date, end_date.to_date,\
         EncounterType.find_by_name('DISCHARGE PATIENT').id])
-    @turn_over_rate = total_discharges.count/bed_sum
+    @turn_over_rate = total_discharges.count/bed_sum rescue 0
     @total_died = {}
     patient_states.each do |state|
       fullname = state.program_workflow_state.concept.fullname
