@@ -1,6 +1,5 @@
 class GenericEncountersController < ApplicationController
   def create(params=params, session=session)
-
     if params[:change_appointment_date] == "true"
       session_date = session[:datetime].to_date rescue Date.today
       type = EncounterType.find_by_name("APPOINTMENT")                            
@@ -1292,17 +1291,7 @@ class GenericEncountersController < ApplicationController
 	def create_obs(encounter , params)
 		# Observation handling
 		# raise params.to_yaml
-     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-     if (CoreService.get_global_property_value('use_teams') == true)
-      obs = Observation.new()
-      obs.person_id = encounter.patient_id
-      obs.encounter_id = encounter.id
-      obs.concept_id = ConceptName.find_by_name("GROUP FOLLOWING").concept_id
-      obs.value_text = session[:team_name]
-      obs.obs_datetime = encounter.encounter_datetime
-      obs.save
-     end
-     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
 		(params[:observations] || []).each do |observation|
 			# Check to see if any values are part of this observation
 			# This keeps us from saving empty observations
