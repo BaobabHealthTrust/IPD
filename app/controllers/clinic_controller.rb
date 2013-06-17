@@ -64,6 +64,7 @@ class ClinicController < GenericClinicController
       #@reports << ['/clinic/add_wards','Add Wards']
       #@reports << ['/clinic/list_wards','Void Wards']
       @reports << ['/clinic/manage_wards_tab','Manage Wards']
+      @reports << ['/clinic/manage_teams_tab','Manage Teams']
       @reports << ['/clinic/add_teams','Add Teams']
 		end
 		@landing_dashboard = 'clinic_administration'
@@ -106,6 +107,23 @@ class ClinicController < GenericClinicController
 		render :layout => false
   end
 
+  def manage_teams_tab
+    @reports =  []
+		if current_user.admin?
+      @reports << ['/clinic/add_teams','Add Teams']
+      @reports << ['/clinic/remove_teams','Remove Teams']
+		end
+		@landing_dashboard = 'clinic_administration'
+		render :layout => false
+  end
+
+  def remove_teams
+    @kch_teams = Team.find(:all).collect{|team|team.name}
+    if request.method == :post
+      
+    end
+  end
+  
   def create_ward_beds
     ward_id = params[:ward_id]
     total_beds = params[:bed_number].to_s rescue nil
