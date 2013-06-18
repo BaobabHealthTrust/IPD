@@ -34,7 +34,24 @@ class ApplicationController < GenericApplicationController
         task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
       end
     end
-########################################################################################
+#########################################################################################
+location_name = patient.encounters.find(:last, :conditions => ["encounter_type =?",
+    EncounterType.find_by_name('ADMIT PATIENT').id]
+      ).observations.find(:last, :conditions => ["concept_id =?",
+          ConceptName.find_by_name('WORKSTATION LOCATION').concept_id]
+      ).value_text rescue nil
+transfer_out_encounter = patient.encounters.find(:last, :conditions => ["encounter_type =? AND
+    DATE(encounter_datetime) =?",
+  EncounterType.find_by_name('TRANSFER OUT').id, session_date]) rescue nil
+unless transfer_out_encounter.blank?
+  location_id = Location.find_by_name(location_name).id rescue nil
+  current_location_id = session[:location_id]
+  unless (location_id.to_i == current_location_id.to_i)
+    task.encounter_type = 'ADMIT PATIENT'
+    task.url = "/encounters/new/admit_patient?patient_id=#{patient.id}"
+  end
+end
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 		if is_encounter_available(patient, 'DISCHARGE PATIENT', session_date)
 			if !is_encounter_available(patient, 'DISCHARGE DIAGNOSIS', session_date)
 				task.encounter_type = 'DISCHARGE DIAGNOSIS'
