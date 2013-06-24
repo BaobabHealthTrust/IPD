@@ -288,7 +288,8 @@ class GenericPeopleController < ApplicationController
             print_and_redirect("/patients/filing_number_and_national_id?patient_id=#{person.id}", next_task(person.patient))
           end
         else
-          print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
+          #print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
+          print_and_redirect("/patients/national_id_label?patient_id=#{person.id}","/patients/show/#{person.id}")
         end
       end
     else
