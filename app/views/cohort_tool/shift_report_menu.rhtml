@@ -1,0 +1,30 @@
+<style>
+  #Unknown{
+    display: none
+  }
+</style>
+<form action='/report/shift_report' method='post' >
+  <%= select_tag "ward", options_for_select(@kch_wards),{
+          :helpText => 'Select Ward' }%>
+
+  <%= text_field_tag "shift_date", nil, {
+          :helpText => 'Select Shift Date',
+          :field_type => 'date',
+          :id => 'start_date'}  %>
+
+  <%= select_tag "shift_type", options_for_select(@shifts),{
+          :helpText => 'Shift Type',
+          :validationMessage => 'Please Select a Shift'}%>
+
+  <%= text_field_tag "start_time", nil, {
+          :helpText => 'Select Shift Start Time',
+          :condition => "$('shift_type').value == 'specific'",
+          :field_type => 'advancedTime',
+          :id => 'start_time'}  %>
+
+  <%= text_field_tag "end_time", nil, {
+          :helpText => 'Select Shift End Time',
+          :condition => "$('shift_type').value == 'specific'",
+          :field_type => 'advancedTime',
+          :id => 'end_time'}  %>
+</form>
