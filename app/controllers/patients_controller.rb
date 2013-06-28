@@ -107,6 +107,7 @@ class PatientsController < GenericPatientsController
     @links << ["Demographics (Edit)","/patients/edit_demographics?patient_id=#{patient.id}"]
     @links << ["Past Visits (View)","/patients/past_visits_summary/#{patient.id}"]
     @links << ["Wrist band (print)","/patients/band_print?patient_id=#{patient.id}"]
+    @links << ["Admission form (Print)","/patients/print_admission_form?patient_id=#{patient.id}"]
     if use_filing_number and not PatientService.get_patient_identifier(patient, 'Filing Number').blank?
       @links << ["Filing Number (Print)","/patients/print_filing_number/#{patient.id}"]
     end 
@@ -782,25 +783,6 @@ class PatientsController < GenericPatientsController
      render :template => 'dashboards/historical_lab_orders_tab', :layout => false
   end
 
-  def print_admission_history
-    # raise request.remote_ip.to_yaml
-    patient_id    = params[:patient_id]
-    current_printer = "192.168.12.97"
-      t1 = Thread.new{
-        Kernel.system "wkhtmltopdf -s A4 http://0.0.0.0:3000/patients/admission_history/#{patient_id} test.pdf"
-      }
-      t2 = Thread.new{
-        sleep(5)
-        Kernel.system "lp test.pdf"
-      }
-=begin
-      t3 = Thread.new{
-        sleep(10)
-        Kernel.system "rm /tmp/output-" + session[:user_id].to_s + ".pdf\n"
-      }
-=end
-  end
-
   def proceed_to_radiology
       @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) # rescue nil
       # rad_link = GlobalProperty.find_by_property("rad_link").property_value.gsub(/http\:\/\//, "") rescue nil
@@ -839,6 +821,53 @@ class PatientsController < GenericPatientsController
   def admission_form
     @logo = CoreService.get_global_property_value('logo')
     @current_location_name = Location.current_health_center.name
+    patient = Patient.find(params[:patient_id])
+    @patient_bean = PatientService.get_patient(patient.person)
+    #raise @patient_bean.inspect
     render :layout => "menu"
+  end
+
+  def admission_form_printable
+    @logo = CoreService.get_global_property_value('logo')
+    @current_location_name = Location.current_health_center.name
+    patient_id = params[:patient_id]
+    patient = Patient.find(params[:patient_id])
+    @patient_bean = PatientService.get_patient(patient.person)
+    admission_enc = Encounter.find(:last, :conditions => ["encounter_type =? AND patient_id =?",
+        EncounterType.find_by_name('ADMIT PATIENT').id, patient_id])
+    @date_admitted = admission_enc.encounter_datetime rescue nil
+    #raise @patient_bean.inspect
+    render :layout => false
+  end
+
+  def print_admission_form
+    location = request.remote_ip rescue ""
+    @patient = Patient.find(params[:patient_id] || params[:id]) rescue nil
+    if @patient
+      current_printer = ""
+
+      wards = CoreService.get_global_property_value("facility.ward.printers").split(",") rescue []
+      wards.each{|ward|
+        current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
+      } rescue []
+      
+        t1 = Thread.new{
+          Kernel.system "wkhtmltopdf -s A4 http://" +
+            request.env["HTTP_HOST"] + "\"/patients/admission_form_printable/" +
+            "?patient_id=#{@patient.id}" + "\" /tmp/output-#{@patient.id}" + ".pdf \n"
+        }
+
+        t2 = Thread.new{
+          sleep(2)
+          Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{@patient.id}" + ".pdf\n"
+        }
+
+        t3 = Thread.new{
+          sleep(3)
+          Kernel.system "rm /tmp/output-#{@patient.id}"+ ".pdf\n"
+        }
+        sleep(1)
+    end
+    redirect_to "/patients/show/#{params[:patient_id]}" and return
   end
 end
