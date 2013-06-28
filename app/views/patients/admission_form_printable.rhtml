@@ -1,0 +1,314 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%=params[:patient_id]%>"
+</script>
+<style>
+
+
+  #details{
+   position: absolute;
+   left: 5%;
+   top: 40%;
+   width: 100%;
+   overflow: auto;
+   height: 1750px;
+  }
+
+  #location_name{
+  font-family: "Brush Script MT", cursive;
+  font-size: 18pt;
+  }
+  #header{
+    left: 16%;
+    position: absolute;
+    top: 3%;
+    width: 100%;
+  }
+  #logo{
+    position: absolute;
+    left: 0%
+  }
+  #admission_form{
+    width: 100%;
+  }
+label{
+    font-size: 40px;
+    padding-left:20px;
+    padding-right:40px;
+    background: url("/touchscreentoolkit/lib/images/unticked.jpg") no-repeat ;
+}
+input[type=checkbox]{
+  opacity: 0;
+}
+
+</style>
+
+<div>
+    <%= image_tag(@logo, :id => "logo") %>
+    <b style="margin-left: 20%" id="location_name"><%= @current_location_name %></b><br />
+    <b style="margin-left: 20%">Patient Master Form</b><br />
+    <b style="margin-left: 20%">Department: </b><br />
+    <b style="margin-left: 20%">Admission No:</b><br />
+    <b style="margin-left: 20%">Admission Date: <%= @date_admitted.strftime("%a, %d/%m/%Y") rescue nil %></b>
+</div><br /><br />
+<div>
+
+  <table align="center">
+    <tr>
+      <td cospan="2"><b style="text-align: center">Patient Demographics</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td style="width:90%;">First Name</td>
+      <td style="text-align:left;"><b><%= @patient_bean.first_name %></b></td>
+    </tr>
+    <tr>
+      <td>Last Name</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.last_name %></b></td>
+    </tr>
+    <tr>
+      <td>Gender</td>
+      <td  style="text-align:left"><b><%= @patient_bean.sex %></b></td>
+    </tr>
+    <tr>
+      <td>Birth Date</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.birth_date%></b></td>
+    </tr>
+    <tr>
+      <td>Address</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.current_residence %></b></td>
+    </tr>
+    <tr>
+      <td>Phone number</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.cell_phone_number %></b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Clinician: (Signature)</td>
+      <td  style="text-align:right;"></td>
+    </tr>
+    <tr>
+      <td>Nurse: (Signature)</td>
+      <td  style="text-align:right;"></td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Chief complaint</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>History of present illness</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 4.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>HIV Status</td>
+      <td  style="text-align:left;">
+        <table
+          <tr>
+            <td>Positive</td><td><label></label></td>
+            <td>Negative</td><td><label></label></td>
+            <td>Unknown</td><td><label></label></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Current ART status</td>
+      <td  style="text-align:left;">
+      <table
+        <tr>
+          <td>1<sup>st</sup>line, no change</td><td><label></label></td>
+          <td>alternate 1<sup>st</sup>line</td><td><label></label></td>
+          <td>2<sup>nd</sup>line, no change</td><td><label></label></td>
+        </tr>
+      </table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td  style="text-align:left;">
+        <table>
+          <tr>
+            <td>stopped ART</td><td><label></label></td>
+            <td>ART not initiated</td><td><label></label></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td>Medical History(tick all that apply)</td>
+      <td  style="text-align:left;">
+        <table>
+          <tr>
+            <td>HIV</td><td><label></label></td>
+            <td> Peripheral neuropathy</td><td><label></label></td>
+            <td>Cancer</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Hypertension</td><td><label></label></td>
+            <td>Diabetes</td><td><label></label></td>
+            <td>Congestive Heart Failure</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Chronic renal failure</td><td><label></label></td>
+            <td>Other</td><td><label></label></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Surgical History</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Current Medications</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Allergies</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% 2.times do %>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>Vital Signs</td>
+      <td style="text-align:left;">
+        <table>
+          <tr>
+            <td>Temp</td><td><label></label></td>
+            <td>Pulse</td><td> <label></label></td>
+            <td>BP</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>RR</td><td><label></label></td>
+            <td>Ht</td><td><label></label></td>
+            <td>Wt</td><td><label></label> </td>
+          </tr>
+          <tr>
+            <td>0<sub>2</sub>sat</td>
+            <td><label></label> </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="font-weight: bold">Physical exam findings</td>
+    </tr>
+    <tr>
+      <td>General</td>
+      <td>HEENT</td>
+    </tr>
+    <tr>
+      <td>Neck</td>
+      <td>CV</td>
+    </tr>
+    <tr>
+      <td>Pulm</td>
+      <td>Abd</td>
+    </tr>
+    <tr>
+      <td>GU</td>
+      <td>Extremities</td>
+    </tr>
+    <tr>
+      <td>Lymph nodes</td>
+      <td>Skin</td>
+    </tr>
+    <tr>
+      <td>Neuro</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+    <tr>
+      <td>Admission diagnosis(tick all that apply)</td>
+      <td  style="text-align:left;">
+        <table>
+          <tr>
+            <td>Lactic acidosis</td><td><label></label></td>
+            <td> Pancreatics</td><td><label></label></td>
+            <td> Hepatitis</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Drug rash</td><td><label></label></td>
+            <td> Meningitis</td><td><label></label></td>
+            <td> TB</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Pneumonia</td><td><label></label></td>
+            <td> Sepsis</td><td><label></label></td>
+            <td> Malaria</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Malignant hypertension</td><td><label></label></td>
+            <td> Severe anemia</td><td><label></label></td>
+            <td> Gastroenteritis</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Other (list)</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><hr></hr></td>
+    </tr>
+  </table>
+
+ 
+</div>
