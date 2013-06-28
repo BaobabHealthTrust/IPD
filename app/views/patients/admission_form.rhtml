@@ -1,4 +1,6 @@
-
+<script>
+  var tt_cancel_destination = "/patients/show/<%=params[:patient_id]%>"
+</script>
 <style>
 
 
@@ -6,7 +8,7 @@
    position: absolute;
    left: 5%;
    top: 25%;
-   width: 80%;
+   width: 90%;
    overflow: auto;
    height: 480px;
   }
@@ -26,8 +28,18 @@
     left: -11%
   }
   #admission_form{
-    width: 95%;
+    width: 100%;
   }
+label{
+    font-size: 40px;
+    padding-left:20px;
+    padding-right:40px;
+    background: url("/touchscreentoolkit/lib/images/unticked.jpg") no-repeat ;
+}
+input[type=checkbox]{
+  opacity: 0;
+}
+
 </style>
 <div id="header">
   <%= image_tag(@logo, :id => "logo") %>
@@ -47,39 +59,39 @@
       <td colspan="2"><hr></hr></td>
     </tr>
     <tr>
-      <td>First Name</td>
-      <td style="text-align:right;">.......................</td>
+      <td style="width:70%;">First Name</td>
+      <td style="text-align:left;"><b><%= @patient_bean.first_name %></b></td>
     </tr>
     <tr>
       <td>Last Name</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.last_name %></b></td>
     </tr>
     <tr>
       <td>Gender</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:left"><b><%= @patient_bean.sex %></b></td>
     </tr>
     <tr>
       <td>Birth Date</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.birth_date%></b></td>
     </tr>
     <tr>
       <td>Address</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.current_residence %></b></td>
     </tr>
     <tr>
       <td>Phone number</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:left;"><b><%= @patient_bean.cell_phone_number %></b></td>
     </tr>
     <tr>
       <td colspan="2"><hr></hr></td>
     </tr>
     <tr>
       <td>Clinician: (Signature)</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:right;"></td>
     </tr>
     <tr>
       <td>Nurse: (Signature)</td>
-      <td  style="text-align:right;"> .......................</td>
+      <td  style="text-align:right;"></td>
     </tr>
     <tr>
       <td colspan="2"><hr></hr></td>
@@ -108,9 +120,14 @@
     <tr>
       <td>HIV Status</td>
       <td  style="text-align:left;">
-      <%= check_box_tag("positive") %> Positive
-      <%= check_box_tag("negative") %> Negative
-      <%= check_box_tag("unkn") %> Unknown</td>
+        <table
+          <tr>
+            <td>Positive</td><td><label></label></td>
+            <td>Negative</td><td><label></label></td>
+            <td>Unknown</td><td><label></label></td>
+          </tr>
+        </table>
+      </td>
     </tr>
     <tr>
       <td>&nbsp;</td>
@@ -119,13 +136,25 @@
     <tr>
       <td>Current ART status</td>
       <td  style="text-align:left;">
-      <%= check_box_tag("positive") %> 1<sup>st</sup>line, no change
-      <%= check_box_tag("negative") %> alternate 1<sup>st</sup>line
-      <%= check_box_tag("unkn") %>2<sup>nd</sup>line, no change </td>
+      <table
+        <tr>
+          <td>1<sup>st</sup>line, no change</td><td><label></label></td>
+          <td>alternate 1<sup>st</sup>line</td><td><label></label></td>
+          <td>2<sup>nd</sup>line, no change</td><td><label></label></td>
+        </tr>
+      </table>
+      </td>
     </tr>
     <tr>
       <td>&nbsp;</td>
-      <td  style="text-align:left;"><%= check_box_tag("negative")%> stopped ART <%= check_box_tag("negative")%> ART not initiated</td>
+      <td  style="text-align:left;">
+        <table>
+          <tr>
+            <td>stopped ART</td><td><label></label></td>
+            <td>ART not initiated</td><td><label></label></td>
+          </tr>
+        </table>
+      </td>
     </tr>
     <tr>
       <td>&nbsp;</td>
@@ -135,14 +164,22 @@
     <tr>
       <td>Medical History(tick all that apply)</td>
       <td  style="text-align:left;">
-        <%= check_box_tag("negative")%> HIV <%= check_box_tag("negative")%> Peripheral neuropathy
-        <%= check_box_tag("negative")%> Cancer
-        <%= check_box_tag("negative")%> Hypertension<br />
-        <%= check_box_tag("negative")%> Diabetes
-        <%= check_box_tag("negative")%> Congestive Heart Failure
-        <%= check_box_tag("negative")%> Chronic renal failure<br />
-        <%= check_box_tag("negative")%> Other
-
+        <table>
+          <tr>
+            <td>HIV</td><td><label></label></td>
+            <td> Peripheral neuropathy</td><td><label></label></td>
+            <td>Cancer</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Hypertension</td><td><label></label></td>
+            <td>Diabetes</td><td><label></label></td>
+            <td>Congestive Heart Failure</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Chronic renal failure</td><td><label></label></td>
+            <td>Other</td><td><label></label></td>
+          </tr>
+        </table>
       </td>
     </tr>
 
@@ -186,13 +223,22 @@
     <tr>
       <td>Vital Signs</td>
       <td style="text-align:left;">
-        <% space = "&nbsp;" * 10 %>
-        Temp <%= space %>
-        Pulse <%= space %>
-        BP <%= space %>
-        RR <%= space %>
-        Ht <%= space %>
-        Wt <%= space %> 0<sub>2</sub>sat <%= space %>
+        <table>
+          <tr>
+            <td>Temp</td><td><label></label></td>
+            <td>Pulse</td><td> <label></label></td>
+            <td>BP</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>RR</td><td><label></label></td>
+            <td>Ht</td><td><label></label></td>
+            <td>Wt</td><td><label></label> </td>
+          </tr>
+          <tr>
+            <td>0<sub>2</sub>sat</td>
+            <td><label></label> </td>
+          </tr>
+        </table>
       </td>
     </tr>
     <tr>
@@ -231,21 +277,31 @@
     <tr>
       <td>Admission diagnosis(tick all that apply)</td>
       <td  style="text-align:left;">
-      <%= check_box_tag("lactic_acidosis")%> Lactic acidosis
-      <%= check_box_tag("pancreas")%> Pancreatics
-      <%= check_box_tag("hepatitis")%> Hepatitis
-      <%= check_box_tag("lactic_acidosis")%> Drug rash
-      <%= check_box_tag("lactic_acidosis")%> Meningitis
-      <%= check_box_tag("lactic_acidosis")%> TB<br />
-
-      <%= check_box_tag("lactic_acidosis")%> Pneumonia
-      <%= check_box_tag("lactic_acidosis")%> Sepsis
-      <%= check_box_tag("lactic_acidosis")%> Malaria
-      <%= check_box_tag("lactic_acidosis")%> Malignant hypertension
-      <%= check_box_tag("lactic_acidosis")%> Severe anemia
-      <%= check_box_tag("lactic_acidosis")%> Gastroenteritis<br />
-      
-      <%= check_box_tag("lactic_acidosis")%> Other (list)
+        <table>
+          <tr>
+            <td>Lactic acidosis</td><td><label></label></td>
+            <td> Pancreatics</td><td><label></label></td>
+            <td> Hepatitis</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Drug rash</td><td><label></label></td>
+            <td> Meningitis</td><td><label></label></td>
+            <td> TB</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Pneumonia</td><td><label></label></td>
+            <td> Sepsis</td><td><label></label></td>
+            <td> Malaria</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td> Malignant hypertension</td><td><label></label></td>
+            <td> Severe anemia</td><td><label></label></td>
+            <td> Gastroenteritis</td><td><label></label></td>
+          </tr>
+          <tr>
+            <td>Other (list)</td>
+          </tr>
+        </table>
       </td>
     </tr>
     <tr>
