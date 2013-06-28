@@ -858,7 +858,6 @@ class PatientsController < GenericPatientsController
         }
 
         t2 = Thread.new{
-          sleep(2)
           Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{@patient.id}" + ".pdf\n"
         }
 
