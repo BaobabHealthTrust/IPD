@@ -1179,9 +1179,10 @@ class GenericReportController < ApplicationController
   @admission_diagnoses = {}
     admission_diagnosis_enc = EncounterType.find_by_name('ADMISSION DIAGNOSIS')
     diagnosis_concept_id = Concept.find_by_name('PRIMARY DIAGNOSIS').id
-    admission_diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+    admission_diagnosis_encs = Encounter.find(:all, :joins => [:observations],
+      :conditions => ["DATE(encounter_datetime) >= ? AND
   DATE(encounter_datetime) <= ? AND
-      encounter_type =?", start_date, end_date, admission_diagnosis_enc.id])
+      encounter_type =? AND value_text =?", start_date, end_date, admission_diagnosis_enc.id, team])
 
 
     admission_diagnosis_encs.each do |enc|
@@ -1204,9 +1205,10 @@ class GenericReportController < ApplicationController
 
   @discharge_diagnoses = {}
     discharge_diagnosis_enc = EncounterType.find_by_name('DISCHARGE DIAGNOSIS')
-     discharge_diagnosis_encs = Encounter.find(:all, :conditions => ["DATE(encounter_datetime) >= ? AND
+     discharge_diagnosis_encs = Encounter.find(:all, :joins => [:observations],
+       :conditions => ["DATE(encounter_datetime) >= ? AND
       DATE(encounter_datetime) <= ? AND
-      encounter_type =?", start_date, end_date, discharge_diagnosis_enc.id])
+      encounter_type =? AND value_text =?", start_date, end_date, discharge_diagnosis_enc.id, team])
     discharge_diagnosis_encs.each do |enc|
      observations = enc.observations.find(:all, :conditions => ["concept_id =? AND person_id IN (?)", diagnosis_concept_id, @total_admissions_ids])
        observations.each do |obs|
@@ -1234,8 +1236,9 @@ class GenericReportController < ApplicationController
     @bed_occupacy_ratio = @total_admissions.count/bed_size rescue 0
   #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   @patient_states = {}
-    patient_states = PatientState.find(:all, :joins => [:patient_program],:conditions => ["patient_id IN (?) AND
-    start_date >= ?", @total_admissions_ids, start_date])
+    patient_states = PatientState.find(:all, :joins => [:patient_program  => [:patient => [:encounters => :observations]]],\
+        :conditions => ["patient_program.patient_id IN (?) AND
+    start_date >= ? AND value_text =?", @total_admissions_ids, start_date, team])
     patient_states.each do |state|
       fullname = state.program_workflow_state.concept.fullname
       next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)
