@@ -2883,5 +2883,8 @@ class CohortToolController < ApplicationController
 		]  
   end
 
+  def report_team_menu
+    @teams = Team.all.map(&:name) rescue []
+  end
 end
 
