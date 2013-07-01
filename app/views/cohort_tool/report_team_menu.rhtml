@@ -1,0 +1,30 @@
+<%= javascript_include_tag 'touchscreentoolkit' %>
+<%= javascript_include_tag "prototype" %>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<link href="/stylesheets/opd_cohort.css" media="screen" rel="stylesheet" type="text/css" />
+<style>
+
+  #Unknown{
+    display: none;
+  }
+  
+</style>
+
+<form method='post' action="/report/team_report" >
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+  <%= select_tag"team", options_for_select(@teams), {
+           :helpText => 'Select Team',
+           :id => "team"} %>
+
+  <%= text_field_tag "start_date", nil, {
+          :helpText => 'Select Start Date',
+          :field_type => 'date',
+          :id => 'start_date'}  %>
+  
+  <%= text_field_tag "end_date", nil, {
+          :helpText => 'Select End Time',
+          :field_type => 'date',
+          :id => 'end_date'}  %>
+</form>
+
