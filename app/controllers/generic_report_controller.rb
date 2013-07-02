@@ -1088,7 +1088,8 @@ class GenericReportController < ApplicationController
     @bed_occupacy_ratio = @total_admissions.count/bed_size rescue 0
   #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   @patient_states = {}
-    patient_states = PatientState.find(:all, :joins => [:patient_program => [:patient => [:encounters => :observations]]],:conditions => ["patient_id IN (?) AND
+    patient_states = PatientState.find(:all, :joins => [:patient_program => [:patient => [:encounters => :observations]]],
+      :conditions => ["patient_program.patient_id IN (?) AND
     start_date >= ? AND value_text =?", @total_admissions_ids, start_date.to_date, ward])
     patient_states.each do |state|
       fullname = state.program_workflow_state.concept.fullname
