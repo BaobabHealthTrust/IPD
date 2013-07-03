@@ -398,12 +398,30 @@
 
   </div>
 <script>
-  function setPosition(){
+/*  function setPosition(){
     finish = document.getElementById('finishButton')
     finish.style.position = 'absolute'
     finish.style.left = '0%'
   }
-  setTimeout("setPosition()",10);
+  setTimeout("setPosition()",10);*/
+
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printAdtReportByWard();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printAdtReportByWard(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_adt_report_by_ward",
+                    data: "start_date=<%=@start_date%>" + "&end_date=<%=@end_date%>" + "&ward=<%=@ward%>",
+                    success: function(){
+                            alert("Successful")
+                    }
+
+            });
+   }
 </script>
 </body>
 </html>
