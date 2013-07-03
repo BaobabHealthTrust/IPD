@@ -759,8 +759,8 @@ def print_adt_generic_report
         }
 
         t3 = Thread.new{
-          sleep(3)
-          Kernel.system "rm /tmp/output-adt_generic_report"+ ".pdf\n"
+          #sleep(3)
+          #Kernel.system "rm /tmp/output-adt_generic_report"+ ".pdf\n"
         }
         sleep(1)
         render :text => "true" and return
@@ -789,8 +789,8 @@ def print_adt_report_by_ward
         }
 
         t3 = Thread.new{
-          sleep(3)
-         Kernel.system "rm /tmp/output-adt_report_by_ward"+ ".pdf\n"
+          #sleep(3)
+         #Kernel.system "rm /tmp/output-adt_report_by_ward"+ ".pdf\n"
         }
         sleep(1)
         render :text => "true" and return
@@ -822,7 +822,7 @@ def print_shift_report
         }
 
         t3 = Thread.new{
-          sleep(3)
+          #sleep(3)
          #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
         }
         sleep(1)
@@ -852,7 +852,7 @@ def print_team_report
         }
 
         t3 = Thread.new{
-          sleep(3)
+          #sleep(3)
          #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
         }
         sleep(1)
