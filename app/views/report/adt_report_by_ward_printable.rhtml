@@ -52,8 +52,8 @@
     <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
     <b style="position:relative; top:0px;margin-left:75px">ADT Report for <u><i><%= @ward %></i></u> </b><br />
-     <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
-     <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
+     <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%b-%Y")%> </b><br />
+     <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%b-%Y")%></b><br />
 <%#= raise (@end_date ).inspect %><br /><br />
 
      <table id="report" style="width: 96%">
