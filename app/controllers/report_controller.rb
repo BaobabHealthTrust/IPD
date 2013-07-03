@@ -272,9 +272,9 @@ class ReportController < GenericReportController
 
   @location_name = Location.current_health_center.name rescue nil
 	@logo = CoreService.get_global_property_value('logo').to_s rescue nil
-	start_date = Date.today - 3.months#params[:start_date].to_date
-	end_date = Date.today#params[:end_date].to_date
-	ward = 'Medical Short Stay'#params[:ward]
+	start_date = params[:start_date].to_date
+	end_date = params[:end_date].to_date
+	ward = params[:ward]
 	@start_date = start_date
 	@end_date = end_date
   @ward = ward
@@ -590,9 +590,9 @@ def team_report_printable
   
     @location_name = Location.current_health_center.name rescue nil
     @logo = CoreService.get_global_property_value('logo').to_s rescue nil
-    start_date = Date.today - 3.months#params[:start_date].to_date
-    end_date = Date.today#params[:end_date].to_date
-    team = 'Team A'#params[:team]
+    start_date = params[:start_date].to_date
+    end_date = params[:end_date].to_date
+    team = params[:team]
     @start_date = start_date
     @end_date = end_date
     @team = team
