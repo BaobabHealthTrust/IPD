@@ -399,12 +399,31 @@
 
   </div>
 <script>
-  function setPosition(){
+  /*function setPosition(){
     finish = document.getElementById('finishButton')
     finish.style.position = 'absolute'
     finish.style.left = '0%'
   }
-  setTimeout("setPosition()",10);
+  setTimeout("setPosition()",10);*/
+
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printTeamReport();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printTeamReport(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_team_report",
+                    data: "start_date=<%=@start_date%>" + "&end_date=<%=@end_date%>" +
+                    "&team=<%=@team%>",
+                    success: function(){
+                            alert("Successful")
+                    }
+
+            });
+   }
 </script>
 </body>
 </html>

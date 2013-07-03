@@ -398,12 +398,32 @@
 
   </div>
 <script>
-  function setPosition(){
+/*  function setPosition(){
     finish = document.getElementById('finishButton')
     finish.style.position = 'absolute'
     finish.style.left = '0%'
   }
-  setTimeout("setPosition()",10);
+  setTimeout("setPosition()",10);*/
+
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printShiftReport();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printShiftReport(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_shift_report",
+                    data: "start_time=<%=@start_time%>" + "&end_time=<%=@end_time%>" + 
+                    "&ward=<%=@ward%>" + "&shift_type=<%=@shift_type%>" +
+                    "&shift_date=<%=@shift_date%>",
+                    success: function(){
+                            alert("Successful")
+                    }
+
+            });
+   }
 </script>
 </body>
 </html>

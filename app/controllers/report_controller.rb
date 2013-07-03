@@ -416,11 +416,10 @@ class ReportController < GenericReportController
 
   def shift_report_printable
       @logo = CoreService.get_global_property_value('logo')
-      @shift_type = 'day'#params[:shift_type]
-      @shift_date = Time.now#params[:shift_date]
+      @shift_type = params[:shift_type]
+      @shift_date = params[:shift_date]
       @current_location_name = Location.current_health_center.name rescue nil
-
-      ward = 'Medical Short Stay'#params[:ward]
+      ward = params[:ward]
       @ward = ward
 
      if params[:start_time] == ""
@@ -792,6 +791,69 @@ def print_adt_report_by_ward
         t3 = Thread.new{
           sleep(3)
          Kernel.system "rm /tmp/output-adt_report_by_ward"+ ".pdf\n"
+        }
+        sleep(1)
+        render :text => "true" and return
+end
+
+def print_shift_report
+      location = request.remote_ip rescue ""
+      start_time = params[:start_time]
+      end_time = params[:end_time]
+      shift_type = params[:shift_type]
+      shift_date = params[:shift_date]
+      ward_selected = params[:ward]
+      current_printer = ""
+
+      wards = CoreService.get_global_property_value("facility.ward.printers").split(",") rescue []
+      wards.each{|ward|
+        current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
+      } rescue []
+
+        t1 = Thread.new{
+          Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+            request.env["HTTP_HOST"] + "\"/report/shift_report_printable/" +\
+            "?start_time=#{start_time}&end_time=#{end_time}&shift_type=#{shift_type}\
+          &shift_date=#{shift_date}&ward=#{ward_selected}" + "\" /tmp/output-shift_report" + ".pdf \n"
+        }
+
+        t2 = Thread.new{
+          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-shift_report" + ".pdf\n"
+        }
+
+        t3 = Thread.new{
+          sleep(3)
+         #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
+        }
+        sleep(1)
+        render :text => "true" and return
+end
+
+def print_team_report
+      location = request.remote_ip rescue ""
+      start_date = params[:start_date]
+      end_date = params[:end_date]
+      team = params[:team]
+      current_printer = ""
+      wards = CoreService.get_global_property_value("facility.ward.printers").split(",") rescue []
+      wards.each{|ward|
+        current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
+      } rescue []
+
+        t1 = Thread.new{
+          Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+            request.env["HTTP_HOST"] + "\"/report/team_report_printable/" +\
+            "?start_date=#{start_date}&end_date=#{end_date}\
+          &team=#{team}" + "\" /tmp/output-team_report" + ".pdf \n"
+        }
+
+        t2 = Thread.new{
+          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-team_report" + ".pdf\n"
+        }
+
+        t3 = Thread.new{
+          sleep(3)
+         #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
         }
         sleep(1)
         render :text => "true" and return
