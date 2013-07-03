@@ -22,8 +22,8 @@
     search = document.getElementsByTagName("input")[0];
     search.setAttribute("id","search");
     document.getElementById('search').setAttribute("onclick","showKeyboard();");
-    document.getElementById("find").innerHTML = "<span>Back</span>";
-    document.getElementById("find").style.cssFloat = "left";
+    //document.getElementById("find").innerHTML = "<span>Back</span>";
+    //document.getElementById("find").style.cssFloat = "left";
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     keyboard = document.getElementsByClassName("keypad")[0]
     function getCharButtonSetID(character,id){
@@ -455,12 +455,31 @@
 
   </div>
 <script>
-  function setPosition(){
+  /*function setPosition(){
     finish = document.getElementById('finishButton')
     finish.style.position = 'absolute'
     finish.style.left = '0%'
+    addPrintButton()
   }
-  setTimeout("setPosition()",10);
+  setTimeout("setPosition()",10);*/
+
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printAdtGenericReport();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printAdtGenericReport(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_adt_generic_report",
+                    data: "start_date=<%=@start_date%>" + "&end_date=<%=@end_date%>",
+                    success: function(){
+                            alert("Successful")
+                    }
+
+            });
+   }
 </script>
 </body>
 </html>
