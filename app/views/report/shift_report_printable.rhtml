@@ -1,0 +1,175 @@
+
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+    
+    <style>
+  div {
+        -moz-user-select: none;
+      }
+
+  .logo {
+        float:left
+      }
+  #number a {
+          border-radius: 7px;
+          background-color: #6699;
+          border-bottom: 1px outset black;
+          border-style: outset;
+          border-top: 1px outset black;
+          color: black;
+          display: block;
+          padding: 10px 16px 10px 10px;
+          text-align: center;
+          text-decoration: none;
+  }
+
+
+    #gender_distribution{
+      text-align: center;
+      font-size: 14pt;
+    }
+    #age_groups{
+      text-align: center;
+      font-size: 14pt;
+    }
+    #display_only{
+    color: black;
+    text-align: center;
+    background-color: #E0E0E0;
+    }
+    </style>
+  </head>
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
+    <b style="position:relative; top:0px;margin-left:75px">Shift Report for <u><i><%= @ward %></i></u> </b><br />
+    <b style="position:relative; top:0px;margin-left:75px">Shift Type: <u><i><%= @shift_type.capitalize %> </i></u></b><br />
+    <b style="position:relative; top:0px;margin-left:75px">Shift Date: <u><i><%= @shift_date %>(<%=@start_time.strftime("%H:%M").to_s + ' - ' + @end_time.strftime("%H:%M").to_s%>) </i></u></b><br />
+<%#= raise (@end_date ).inspect %><br /><br /><br />
+
+     <table id="report" style="width: 96%">
+       <tr>
+         <td style="background-color: whitesmoke; font-size: 14pt;">Total Admissions</td>
+         <td id="number"><%= link_to((@total_admissions.count), {
+            :action=>"decompose_report",
+            :ids =>@total_admissions_ids,
+            :report_name => "Total Admissions"})
+          %>
+         </td>
+       </tr>
+       <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Admissions By Gender</span></td>
+       </tr>
+       <tr>
+         <td style="background-color: #F5F5F5; font-size: 14pt;">Males</td>
+         <td id="number"><%= link_to((@total_admissions_males.count), {
+              :action=>"decompose_report",
+              :ids =>@total_admissions_males_ids,
+              :report_name => "Males Total Admissions"})  %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Females</td>
+         <td id="number"><%=link_to((@total_admissions_females.count), {
+            :action=>"decompose_report",
+            :ids =>@total_admissions_females_ids,
+            :report_name => "Females Total Admissions"}) %></td>
+       </tr>
+       <tr style="background-color: gray">
+         <td id="age_groups" colspan="2" style="line-height: 46px; color: white; font-weight: bold">Admissions By Age Groups</td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Infants(0-2)
+       </td>
+         <td id="number"><%= link_to((@total_admissions_infants.count), {
+            :action=>"decompose_report",
+            :ids => @total_admissions_infants_ids,
+            :report_name => "Infants Total Admissions"}) %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Children(2-14)</td>
+         <td id="number"><%= link_to((@total_admissions_children.count), {
+            :action=>"decompose_report",
+            :ids =>@total_admissions_children_ids,
+            :report_name => "Children Total Admissions"}) %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Adults (>14)</td>
+         <td id="number"><%= link_to((@total_admissions_adults.count), {
+            :action=>"decompose_report",
+            :ids =>@total_admissions_adults_ids,
+            :report_name => "Adults Total Admissions"}) %></td>
+       </tr>
+
+          <!--tr>
+            <td colspan="2" style="background-color: #9ACD32; font-size: 14pt; line-height: 2em;">Case Morbidity</td>
+          </tr>-->
+          <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Admission Diagnosis</span></td>
+       </tr>
+        <% @admission_diagnoses.each do |key, value| %>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.squish %></td>
+             <td id="number"><%= link_to((value["count"]), {
+                :action=>"decompose_report",
+                :ids => value["patient_ids"],
+                :report_name => "Admissions By Diagnosis(#{key.squish})"}) %></td>
+          </tr>
+        <%  end %>
+      <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Discharge Diagnosis</span></td>
+       </tr>
+        <% @discharge_diagnoses.each do |key, value| %>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.squish %></td>
+             <td id="number"><%= link_to((value["count"]), {
+                :action=>"decompose_report",
+                :ids => value["patient_ids"],
+                :report_name => "Discharge Diagnosis(#{key.squish})"}) %></td>
+          </tr>
+        <%  end %>
+
+
+        <tr>
+            <td colspan="2" style="background-color: #BEBEBE; font-size: 14pt; line-height: 2em;">Outcomes</td>
+          </tr>
+        <% @patient_states.each do |key, value| %>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;"><%= key.squish %></td>
+             <td id="number"><%= link_to((value["count"]), {
+                :action=>"decompose_report",
+                :ids => value["patient_ids"],
+                :report_name => "Patient Outcomes(#{key.squish})"}) %></td>
+          </tr>
+        <%  end %>
+
+          <tr>
+            <td colspan="2" style="background-color: #BEBEBE; font-size: 14pt; line-height: 2em;">Admission Indicators</td>
+          </tr>
+
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Bed Occupancy Ratio</td>
+             <td id="number"><%= link_to(@bed_occupacy_ratio) %></td>
+          </tr>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Ward Bed Turnover Rate</td>
+             <td id="number"><%= link_to(@turn_over_rate) %></td>
+          </tr>
+          <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Death Rate</td>
+             <% total_died = @total_died["Patient died"]["count"].to_s rescue 0 %>
+             <td id="number"><%= link_to(total_died)%></td>
+          </tr>
+           <tr>
+             <td  style="background-color: #F5F5F5; font-size: 14pt;">Average Length of stay</td>
+             <td id="number"><%= link_to(@average_length_of_stay.to_s + " days") %></td>
+          </tr>
+     </table>
+</body>
+</html>
