@@ -816,7 +816,7 @@ class GenericReportController < ApplicationController
 
   def adt_report_by_ward
 
-    @location_name = Location.current_health_center.name rescue nil
+  @location_name = Location.current_health_center.name rescue nil
 	@logo = CoreService.get_global_property_value('logo').to_s rescue nil
 	start_date = params[:start_date].to_date
 	end_date = params[:end_date].to_date
