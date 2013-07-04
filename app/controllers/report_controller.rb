@@ -753,16 +753,11 @@ def print_adt_generic_report
             request.env["HTTP_HOST"] + "\"/report/adt_generic_report_printable/" +
             "?start_date=#{start_date}&end_date=#{end_date}" + "\" /tmp/output-adt_generic_report" + ".pdf \n"
         }
-
+        file = "/tmp/output-adt_generic_report" + ".pdf"
         t2 = Thread.new{
-          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-adt_generic_report" + ".pdf\n"
+          sleep(3)
+          print(file, current_printer)
         }
-
-        t3 = Thread.new{
-          #sleep(3)
-          #Kernel.system "rm /tmp/output-adt_generic_report"+ ".pdf\n"
-        }
-        sleep(1)
         render :text => "true" and return
 end
 
@@ -783,16 +778,11 @@ def print_adt_report_by_ward
             request.env["HTTP_HOST"] + "\"/report/adt_report_by_ward_printable/" +
             "?start_date=#{start_date}&end_date=#{end_date}&ward=#{ward_selected}" + "\" /tmp/output-adt_report_by_ward" + ".pdf \n"
         }
-
+        file = "/tmp/output-adt_report_by_ward" + ".pdf"
         t2 = Thread.new{
-          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-adt_report_by_ward" + ".pdf\n"
+          sleep(3)
+          print(file, current_printer)
         }
-
-        t3 = Thread.new{
-          #sleep(3)
-         #Kernel.system "rm /tmp/output-adt_report_by_ward"+ ".pdf\n"
-        }
-        sleep(1)
         render :text => "true" and return
 end
 
@@ -817,15 +807,11 @@ def print_shift_report
           &shift_date=#{shift_date}&ward=#{ward_selected}" + "\" /tmp/output-shift_report" + ".pdf \n"
         }
 
+        file = "/tmp/output-shift_report" + ".pdf"
         t2 = Thread.new{
-          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-shift_report" + ".pdf\n"
+          sleep(3)
+          print(file, current_printer)
         }
-
-        t3 = Thread.new{
-          #sleep(3)
-         #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
-        }
-        sleep(1)
         render :text => "true" and return
 end
 
@@ -847,16 +833,20 @@ def print_team_report
           &team=#{team}" + "\" /tmp/output-team_report" + ".pdf \n"
         }
 
+        file = "/tmp/output-team_report" + ".pdf"
         t2 = Thread.new{
-          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-team_report" + ".pdf\n"
+          sleep(3)
+          print(file, current_printer)
         }
-
-        t3 = Thread.new{
-          #sleep(3)
-         #Kernel.system "rm /tmp/output-shift_report"+ ".pdf\n"
-        }
-        sleep(1)
         render :text => "true" and return
 end
 
+def print(file_name, current_printer)
+    sleep(3)
+    if (File.exists?(file_name))
+     Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} #{file_name}"
+    else
+      print(file_name)
+    end
+end
 end
