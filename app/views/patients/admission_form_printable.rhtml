@@ -60,28 +60,28 @@ input[type=checkbox]{
       <td colspan="2"><hr></hr></td>
     </tr>
     <tr>
-      <td style="width:90%;">First Name</td>
-      <td style="text-align:left;"><b><%= @patient_bean.first_name %></b></td>
+      <td style="width:100%;">First Name</td>
+      <td style=""><b style="margin-left: 30%"><%= @patient_bean.first_name %></b></td>
     </tr>
     <tr>
       <td>Last Name</td>
-      <td  style="text-align:left;"><b><%= @patient_bean.last_name %></b></td>
+      <td  style=""><b  style="margin-left: 30%"><%= @patient_bean.last_name %></b></td>
     </tr>
     <tr>
       <td>Gender</td>
-      <td  style="text-align:left"><b><%= @patient_bean.sex %></b></td>
+      <td  style=""><b  style="margin-left: 30%"><%= @patient_bean.sex %></b></td>
     </tr>
     <tr>
       <td>Birth Date</td>
-      <td  style="text-align:left;"><b><%= @patient_bean.birth_date%></b></td>
+      <td  style=""><b  style="margin-left: 30%"><%= @patient_bean.birth_date%></b></td>
     </tr>
     <tr>
       <td>Address</td>
-      <td  style="text-align:left;"><b><%= @patient_bean.current_residence %></b></td>
+      <td  style=""><b  style="margin-left: 30%"><%= @patient_bean.current_residence %></b></td>
     </tr>
     <tr>
       <td>Phone number</td>
-      <td  style="text-align:left;"><b><%= @patient_bean.cell_phone_number %></b></td>
+      <td  style=""><b  style="margin-left: 30%"><%= @patient_bean.cell_phone_number %></b></td>
     </tr>
     <tr>
       <td colspan="2"><hr></hr></td>
@@ -123,8 +123,14 @@ input[type=checkbox]{
       <td  style="text-align:left;">
         <table
           <tr>
+            <% tds = ("<td></td>" * 11) %>
+            <%= tds %>
             <td>Positive</td><td><label></label></td>
+            <% tds = ("<td></td>" * 9) %>
+            <%= tds %>
             <td>Negative</td><td><label></label></td>
+            <% tds = ("<td></td>" * 9) %>
+            <%= tds %>
             <td>Unknown</td><td><label></label></td>
           </tr>
         </table>
