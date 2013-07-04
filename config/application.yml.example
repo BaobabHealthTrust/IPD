@@ -49,6 +49,7 @@ production:
   Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
  use_teams: yes
+ facility.ward.printers: ip_address1:printer_name1,ip_address2:printer_name2
 
 development:
  encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
@@ -101,6 +102,7 @@ development:
   Ethel Mutharika Kangaroo,Paediatric_Children_Ward_A,Paediatric_Children_Ward_B,Paediatric_Children_Ward_C,
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
  use_teams: yes
+ facility.ward.printers: ip_address1:printer_name1,ip_address2:printer_name2
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes
