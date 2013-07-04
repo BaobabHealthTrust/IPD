@@ -852,21 +852,26 @@ class PatientsController < GenericPatientsController
       } rescue []
       
         t1 = Thread.new{
-          Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+          Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 25 -s A4 http://" +
             request.env["HTTP_HOST"] + "\"/patients/admission_form_printable/" +
             "?patient_id=#{@patient.id}" + "\" /tmp/output-#{@patient.id}" + ".pdf \n"
+          
         }
-
+        file = "/tmp/output-#{@patient.id}" + ".pdf"
         t2 = Thread.new{
-          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{@patient.id}" + ".pdf\n"
+          sleep(3)
+          print(file, current_printer)
         }
 
-        t3 = Thread.new{
-          sleep(3)
-          Kernel.system "rm /tmp/output-#{@patient.id}"+ ".pdf\n"
-        }
-        sleep(1)
     end
     redirect_to "/patients/show/#{params[:patient_id]}" and return
+  end
+  def print(file_name, current_printer)
+    sleep(3)
+    if (File.exists?(file_name))
+     Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} #{file_name}"
+    else
+      print(file_name)
+    end
   end
 end
