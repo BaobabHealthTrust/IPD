@@ -852,13 +852,13 @@ class PatientsController < GenericPatientsController
       } rescue []
       
         t1 = Thread.new{
-          Kernel.system "wkhtmltopdf -s A4 http://" +
+          Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
             request.env["HTTP_HOST"] + "\"/patients/admission_form_printable/" +
             "?patient_id=#{@patient.id}" + "\" /tmp/output-#{@patient.id}" + ".pdf \n"
         }
 
         t2 = Thread.new{
-          Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{@patient.id}" + ".pdf\n"
+          Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-#{@patient.id}" + ".pdf\n"
         }
 
         t3 = Thread.new{
