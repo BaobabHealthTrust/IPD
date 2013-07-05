@@ -849,4 +849,122 @@ def print(file_name, current_printer)
       print(file_name)
     end
 end
+
+def daily_report
+  #raise params.inspect
+  year = params[:year]
+  month = params[:month]
+  ward = params[:ward]
+  start_of_month_date = ('01'.to_s  + '-' + month.to_s + '-' + year.to_s).to_date
+  end_of_month_date = start_of_month_date.end_of_month
+  @data = {}
+  available_dates = (start_of_month_date..end_of_month_date).to_a
+  encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+  available_dates.each do |date|
+   #<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><>
+    @data[date] = {}
+    @data[date][:admissions_by_gender] = {}
+    @data[date][:admissions_by_age_groups] = {}
+    @data[date][:outcomes] = {}
+    @data[date][:indicators] = {}
+    total_admissions = Encounter.find(:all, :joins => [:observations],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      value_text =?", date, encounter_type.id, ward])
+	  total_admissions_ids = total_admissions.map(&:patient_id)
+
+	  total_admissions_males = Encounter.find(:all,
+    :joins => [:observations, [:patient => :person]],
+    :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+    gender =? AND value_text =?",date, encounter_type.id, "M", ward])
+    total_admissions_males_ids = total_admissions_males.map(&:patient_id)
+    @data[date][:admissions_by_gender][:males] = total_admissions_males_ids.uniq.count
+
+    total_admissions_females = Encounter.find(:all,
+     :joins => [:observations, [:patient => :person]],
+     :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+     gender =? AND value_text =?",date, encounter_type.id, "F", ward])
+    total_admissions_females_ids = total_admissions_females.map(&:patient_id)
+    @data[date][:admissions_by_gender][:females] = total_admissions_females_ids.uniq.count
+
+    total_admissions_infants = Encounter.find(:all,
+     :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      DATEDIFF(NOW(), person.birthdate)/365 <= 2  AND value_text =?",\
+      date, encounter_type.id, ward])
+    total_admissions_infants_ids = total_admissions_infants.map(&:patient_id)
+    @data[date][:admissions_by_age_groups][:infants] = total_admissions_infants_ids.uniq.count
+
+    total_admissions_children = Encounter.find(:all,
+      :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      DATEDIFF(NOW(), person.birthdate)/365 > ? AND DATEDIFF(NOW(), person.birthdate)/365 <= ? AND
+      value_text =?",date, encounter_type.id, 2, 14, ward])
+    total_admissions_children_ids = total_admissions_children.map(&:patient_id)
+    @data[date][:admissions_by_age_groups][:children] = total_admissions_children_ids.uniq.count
+  
+    total_admissions_adults = Encounter.find(:all,
+      :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND
+      encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14 AND
+      value_text =?",date, encounter_type.id, ward])
+    total_admissions_adults_ids = total_admissions_adults.map(&:patient_id) rescue nil
+    @data[date][:admissions_by_age_groups][:adults] = total_admissions_adults_ids.uniq.count
+  
+ 
+    bed_size = Ward.find(:first, :conditions => ["name =? AND voided =?",ward, 0]).bed_number.to_i rescue 0
+    bed_occupacy_ratio = total_admissions_ids.count/bed_size rescue 0
+    @data[date][:indicators][:bed_occupacy_ratio] = bed_occupacy_ratio
+    states = {}
+    patient_states = PatientState.find(:all, :joins => [:patient_program],
+      :conditions => ["patient_id IN (?) AND
+    start_date = ?", total_admissions_ids, date])
+    patient_states.each do |state|
+      fullname = state.program_workflow_state.concept.fullname
+      next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)
+      if (fullname.match(/died/i))
+        if (states['died'].blank?)
+          states['died'] = 0
+        end
+        unless (states['died'].blank?)
+          states['died']+=1
+        end
+      end
+
+      if (fullname.match(/Discharged/i))
+        if (states['Discharged'].blank?)
+          states['Discharged'] = 0
+        end
+        unless (states['Discharged'].blank?)
+          states['Discharged']+=1
+        end
+      end
+
+      if (fullname.match(/Patient transferred/i))
+        if (states['Patient transferred'].blank?)
+          states['Patient transferred'] = 0
+        end
+        unless (states['Patient transferred'].blank?)
+          states['Patient transferred']+=1
+        end
+      end
+
+      if (fullname.match(/Absconded/i))
+        if (states['Absconded'].blank?)
+          states['Absconded'] = 0
+        end
+        unless (states['Absconded'].blank?)
+          states['Absconded']+=1
+        end
+      end
+    end
+    @data[date][:outcomes][:died] = states['died'] rescue 0
+    @data[date][:outcomes][:discharged] = states['Discharged'] rescue 0
+    @data[date][:outcomes][:transfered] = states['Patient transferred'] rescue 0
+    @data[date][:outcomes][:absconded] = states['Absconded'] rescue 0
+   #<><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> 
+  end
+  @data = @data.sort_by{|key, value|key}
+  raise @data.to_yaml
+end
+
 end
