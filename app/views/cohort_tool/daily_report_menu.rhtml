@@ -1,0 +1,18 @@
+<form action='/report/daily_report' method='post' >
+  <% month_names = month_name_options.gsub('<option value="Unknown">Unknown</option>', '') %>
+  <%= select_tag "ward", options_for_select(@kch_wards), {
+    :helpText => 'Select Ward'
+  }%>
+
+  <%= select_tag "year", options_for_select(@available_years), {
+    :helpText => 'Select Year',
+    :tt_onLoad => "__$('keyboard').style.display = 'none'"
+  }%>
+
+  <%= select_tag "month", month_names, {
+    :helpText => 'Select Month',
+    :tt_onLoad => "__$('keyboard').style.display = 'none'"
+  }%>
+  
+</form>
+
