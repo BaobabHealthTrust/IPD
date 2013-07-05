@@ -2886,5 +2886,12 @@ class CohortToolController < ApplicationController
   def report_team_menu
     @teams = Team.all.map(&:name) rescue []
   end
+
+  def daily_report_menu
+    min_enc_year = Encounter.find(:first).encounter_datetime.year
+    max_year = Date.today.year
+    @available_years = (min_enc_year..max_year).to_a
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
+  end
 end
 
