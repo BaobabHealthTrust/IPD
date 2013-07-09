@@ -851,12 +851,16 @@ def print(file_name, current_printer)
 end
 
 def daily_report
-  #raise params.inspect
+  @logo = CoreService.get_global_property_value('logo').to_s
+  @current_location_name = Location.current_health_center.name
   year = params[:year]
   month = params[:month]
   ward = params[:ward]
   start_of_month_date = ('01'.to_s  + '-' + month.to_s + '-' + year.to_s).to_date
   end_of_month_date = start_of_month_date.end_of_month
+  @start_date = start_of_month_date
+  @end_date = end_of_month_date
+  @ward = ward
   @data = {}
   available_dates = (start_of_month_date..end_of_month_date).to_a
   encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
@@ -964,7 +968,8 @@ def daily_report
    #<><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> 
   end
   @data = @data.sort_by{|key, value|key}
-  raise @data.to_yaml
+  render :layout => "menu"
+  #raise @data.to_yaml
 end
 
 end
