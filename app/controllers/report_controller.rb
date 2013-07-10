@@ -860,6 +860,8 @@ def daily_report
   end_of_month_date = start_of_month_date.end_of_month
   @start_date = start_of_month_date
   @end_date = end_of_month_date
+  @month = month
+  @year = year
   @ward = ward
   @data = {}
   available_dates = (start_of_month_date..end_of_month_date).to_a
@@ -970,6 +972,152 @@ def daily_report
   @data = @data.sort_by{|key, value|key}
   render :layout => "menu"
   #raise @data.to_yaml
+end
+def daily_report_printable
+  @logo = CoreService.get_global_property_value('logo').to_s
+  @current_location_name = Location.current_health_center.name
+  year = params[:year]
+  month = params[:month]
+  ward = params[:ward]
+  @ward = ward
+  start_of_month_date = ('01'.to_s  + '-' + month.to_s + '-' + year.to_s).to_date
+  end_of_month_date = start_of_month_date.end_of_month
+  @start_date = start_of_month_date
+  @end_date = end_of_month_date
+  @ward = ward
+  @data = {}
+  available_dates = (start_of_month_date..end_of_month_date).to_a
+  encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+  available_dates.each do |date|
+   #<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><>
+    @data[date] = {}
+    @data[date][:admissions_by_gender] = {}
+    @data[date][:admissions_by_age_groups] = {}
+    @data[date][:outcomes] = {}
+    @data[date][:indicators] = {}
+    total_admissions = Encounter.find(:all, :joins => [:observations],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      value_text =?", date, encounter_type.id, ward])
+	  total_admissions_ids = total_admissions.map(&:patient_id)
+
+	  total_admissions_males = Encounter.find(:all,
+    :joins => [:observations, [:patient => :person]],
+    :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+    gender =? AND value_text =?",date, encounter_type.id, "M", ward])
+    total_admissions_males_ids = total_admissions_males.map(&:patient_id)
+    @data[date][:admissions_by_gender][:males] = total_admissions_males_ids.uniq.count
+
+    total_admissions_females = Encounter.find(:all,
+     :joins => [:observations, [:patient => :person]],
+     :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+     gender =? AND value_text =?",date, encounter_type.id, "F", ward])
+    total_admissions_females_ids = total_admissions_females.map(&:patient_id)
+    @data[date][:admissions_by_gender][:females] = total_admissions_females_ids.uniq.count
+
+    total_admissions_infants = Encounter.find(:all,
+     :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      DATEDIFF(NOW(), person.birthdate)/365 <= 2  AND value_text =?",\
+      date, encounter_type.id, ward])
+    total_admissions_infants_ids = total_admissions_infants.map(&:patient_id)
+    @data[date][:admissions_by_age_groups][:infants] = total_admissions_infants_ids.uniq.count
+
+    total_admissions_children = Encounter.find(:all,
+      :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND encounter_type =? AND
+      DATEDIFF(NOW(), person.birthdate)/365 > ? AND DATEDIFF(NOW(), person.birthdate)/365 <= ? AND
+      value_text =?",date, encounter_type.id, 2, 14, ward])
+    total_admissions_children_ids = total_admissions_children.map(&:patient_id)
+    @data[date][:admissions_by_age_groups][:children] = total_admissions_children_ids.uniq.count
+  
+    total_admissions_adults = Encounter.find(:all,
+      :joins => [:observations, [:patient => :person]],
+      :conditions => ["DATE(encounter_datetime) = ? AND
+      encounter_type =? AND DATEDIFF(NOW(), person.birthdate)/365 > 14 AND
+      value_text =?",date, encounter_type.id, ward])
+    total_admissions_adults_ids = total_admissions_adults.map(&:patient_id) rescue nil
+    @data[date][:admissions_by_age_groups][:adults] = total_admissions_adults_ids.uniq.count
+  
+ 
+    bed_size = Ward.find(:first, :conditions => ["name =? AND voided =?",ward, 0]).bed_number.to_i rescue 0
+    bed_occupacy_ratio = total_admissions_ids.count/bed_size rescue 0
+    @data[date][:indicators][:bed_occupacy_ratio] = bed_occupacy_ratio
+    states = {}
+    patient_states = PatientState.find(:all, :joins => [:patient_program],
+      :conditions => ["patient_id IN (?) AND
+    start_date = ?", total_admissions_ids, date])
+    patient_states.each do |state|
+      fullname = state.program_workflow_state.concept.fullname
+      next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)
+      if (fullname.match(/died/i))
+        if (states['died'].blank?)
+          states['died'] = 0
+        end
+        unless (states['died'].blank?)
+          states['died']+=1
+        end
+      end
+
+      if (fullname.match(/Discharged/i))
+        if (states['Discharged'].blank?)
+          states['Discharged'] = 0
+        end
+        unless (states['Discharged'].blank?)
+          states['Discharged']+=1
+        end
+      end
+
+      if (fullname.match(/Patient transferred/i))
+        if (states['Patient transferred'].blank?)
+          states['Patient transferred'] = 0
+        end
+        unless (states['Patient transferred'].blank?)
+          states['Patient transferred']+=1
+        end
+      end
+
+      if (fullname.match(/Absconded/i))
+        if (states['Absconded'].blank?)
+          states['Absconded'] = 0
+        end
+        unless (states['Absconded'].blank?)
+          states['Absconded']+=1
+        end
+      end
+    end
+    @data[date][:outcomes][:died] = states['died'] rescue 0
+    @data[date][:outcomes][:discharged] = states['Discharged'] rescue 0
+    @data[date][:outcomes][:transfered] = states['Patient transferred'] rescue 0
+    @data[date][:outcomes][:absconded] = states['Absconded'] rescue 0
+   #<><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> <><><><><><><><><><><><><><><><><><> 
+  end
+  @data = @data.sort_by{|key, value|key}
+  render :layout => false
+  #raise @data.to_yaml
+end
+def print_daily_report
+  location = request.remote_ip rescue ""
+  month = params[:month]
+  year = params[:year]
+  selected_ward = params[:ward]
+  current_printer = ""
+
+  wards = CoreService.get_global_property_value("facility.ward.printers").split(",") rescue []
+  wards.each{|ward|
+    current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
+  } rescue []
+
+    t1 = Thread.new{
+      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 5 -s A4 http://" +
+        request.env["HTTP_HOST"] + "\"/report/daily_report_printable/" +
+        "?month=#{month}&year=#{year}&ward=#{selected_ward}" + "\" /tmp/output-daily_report" + ".pdf \n"
+    }
+    file = "/tmp/output-daily_report" + ".pdf"
+    t2 = Thread.new{
+      sleep(3)
+      print(file, current_printer)
+    }
+    render :text => "true" and return
 end
 
 end
