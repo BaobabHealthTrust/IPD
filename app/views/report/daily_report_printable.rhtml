@@ -1,0 +1,143 @@
+
+<html>
+  <head>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+
+    <style>
+      div {
+        -moz-user-select: none;
+      }
+
+      .logo {
+        float:left
+      }
+      .horizontal_line hr{
+        position:absolute;
+        bottom:104px;
+      }
+   </style>
+  </head>
+  <body >
+    <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
+    <b style="position:relative; top:0px;margin-left:75px">Daily ADT Report for <u><i><%= @ward %></i></u> </b><br />
+    <b style="position:relative; top:0px;margin-left:75px">Month of <u><i><%=@start_date.strftime("%B, %Y")%></i></u> </b><br />
+    <br /><br /><br /><br />
+
+  <table BORDER=1 CELLPADDING=3
+    RULES=COLS FRAME=BOX style="width: 100%; margin-left: 0%;">
+    <thead>
+      <tr>
+        <td style="font-weight: bold; border-bottom: solid 1px black;">Day</td>
+        <td>
+          <table width="100%">
+            <tr>
+              <td  style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="2" >Admissions By Gender</td>
+            </tr>
+            <tr>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Males</td>
+              <td style="text-align:center; border-bottom: solid 1px black;">Females</td>
+            </tr>
+          </table>
+        </td>
+        <td>
+          <table width="100%">
+            <tr>
+              <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="3" >Admissions By Age groups</td>
+            </tr>
+            <tr>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Infants(0-2)</td>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Children(2-14)</td>
+              <td style="text-align:center; border-bottom: solid 1px black;">Adults(>14)</td>
+            </tr>
+          </table>
+        </td>
+                  
+          <td>
+            <table width="100%">
+              <tr>
+                <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="4" >Outcomes</td>
+              </tr>
+              <tr>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Discharged</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Transfered</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Absconded</td>
+                <td style="text-align:center; border-bottom: solid 1px black;">Died</td>
+              </tr>
+            </table>
+          </td>
+        
+          <td>
+            <table width="100%">
+              <tr>
+                <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold" colspan="2" >Indicators</td>
+              </tr>
+              <tr>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Death Rate</td>
+                <td style="text-align:center; text-align:right; border-bottom: solid 1px black;">Bed Occupancy Ratio</td>
+              </tr>
+            </table>
+          </td>
+        
+      </tr>
+    </thead>
+    <tbody>
+      <% @data.each do |key, value| %>
+      <tr>
+        <td><%= key.strftime("%d-%b-%Y") %></td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:admissions_by_gender][:males] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_gender][:females] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:admissions_by_age_groups][:infants] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_age_groups][:children] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_age_groups][:adults] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:outcomes][:discharged] %></td>
+              <td style="text-align: center"><%= (value[:outcomes][:transfered].blank?) ?0:value[:outcomes][:transfered]%></td>
+              <td style="text-align: center"><%= (value[:outcomes][:absconded].blank?) ?0:value[:outcomes][:absconded] %></td>
+              <td style="text-align: center"><%= (value[:outcomes][:died].blank?) ?0:value[:outcomes][:died] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center"><%= (value[:indicators][:death_rate].blank?) ?0:value[:indicators][:death_rate]%></td>
+              <td style="text-align: center"><%= (value[:indicators][:bed_occupacy_ratio].blank?) ?0:value[:indicators][:bed_occupacy_ratio] %></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <%end%>
+    </tbody>
+    <tfoot>
+      
+    </tfoot>
+  </table>
+
+
+</body>
+</html>
