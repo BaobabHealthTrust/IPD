@@ -8,261 +8,20 @@
     <%= stylesheet_link_tag 'jquery.dataTables' %>
     <%=javascript_include_tag "jquery.table2CSV.min" %>
     <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
-    <script>
-      var tt_cancel_destination = "/clinic"
-      jQuery(document).ready(function($) {
-          $('#table_id').dataTable({
-            "bAutoWidth": true,
-            "bProcessing": true,
-            "sScrollY": "400px",
-            "bInfo": true,
-            "bPaginate": false
-          });
-    search_box = $('#report').dataTable()
-    search = document.getElementsByTagName("input")[0];
-    search.setAttribute("id","search");
-    document.getElementById('search').setAttribute("onclick","showKeyboard();");
-    document.getElementById("find").innerHTML = "<span>Back</span>";
-    document.getElementById("find").style.cssFloat = "left";
-    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    keyboard = document.getElementsByClassName("keypad")[0]
-    function getCharButtonSetID(character,id){
-      return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
-    }
-    function getButtonString(id,string){
-      return "<button \
-                            onMouseDown='press(this.id);' \
-                            class='keyboardButton' \
-                            id='"+id+"'>"+
-        string +
-        "</button>";
-    }
 
-    function getButtons(chars){
-      var buttonLine = "";
-      for(var i=0; i<chars.length; i++){
-        character = chars.substring(i,i+1)
-        buttonLine += getCharButtonSetID(character,character)
-      }
-      return buttonLine;
-    }
-
-    showAlphaKeypad();
-
-    function showAlphaKeypad(){
-      document.getElementById("keypad").style.height = "280";
-      keyboard.innerHTML= getButtons("0123456789") + "</br>"
-      keyboard.innerHTML+= getButtons("QWERTYUIOP") + "</br>"
-      keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>"
-      keyboard.innerHTML+= getButtons("ZXCVBNM,.?")
-      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
-      keyboard.innerHTML+= getButtonString('Space','<span>Space</span>')
-      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
-    }
-
-    function showNumericKeypad(){
-      document.getElementById("keypad").style.height = "145";
-      keyboard.innerHTML = getButtons("123")
-      keyboard.innerHTML+= getButtons("456")
-      keyboard.innerHTML+= getButtons("7890")
-      keyboard.innerHTML+= getButtonString('space','<span>Space</span>')
-      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
-      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
-      keyboard.innerHTML+= getButtonString('abc','<span>abc</span>')
-      keyboard.innerHTML+= getButtonString('dash','<span>-</span>')
-      keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
-    }
-
-    data_table_length =document.getElementsByName('table_id_length')[0];
-    data_table_length.setAttribute("style","font-size:20px;");
-
-    table_length = document.getElementById("table_id_length");
-    table_length.setAttribute("style","width:100px;");
-
-  })
-    </script>
-
-    <script>
-
-      function showKeyboard(){
-        key = document.getElementById("keypad")
-        if(key.style.display == 'none' || key.style.display == ""){
-          key.style.display = "inline";
-          return
-        }
-
-        key.style.display = "none";
-      }
-
-      function press(pressedChar){
-        switch (pressedChar) {
-          case 'backspace':
-            search.value = search.value.substring(0,search.value.length-1);
-            search_box.fnFilter(search.value)
-            return;
-          case 'Space':
-            search.value+= " "
-            search_box.fnFilter(search.value)
-            return
-          case 'clear':
-            search.value = ""
-            search_box.fnFilter(search.value)
-            return
-          case 'num':
-            showNumericKeypad();
-            return
-          case 'slash':
-            search.value+= "/"
-            search_box.fnFilter(search.value)
-            return
-          case 'dash':
-            search.value+= "-"
-            search_box.fnFilter(search.value)
-            return
-          case 'abc':
-            showAlphaKeypad();
-            return
-        }
-        search.value+= pressedChar
-        search_box.fnFilter(search.value)
-      }
-      //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    </script>
-
-    <style>
-
-      #backspace{
-        position:absolute;
-        left:100px;
-        bottom:2px;
-      }
-
-      #Space{
-        position:absolute;
-        left:220px;
-        bottom:2px;
-        width:200px;
-      }
-
-      #clear{
-        position:absolute;
-        left:470px;
-        bottom:2px;
-      }
-       #num{
-        position:absolute;
-        left:470px;
-        bottom:2px;
-        width:200px;
-      }
-      #keypad{
-        background-color: #FFFFFF;
-        border: 2px solid #9999FF;
-        border-radius: 15px 15px 15px 15px;
-        display: none;
-        height: 304px;
-        padding: 5px;
-        position: absolute;
-        right: 13px;
-        top: 194px;
-        width: 672px;
-      }
-    </style>
     <style>
       div {
         -moz-user-select: none;
-      }
-      .basic_span {
-        position:relative;
-        width:50%;
-        display:block;
-        float:left;
       }
 
       .logo {
         float:left
       }
-
-      #table_id {
-        width: 100%;
-      }
-
-      #table_id_filter{
-        position:absolute;
-        top:0px;
-        right:1%;
-        margin-top:-40px;
-      }
-
-      #table_id_filter input{
-        padding:0.5em;
-      }
-
-
-      .dataTables_length select {
-        font-size: 25px;
-      }
       .horizontal_line hr{
         position:absolute;
         bottom:104px;
       }
-      #table_id_info{
-        left: 10px;
-        position: absolute;
-        top: 476px;
-        font-weight:bold;
-      }
-      #table_id_length{
-        display:none;
-      }
-       #table_id_paginate{
-        display:none;
-      }
-      #num{ display:none; }
-      #char{ display:none; }
-      #report{
-        left: 2%;
-        position: absolute;
-        width: 1504px;
-      }
-
-
-    #number {
-    width:20%;
-    margin:10px;
-    background:white;
-    -moz-user-select:none;
-  }
-
-  #number a {
-          border-radius: 7px;
-          background-color: #669999;
-          border-bottom: 1px outset black;
-          border-style: outset;
-          border-top: 1px outset black;
-          color: white;
-          display: block;
-          padding: 10px 16px 10px 10px;
-          text-align: center;
-          text-decoration: none;
-  }
-
-
-    #gender_distribution{
-      text-align: center;
-      font-size: 14pt;
-    }
-    #age_groups{
-      text-align: center;
-      font-size: 14pt;
-    }
-    #display_only{
-    color: black;
-    text-align: center;
-    background-color: #E0E0E0;
-    }
- 
-    </style>
+   </style>
   </head>
   <body >
     <%= image_tag(@logo, :class => "logo")%>
@@ -276,15 +35,15 @@
     RULES=COLS FRAME=BOX style="width: 98%; margin-left: 2%;">
     <thead>
       <tr>
-        <td style="font-weight: bold">Day</td>
+        <td style="font-weight: bold; border-bottom: solid 1px black;">Day</td>
         <td>
           <table width="100%">
             <tr>
               <td  style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="2" >Admissions By Gender</td>
             </tr>
             <tr>
-              <td style="text-align:center; border-right: solid 1px black;">Males</td>
-              <td style="text-align:center;">Females</td>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Males</td>
+              <td style="text-align:center; border-bottom: solid 1px black;">Females</td>
             </tr>
           </table>
         </td>
@@ -294,9 +53,9 @@
               <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="3" >Admissions By Age groups</td>
             </tr>
             <tr>
-              <td style="text-align:center; border-right: solid 1px black;">Infants(0-2)</td>
-              <td style="text-align:center; border-right: solid 1px black;">Children(2-14)</td>
-              <td style="text-align:center;">Adults(>14)</td>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Infants(0-2)</td>
+              <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Children(2-14)</td>
+              <td style="text-align:center; border-bottom: solid 1px black;">Adults(>14)</td>
             </tr>
           </table>
         </td>
@@ -307,10 +66,10 @@
                 <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold;" colspan="4" >Outcomes</td>
               </tr>
               <tr>
-                <td style="text-align:center; border-right: solid 1px black;">Discharged</td>
-                <td style="text-align:center; border-right: solid 1px black;">Transfered</td>
-                <td style="text-align:center; border-right: solid 1px black;">Absconded</td>
-                <td style="text-align:center;">Died</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Discharged</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Transfered</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Absconded</td>
+                <td style="text-align:center; border-bottom: solid 1px black;">Died</td>
               </tr>
             </table>
           </td>
@@ -321,8 +80,8 @@
                 <td style="text-align:center; border-bottom: solid 1px black; font-weight: bold" colspan="2" >Indicators</td>
               </tr>
               <tr>
-                <td style="text-align:center; border-right: solid 1px black;">Death Rate</td>
-                <td style="text-align:center; text-align:right;">Bed Occupancy Ratio</td>
+                <td style="text-align:center; border-right: solid 1px black; border-bottom: solid 1px black;">Death Rate</td>
+                <td style="text-align:center; text-align:right; border-bottom: solid 1px black;">Bed Occupancy Ratio</td>
               </tr>
             </table>
           </td>
@@ -330,7 +89,50 @@
       </tr>
     </thead>
     <tbody>
-      
+      <% @data.each do |key, value| %>
+      <tr>
+        <td><%= key.strftime("%d-%b-%Y") %></td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:admissions_by_gender][:males] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_gender][:females] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:admissions_by_age_groups][:infants] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_age_groups][:children] %></td>
+              <td style="text-align: center"><%= value[:admissions_by_age_groups][:adults] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center; border-bottom: solid 1px black;"><%= value[:outcomes][:discharged] %></td>
+              <td style="text-align: center"><%= (value[:outcomes][:transfered].blank?) ?0:value[:outcomes][:transfered]%></td>
+              <td style="text-align: center"><%= (value[:outcomes][:absconded].blank?) ?0:value[:outcomes][:absconded] %></td>
+              <td style="text-align: center"><%= (value[:outcomes][:died].blank?) ?0:value[:outcomes][:died] %></td>
+            </tr>
+          </table>
+        </td>
+
+        <td>
+          <table BORDER=2 CELLPADDING=3 RULES=ROWS FRAME=BOX width="100%">
+            <tr>
+              <td style="text-align: center"><%= (value[:indicators][:death_rate].blank?) ?0:value[:indicators][:death_rate]%></td>
+              <td style="text-align: center"><%= (value[:indicators][:bed_occupacy_ratio].blank?) ?0:value[:indicators][:bed_occupacy_ratio] %></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <%end%>
     </tbody>
     <tfoot>
       
