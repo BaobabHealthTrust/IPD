@@ -28,20 +28,20 @@ class GenericApplicationController < ActionController::Base
 		                                      'create_remote', 'mastercard_printable', 'get_token', 
                                           'admission_form','admission_form_printable',
                                           'adt_generic_report_printable','adt_report_by_ward_printable',
-                                          'shift_report_printable','team_report_printable']
+                                          'shift_report_printable','team_report_printable','daily_report_printable']
 
   before_filter :set_current_user, :except => ['login', 'logout','remote_demographics',
 		                                      'create_remote', 'mastercard_printable', 'get_token', 
                                           'admission_form','admission_form_printable',
                                           'adt_generic_report_printable','adt_report_by_ward_printable',
-                                          'shift_report_printable','team_report_printable']
+                                          'shift_report_printable','team_report_printable','daily_report_printable']
 
 	before_filter :location_required, :except => ['login', 'logout', 'location',
 		                                        'demographics','create_remote',
 		                                         'mastercard_printable',
 		                                        'remote_demographics', 'get_token', 'single_sign_in', 'admission_form',
                                             'admission_form_printable','adt_generic_report_printable','adt_report_by_ward_printable',
-                                            'shift_report_printable','team_report_printable']
+                                            'shift_report_printable','team_report_printable','daily_report_printable']
   before_filter :set_current_team
 	def rescue_action_in_public(exception)
 		@message = exception.message
