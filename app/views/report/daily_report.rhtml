@@ -147,6 +147,31 @@
       </span>
 
   </div>
+<script>
+/*  function setPosition(){
+    finish = document.getElementById('finishButton')
+    finish.style.position = 'absolute'
+    finish.style.left = '0%'
+  }
+  setTimeout("setPosition()",10);*/
 
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printDailyReport();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printDailyReport(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_daily_report",
+                    data: "month=<%=@month%>" + "&year=<%=@year%>" + "&ward=<%=@ward%>",
+                    success: function(){
+                            //alert("Successful")
+                    }
+
+            });
+   }
+</script>
 </body>
 </html>
