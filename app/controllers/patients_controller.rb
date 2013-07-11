@@ -1,3 +1,6 @@
+require 'barby'
+require 'barby/barcode/code_39'
+require 'barby/outputter/png_outputter'
 class PatientsController < GenericPatientsController
 
   def show
@@ -836,7 +839,13 @@ class PatientsController < GenericPatientsController
     admission_enc = Encounter.find(:last, :conditions => ["encounter_type =? AND patient_id =?",
         EncounterType.find_by_name('ADMIT PATIENT').id, patient_id])
     @date_admitted = admission_enc.encounter_datetime rescue nil
-    #raise @patient_bean.inspect
+    barcode_value = @patient_bean.national_id_with_dashes
+    full_path = "#{RAILS_ROOT}/public/images/barcode_#{barcode_value}.png"
+    barcode = Barby::Code39.new(barcode_value)
+    File.open(full_path, 'w') { |f|
+      f.write barcode.to_png(:margin => 3, :xdim => 2, :height => 80)
+    }
+    #raise @barcode_image.inspect
     render :layout => false
   end
 
