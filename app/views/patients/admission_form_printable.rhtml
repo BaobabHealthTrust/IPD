@@ -40,6 +40,11 @@ input[type=checkbox]{
   opacity: 0;
 }
 
+#barcode img{
+  position: absolute;
+  left: 70%;
+  top: 2.5%;
+}
 </style>
 
 <div>
@@ -50,6 +55,9 @@ input[type=checkbox]{
     <b style="margin-left: 20%">Admission No:</b><br />
     <b style="margin-left: 20%">Admission Date: <%= @date_admitted.strftime("%a, %d/%m/%Y") rescue nil %></b>
 </div><br /><br />
+<div id="barcode">
+  <%= image_tag("barcode_#{@patient_bean.national_id_with_dashes}.png") %>
+</div>
 <div>
 
   <table align="center">
