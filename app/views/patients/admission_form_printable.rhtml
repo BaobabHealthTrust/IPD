@@ -45,6 +45,12 @@ input[type=checkbox]{
   left: 70%;
   top: 2.5%;
 }
+#barcode b{
+  position: absolute;
+  left: 75%;
+  top: 13%;
+  letter-spacing:7.5pt;
+}
 </style>
 
 <div>
@@ -57,6 +63,7 @@ input[type=checkbox]{
 </div><br /><br />
 <div id="barcode">
   <%= image_tag("barcode_#{@patient_bean.national_id_with_dashes}.png") %>
+  <b style="font-stretch: expanded;"><%= @patient_bean.national_id_with_dashes %></b>
 </div>
 <div>
 
