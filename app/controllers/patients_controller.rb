@@ -853,6 +853,7 @@ class PatientsController < GenericPatientsController
   def print_admission_form
     location = request.remote_ip rescue ""
     @patient = Patient.find(params[:patient_id] || params[:id]) rescue nil
+    patient_bean = PatientService.get_patient(@patient.person)
     if @patient
       current_printer = ""
 
@@ -870,16 +871,17 @@ class PatientsController < GenericPatientsController
         file = "/tmp/output-#{@patient.id}" + ".pdf"
         t2 = Thread.new{
           sleep(3)
-          print(file, current_printer)
+          print(file, current_printer,patient_bean)
         }
 
     end
     redirect_to "/patients/show/#{params[:patient_id]}" and return
   end
-  def print(file_name, current_printer)
+  def print(file_name, current_printer, patient_bean)
     sleep(3)
     if (File.exists?(file_name))
      Kernel.system "lp -o sides=two-sided-long-edge -o fitplot #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} #{file_name}"
+     `rm #{RAILS_ROOT}/public/images/barcode_#{patient_bean.national_id_with_dashes}.png`
     else
       print(file_name)
     end
