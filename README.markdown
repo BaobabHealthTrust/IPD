@@ -25,7 +25,7 @@ Enter into the root of your application by typing <b>cd IPD</b><br />
 Type <b>cp config/application.yml.example config/application.yml</b><br />
 Type <b>cp config/database.yml.example config/database.yml </b><br />
 Note: Open config/database.yml and edit the file. Provide any database name to be used in your application. Do not forget to provide mysql password in the same file </b><br />
-Type <b>script/runner script/initial_database_setup.sh development mpc</b>. Please be patient while the script is running. This may take some time</b><br />
+Type <b>script/initial_database_setup.sh development mpc</b>. Please be patient while the script is running. This may take some time</b><br />
 Type <b>script/runner script/load_wards.rb</b><br />
 Type <b>sudo bundle install <br />
 After completing the above steps, you may now run the application by typing <b>script/server </b><br />
