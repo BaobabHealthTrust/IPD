@@ -183,10 +183,14 @@
     date = new Date
     currYear = date.getFullYear();
     currDay = date.getDate();
+    currMonth = date.getMonth() + 1;
+    selected_month = parseInt(document.getElementsByName('person[birth_month]')[0].value)
     selectYear = parseInt(document.getElementsByName('person[birth_year]')[0].value);
     if (selectYear == currYear) {
-      return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
-     }
+      if (selected_month == currMonth){
+        return $('touchscreenInput'+tstCurrentPage).setAttribute('absoluteMax',currDay);
+      }
+    }
   }
 </script>
 
