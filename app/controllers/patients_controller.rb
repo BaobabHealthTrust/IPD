@@ -233,8 +233,9 @@ class PatientsController < GenericPatientsController
 
      admit_to_ward_concept = Concept.find_by_name("ADMIT TO WARD")
      admission_obs  = Observation.find(:last, :conditions => ["person_id =? AND concept_id =?", patient.id, admit_to_ward_concept.id]) rescue nil
+     date_admitted = admission_obs.obs_datetime.strftime("%a, %d/%b/%Y") rescue nil
      ward_admitted = admission_obs.answer_string.squish rescue nil
-     label.draw_multi_text("Date Admitted - " + date_enrolled, :font_reverse => false)
+     label.draw_multi_text("Date Admitted - " + date_admitted, :font_reverse => false)
      label.draw_multi_text("Ward Admitted - " + ward_admitted, :font_reverse => false)
 
 			['OPD PROGRAM','IPD PROGRAM'].each do |program_name|		
@@ -251,7 +252,7 @@ class PatientsController < GenericPatientsController
       		end
 			end
 
-      label.draw_multi_text("Seen by: #{current_user.name rescue ''} at " +
+      label.draw_multi_text("Processed by: #{current_user.name rescue ''} at " +
         " #{Location.current_location.name rescue ''}", :font_reverse => true)
       
       label.print(1)
@@ -710,7 +711,12 @@ class PatientsController < GenericPatientsController
       admission_history[encounter.id] = {}
       admission_history[encounter.id]["encounter_datetime"] = encounter.encounter_datetime
       admission_history[encounter.id]["encounter_type"] = encounter.type.name
-      provider = encounter.provider.names[0]
+
+      unless (User.find_by_user_id(encounter.provider_id).blank?)
+        provider = User.find_by_user_id(encounter.provider_id).person.names[0]
+      else
+        provider = encounter.provider.names[0]
+      end
       provider_names = provider.given_name.first.to_s + '.' + provider.family_name.to_s
       admission_history[encounter.id]["provider_details"] = provider_names
       answer_string = []
