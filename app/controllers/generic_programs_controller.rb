@@ -128,7 +128,7 @@ class GenericProgramsController < ApplicationController
           encounter = Encounter.new
           encounter.encounter_type = EncounterType.find_by_name('DISCHARGE PATIENT').id
           encounter.patient_id  = params[:patient_id]
-          encounter.provider_id = User.current.id
+          encounter.provider_id = User.current.person_id
           encounter.encounter_datetime = session[:datetime] rescue Time.now()
           encounter.save
 
