@@ -1102,10 +1102,21 @@ class GenericReportController < ApplicationController
     @turn_over_rate = total_discharges.count/bed_size rescue 0
     @bed_occupacy_ratio = @total_admissions.count/bed_size rescue 0
   #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  @patient_states = {}
+   @patient_states = {}
+    local_patient_ids = []
+    @total_admissions_ids.each do |patient_id|
+     last_admission = Observation.find(:last, :joins=>[:encounter], :conditions => ["person_id =?
+         AND encounter_type =? AND concept_id =?",patient_id,
+          EncounterType.find_by_name('ADMIT PATIENT').id,
+          Concept.find_by_name('ADMIT TO WARD')])
+     last_admission_location = last_admission.answer_string.squish
+     next unless last_admission_location == ward
+     local_patient_ids << patient_id
+    end
+
     patient_states = PatientState.find(:all, :joins => [:patient_program => [:patient => [:encounters => :observations]]],
       :conditions => ["patient_program.patient_id IN (?) AND
-    start_date >= ? AND value_text =?", @total_admissions_ids, start_date.to_date, ward])
+    start_date >= ? AND value_text =?", local_patient_ids, start_date.to_date, ward])
     patient_states.each do |state|
       fullname = state.program_workflow_state.concept.fullname
       next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)

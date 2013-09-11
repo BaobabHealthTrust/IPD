@@ -921,9 +921,21 @@ def daily_report
     bed_occupacy_ratio = total_admissions_ids.count/bed_size rescue 0
     @data[date][:indicators][:bed_occupacy_ratio] = bed_occupacy_ratio
     states = {}
+
+    local_patient_ids = []
+    total_admissions_ids.each do |patient_id|
+     last_admission = Observation.find(:last, :joins=>[:encounter], :conditions => ["person_id =?
+         AND encounter_type =? AND concept_id =?",patient_id,
+          EncounterType.find_by_name('ADMIT PATIENT').id,
+          Concept.find_by_name('ADMIT TO WARD')])
+     last_admission_location = last_admission.answer_string.squish
+     next unless last_admission_location == ward
+     local_patient_ids << patient_id
+    end
+
     patient_states = PatientState.find(:all, :joins => [:patient_program],
       :conditions => ["patient_id IN (?) AND
-    start_date = ?", total_admissions_ids, date])
+    start_date = ?", local_patient_ids, date])
     patient_states.each do |state|
       fullname = state.program_workflow_state.concept.fullname
       next unless fullname.match(/died|Discharged|Patient transferred|Absconded/i)
