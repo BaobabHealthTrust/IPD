@@ -86,12 +86,12 @@
 			<% program_id = Program.find_by_name('IPD PROGRAM').id %>
 			<% patient_program_id = @patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil %>
   
-      <%= hidden_field_tag("programs[][patient_program_id]", patient_program_id) %>
-      <%= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
-      <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
-      <%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+      <%#= hidden_field_tag("programs[][patient_program_id]", patient_program_id) %>
+      <%#= hidden_field_tag("programs[][program_id]", Program.find_by_name('IPD PROGRAM').id)%>
+      <%#= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%#= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
 
-      <%= hidden_field_tag("programs[][states][][state]", "Discharged") %>
+      <%#= hidden_field_tag("programs[][states][][state]", "Discharged") %>
 
 	<% counter = 0%>
 	<% 4.times do %>
