@@ -123,6 +123,7 @@ class GenericProgramsController < ApplicationController
     @ipd_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
     if request.method == :post
       patient_program = PatientProgram.find(params[:patient_program_id])
+=begin
       if (patient_program.program.name.match(/IPD Program/i))
         unless (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/ADMITTED/i))
           encounter = Encounter.new
@@ -141,6 +142,7 @@ class GenericProgramsController < ApplicationController
           Observation.create(observation)
         end
       end
+=end
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
 
       current_active_state = patient_program.patient_states.last
