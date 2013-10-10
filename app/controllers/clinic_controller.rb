@@ -321,7 +321,6 @@ class ClinicController < GenericClinicController
         patient_state.save
         patient_program.date_completed = Time.now.strftime('%Y-%m-%d %H:%M:%S')
         patient_program.save
-        break
     end
     redirect_to("/clinic")
   end
