@@ -243,7 +243,7 @@ class ClinicController < GenericClinicController
     program_id =  Program.find_by_name('IPD Program').program_id
     patient_programs = PatientProgram.find(:all, :conditions => ['date_enrolled < NOW() 
       AND (date_completed IS NULL OR date_completed > NOW()) AND 
-      program_id = ?',program_id], :limit => 10)
+      program_id = ?',program_id])
     today = Date.today
     patient_ids = []
     @patient_details = {}
