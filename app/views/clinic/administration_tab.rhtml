@@ -40,7 +40,8 @@
 <script>
   function setInnerHtmlData(id,path,result, target) {
     td = document.getElementById(id);
-    if (result == "Transfer Patient in" || result=="Add Bed Numbers" || result=="Add Wards" || result=="Void Wards" || result=="Add Teams" ) {
+    if (result == "Transfer Patient in" || result=="Add Bed Numbers" || result=="Add Wards" || 
+      result=="Void Wards" || result=="Add Teams" || result=="Discharge Overstay Patients" ) {
       target = "_parent"
       td.innerHTML = "<a href ='" + path + "' target='" + target + "'>" +  result + "</a>"
       return td.innerHTML

@@ -69,6 +69,7 @@ class ClinicController < GenericClinicController
       @reports << ['/clinic/manage_wards_tab','Manage Wards']
       @reports << ['/clinic/manage_teams_tab','Manage Teams']
       #@reports << ['/clinic/add_teams','Add Teams']
+      @reports << ['/clinic/overstay_patients_menu','Discharge Overstay Patients']
 		end
 		@landing_dashboard = 'clinic_administration'
 		render :layout => false
@@ -224,4 +225,105 @@ class ClinicController < GenericClinicController
     end
     render :layout => "application"
   end
+
+  def overstay_patients_menu
+    @periods = [
+      ["2 months to <=4 months",">=2_to_4_months"],
+      [">4 months to <=6 months",">4_to_6_months"],
+      [">6 months to <=8 months",">6_to_8_months"],
+      [">8 months to <=10 months",">8_to_10_months"],
+      [">10 months to <= 1 year",">10_to_12_months"],
+      [">1 year",">1 year"]
+    ]
+    render :layout => "application"
+  end
+
+  def overstay_patients
+    period  = params[:period]
+    program_id =  Program.find_by_name('IPD Program').program_id
+    patient_programs = PatientProgram.find(:all, :conditions => ['date_enrolled < NOW() 
+      AND (date_completed IS NULL OR date_completed > NOW()) AND 
+      program_id = ?',program_id], :limit => 10)
+    today = Date.today
+    patient_ids = []
+    @patient_details = {}
+    patient_programs.each do |program|
+        date_enrolled = program.date_enrolled.to_date
+        period_in_hospital = ((today - date_enrolled).to_f)/30
+        if period.include?(">=2_to_4_months")
+          if (period_in_hospital >= 2 && period_in_hospital <= 4)
+            patient_ids << program.patient_id
+          end
+
+        end
+        if period.include?(">4_to_6_months")
+          if (period_in_hospital > 4 && period_in_hospital <= 6)
+            patient_ids << program.patient_id
+          end
+        end
+        if period.include?(">6_to_8_months")
+          if (period_in_hospital > 6 && period_in_hospital <= 8)
+            patient_ids << program.patient_id
+          end
+        end
+        if period.include?(">8_to_10_months")
+          if (period_in_hospital > 8 && period_in_hospital <= 10)
+            patient_ids << program.patient_id
+          end
+        end
+        if period.include?(">10_to_12_months")
+          if (period_in_hospital > 10 && period_in_hospital <= 12)
+            patient_ids << program.patient_id
+          end
+        end
+        if period.include?(">1 year")
+          if (period_in_hospital > 12)
+            patient_ids << program.patient_id
+          end
+        end
+      end
+      patient_ids.each do |patient_id|
+        patient_program = PatientProgram.find(:last, :conditions => ['date_enrolled < NOW()
+          AND (date_completed IS NULL OR date_completed > NOW()) AND
+          program_id = ? AND patient_id =?',program_id, patient_id])
+        date_admitted = patient_program.date_enrolled.to_date
+        #period_on_admission = ((today - date_admitted).to_i)/30
+        period_on_admission = ((today - date_admitted).to_i).divmod(30)
+        patient = Patient.find(patient_id)
+        patient_bean = PatientService.get_patient(patient.person)
+        @patient_details[patient_id] = {}
+        @patient_details[patient_id][:national_id] = patient_bean.national_id
+        @patient_details[patient_id][:fname] = patient_bean.first_name
+        @patient_details[patient_id][:lname] = patient_bean.last_name
+        @patient_details[patient_id][:date_admitted] = patient_program.date_enrolled.to_date
+        @patient_details[patient_id][:admission_period] = period_on_admission
+      end
+      #raise @patient_details.to_yaml
+      render :layout => "menu"
+  end
+
+  def discharge_overstay_patients
+    patient_ids = params[:patient_ids].split(",")
+    program_id =  Program.find_by_name('IPD Program').program_id
+    concept_id = Concept.find_by_name('DISCHARGED').concept_id
+    state = ProgramWorkflowState.find_by_concept_id(concept_id).id
+    patient_ids.each do |patient_id|
+        patient_program = PatientProgram.find(:last, :conditions => ['date_enrolled < NOW()
+            AND (date_completed IS NULL OR date_completed > NOW()) AND
+            program_id = ? AND patient_id =?',program_id, patient_id])
+
+        current_active_state = patient_program.patient_states.last
+        current_active_state.end_date = Date.today
+        current_active_state.save
+        patient_state = patient_program.patient_states.build(
+          :state => state,
+          :start_date => Date.today)
+        patient_state.save
+        patient_program.date_completed = Time.now.strftime('%Y-%m-%d %H:%M:%S')
+        patient_program.save
+        break
+    end
+    redirect_to("/clinic")
+  end
+  
 end

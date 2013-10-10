@@ -1,0 +1,20 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+
+<style type="text/css" >
+
+  #tt_page_select_period .inputFrameClass .options{
+    height: 20em;
+
+  }
+</style>
+<form action="/clinic/overstay_patients" method='post'>
+<%= select_tag 'period[]', options_for_select(@periods),
+      {
+       :id => 'duration_id',
+       :multiple => "multiple",
+       :helpText => "Select period",
+     } %>
+
+<%= submit_tag "Finish" %>
+</form>
