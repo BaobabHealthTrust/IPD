@@ -304,6 +304,7 @@ class ClinicController < GenericClinicController
 
   def discharge_overstay_patients
     patient_ids = params[:patient_ids].split(",")
+    discharge_date = params[:discharge_date].to_date
     program_id =  Program.find_by_name('IPD Program').program_id
     concept_id = Concept.find_by_name('DISCHARGED').concept_id
     state = ProgramWorkflowState.find_by_concept_id(concept_id).id
@@ -313,16 +314,20 @@ class ClinicController < GenericClinicController
             program_id = ? AND patient_id =?',program_id, patient_id])
 
         current_active_state = patient_program.patient_states.last
-        current_active_state.end_date = Date.today
+        current_active_state.end_date = discharge_date
         current_active_state.save
         patient_state = patient_program.patient_states.build(
           :state => state,
-          :start_date => Date.today)
+          :start_date => discharge_date)
         patient_state.save
-        patient_program.date_completed = Time.now.strftime('%Y-%m-%d %H:%M:%S')
+        patient_program.date_completed = discharge_date.strftime('%Y-%m-%d 00:00:01')
         patient_program.save
     end
     redirect_to("/clinic")
+  end
+
+  def select_discharge_date
+    render :layout => "application"
   end
   
 end

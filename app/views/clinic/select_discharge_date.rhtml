@@ -1,0 +1,19 @@
+<%= javascript_include_tag 'touchscreentoolkit' %>
+<%= javascript_include_tag "prototype" %>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+<link href="/stylesheets/opd_cohort.css" media="screen" rel="stylesheet" type="text/css" />
+<style>
+  .tt_controls_select_discharge_date #Unknown { display:none; }
+</style>
+
+<form method='post' action="discharge_overstay_patients" >
+  <%= text_field_tag "discharge_date", nil,
+        {
+          :helpText => 'Select Discharge Date',
+          :field_type => 'date',
+          :id => 'discharge_date'
+        }  %>
+  <%= hidden_field_tag("patient_ids", params[:patient_ids]) %>
+</form>
+
