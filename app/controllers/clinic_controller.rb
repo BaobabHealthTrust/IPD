@@ -15,7 +15,8 @@ class ClinicController < GenericClinicController
       ["ADT report By Ward", "/cohort_tool/adt_report_menu_by_ward"],
       ["Shift Report", "/cohort_tool/shift_report_menu"],
       ["Report By Team", "/cohort_tool/report_team_menu"],
-      ["Daily Report", "/cohort_tool/daily_report_menu"]
+      ["Daily Report", "/cohort_tool/daily_report_menu"],
+      ["Admitted Patients per Team report", "/cohort_tool/team_per_admitted_menu"]
       #["IPD Reports", "/cohort_tool/ipd_report_index"]
       #["Graphical Reports", "/clinic/reports_tab_graphs"]
 		]

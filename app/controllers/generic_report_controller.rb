@@ -1310,6 +1310,48 @@ class GenericReportController < ApplicationController
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   end
 
+  def admitted_patients_per_team
+    start_date = params[:start_date].to_date
+    end_date = params[:end_date].to_date
+    team = params[:team]
+    ward = params[:ward]
+    program_id =  Program.find_by_name('IPD Program').program_id
+
+    patient_programs = PatientProgram.find(:all, :conditions => ['DATE(date_enrolled) >= ?
+      AND DATE(date_enrolled) <= ? AND (date_completed IS NULL OR date_completed > NOW()) AND
+      program_id = ?',start_date, end_date, program_id])
+    patient_ids = patient_programs.map(&:patient_id)
+
+    group_following = Concept.find_by_name('GROUP FOLLOWING').id
+    admit_to_ward = Concept.find_by_name('ADMIT TO WARD').id
+
+    person_ids = Observation.find(:all, :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ?
+        AND concept_id =? AND value_text =? AND person_id IN (?)", start_date, end_date,
+        admit_to_ward, ward, patient_ids]).map(&:person_id)
+    
+    observations = Observation.find(:all, :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ?
+        AND concept_id =? AND value_text =? AND person_id IN (?)", start_date, end_date,
+        group_following, team, person_ids])
+
+    @patient_details = {}
+    observations.each do |obs|
+        patient_id = obs.person_id
+        patient = Patient.find(patient_id)
+        answer_string = Observation.find(:last, :conditions => ["DATE(obs_datetime) >= ? AND DATE(obs_datetime) <= ?
+          AND concept_id =? AND person_id =?", start_date, end_date,
+          admit_to_ward, patient_id]).answer_string.squish rescue nil
+        next unless answer_string.match(/#{ward}/i)
+        patient_bean = PatientService.get_patient(patient.person)
+        @patient_details[patient_id] = {}
+        @patient_details[patient_id][:national_id] = patient_bean.national_id
+        @patient_details[patient_id][:fname] = patient_bean.first_name
+        @patient_details[patient_id][:lname] = patient_bean.last_name
+        @patient_details[patient_id][:residence] = patient_bean.current_residence
+        @patient_details[patient_id][:home] = patient_bean.home_district
+    end
+    render :layout => "menu"
+  end
+  
   def search_ward
     render :text => search(params[:search_string])
   end

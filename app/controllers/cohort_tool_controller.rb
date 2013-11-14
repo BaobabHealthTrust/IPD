@@ -2893,5 +2893,10 @@ class CohortToolController < ApplicationController
     @available_years = (min_enc_year..max_year).to_a
     @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
   end
+
+  def team_per_admitted_menu
+    @teams = Team.all.map(&:name).delete_if{|team|team.match(/NONE/i)} rescue []
+    @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
+  end
 end
 
