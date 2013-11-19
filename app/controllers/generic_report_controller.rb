@@ -1311,9 +1311,14 @@ class GenericReportController < ApplicationController
   end
 
   def admitted_patients_per_team
+    @location_name = Location.current_health_center.name rescue nil
+    @logo = CoreService.get_global_property_value('logo').to_s rescue nil
     start_date = params[:start_date].to_date
+    @start_date = start_date
     end_date = params[:end_date].to_date
+    @end_date = end_date
     team = params[:team]
+    @team = team
     ward = params[:ward]
     program_id =  Program.find_by_name('IPD Program').program_id
 

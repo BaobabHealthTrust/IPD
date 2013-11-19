@@ -11,7 +11,7 @@
             "bAutoWidth": true,
             "bPaginate": false,
             "bProcessing": true,
-            "sScrollY": "492px",
+            "sScrollY": "442px",
             "bInfo": true,
             "bPaginate": false
           });
@@ -206,7 +206,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 537px;
+        top: 493px;
         font-weight:bold;
       }
       #table_id_length{
@@ -221,7 +221,12 @@
     </style>
   </head>
   <body >
-    <%= "<br />" * 5 %>
+     <%= image_tag(@logo, :class => "logo")%>
+    <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
+     <b style="position:relative; top:0px;margin-left:75px">Admissions (Not yet discharged) By Team</b><br />
+     <b style="position:relative; top:0px;margin-left:75px">Team: <%=@team.titleize%> </b><br />
+     <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%></b><br />
+     <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
     <div>
       <table  id="table_id" class="display" >
         <thead>
