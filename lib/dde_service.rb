@@ -15,8 +15,9 @@
 
 module DDEService
 
- class Patient
-  attr_accessor :patient, :person
+  class Patient
+
+    attr_accessor :patient, :person
 
     def initialize(patient)
       self.patient = patient
@@ -97,7 +98,7 @@ module DDEService
       id ||= PatientIdentifierType.find_by_name("National id").next_identifier(:patient => self.patient).identifier
       id
     end
-    
+
   def check_old_national_id(identifier)
       create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
       if create_from_dde_server
@@ -113,7 +114,7 @@ module DDEService
       end
    end
 
- def replace_old_national_id(identifier)
+   def replace_old_national_id(identifier)
     dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
     dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
     dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
@@ -312,7 +313,7 @@ module DDEService
   end
 
 	def self.create_from_form(params)
-    
+
 		address_params = params["addresses"]
 		names_params = params["names"]
 		patient_params = params["patient"]
@@ -553,6 +554,7 @@ module DDEService
       return national_id
     end
   end
+
   #.............. new code
   def self.reassign_dde_identification(dde_person_id,local_person_id)
     dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
@@ -623,6 +625,18 @@ module DDEService
 
     passed["person"].merge!("identifiers" => {"National id" => p["npid"]["value"]})
     return PatientService.create_from_form(passed["person"])
+  end
+
+  def self.create_footprint(national_id, app_name)
+    create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
+    return unless create_from_dde_server
+    paramz = {:value => national_id, :application_name => app_name}
+    dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
+    dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
+    dde_server_password = GlobalProperty.find_by_property("dde_server_password").property_value rescue ""
+    uri = "http://#{dde_server_username}:#{dde_server_password}@#{dde_server}/people/create_footprint/"
+
+    return RestClient.post(uri,paramz)
   end
 
  end
