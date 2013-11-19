@@ -200,6 +200,23 @@ class GenericPeopleController < ApplicationController
 
 			redirect_to :controller => :patients, :action => :show, :id => params[:person][:id]
 		else
+      if params[:person][:id] != '0'
+        person = Person.find(params[:person][:id])
+        patient = DDEService::Patient.new(person.patient)
+        patient_id = PatientService.get_patient_identifier(person.patient, "National id")
+        if patient_id.length != 6 and create_from_dde_server
+          patient.check_old_national_id(patient_id)
+					#unless params[:patient_guardian].blank?
+            #print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", "/patients/guardians_dashboard/#{person.id}") and return
+					#end
+
+          #creating patient's footprint so that we can track them later when they visit other sites
+          DDEService.create_footprint(PatientService.get_patient(person).national_id, "ADT")
+          print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient)) and return
+        end
+        #creating patient's footprint so that we can track them later when they visit other sites
+        DDEService.create_footprint(PatientService.get_patient(person).national_id, "ADT")
+      end
 			redirect_to search_complete_url(params[:person][:id], params[:relation]) and return unless params[:person][:id].blank? || params[:person][:id] == '0'
 
 			redirect_to :action => :new, :gender => params[:gender], :given_name => params[:given_name], :family_name => params[:family_name], :family_name2 => params[:family_name2], :address2 => params[:address2], :identifier => params[:identifier], :relation => params[:relation]
@@ -214,6 +231,7 @@ class GenericPeopleController < ApplicationController
     end
 
     person = PatientService.create_patient_from_dde(params) if create_from_dde_server
+    DDEService.create_footprint(PatientService.get_patient(person).national_id, "ADT") if create_from_dde_server
 
     unless person.blank?
       if use_filing_number and hiv_session
