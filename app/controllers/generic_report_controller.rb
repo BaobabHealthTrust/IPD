@@ -1356,6 +1356,68 @@ class GenericReportController < ApplicationController
     end
     render :layout => "menu"
   end
+
+  def discharged_patients_per_team
+    @location_name = Location.current_health_center.name rescue nil
+    @logo = CoreService.get_global_property_value('logo').to_s rescue nil
+    start_date = params[:start_date].to_date
+    @start_date = start_date
+    end_date = params[:end_date].to_date
+    @end_date = end_date
+    team = params[:team]
+    @team = team
+
+    program_id =  Program.find_by_name('IPD Program').program_id
+    group_following = Concept.find_by_name('GROUP FOLLOWING').id
+    
+    patient_programs = PatientProgram.find(:all, :conditions => ['DATE(date_completed) >= ?
+      AND DATE(date_completed) <= ? AND program_id = ?',start_date, end_date, program_id])
+    patient_ids = patient_programs.map(&:patient_id)
+
+    discharge_enc_type = EncounterType.find_by_name('DISCHARGE PATIENT').id
+    
+    discharge_encs = Encounter.find(:all, :joins => [:observations],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =?", start_date, end_date,
+      discharge_enc_type, group_following, team])
+  
+    @total_discharges = discharge_encs
+    @total_discharge_ids = discharge_encs.map(&:patient_id)
+    @total_discharge_males = Encounter.find(:all, :joins => [:observations => [:person]],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =? AND gender =?", start_date, end_date,
+      discharge_enc_type, group_following, team, 'M'])
+    @total_discharge_males_ids = @total_discharge_males.map(&:patient_id)
+    
+    @total_discharge_females = Encounter.find(:all, :joins => [:observations => [:person]],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =? AND gender =?", start_date, end_date,
+      discharge_enc_type, group_following, team, 'F'])
+    @total_discharge_females_ids = @total_discharge_females.map(&:patient_id)
+
+    @total_discharge_infants = Encounter.find(:all, :joins => [:observations => [:person]],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =? AND
+       DATEDIFF(NOW(), person.birthdate)/365 <= 2", start_date, end_date,
+      discharge_enc_type, group_following, team])
+    @total_discharge_infants_ids = @total_discharge_infants.map(&:patient_id)
+
+    @total_discharge_children = Encounter.find(:all, :joins => [:observations => [:person]],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =? AND 
+       DATEDIFF(NOW(), person.birthdate)/365 > ? AND DATEDIFF(NOW(), person.birthdate)/365 <= ?",
+        start_date, end_date, discharge_enc_type, group_following, team, 2, 14])
+    @total_discharge_children_ids = @total_discharge_children.map(&:patient_id)
+
+    @total_discharge_adults = Encounter.find(:all, :joins => [:observations => [:person]],
+      :conditions => ["DATE(encounter_datetime) >=? AND DATE(encounter_datetime) <=?
+       AND encounter_type =? AND concept_id =? AND value_text =? AND
+       DATEDIFF(NOW(), person.birthdate)/365 > 14", start_date, end_date,
+      discharge_enc_type, group_following, team])
+    @total_discharge_adults_ids = @total_discharge_adults.map(&:patient_id)
+  
+    render :layout => "menu"
+  end
   
   def search_ward
     render :text => search(params[:search_string])

@@ -1,27 +1,29 @@
+
 <html>
   <head>
     <%= javascript_include_tag "prototype" %>
     <%= javascript_include_tag 'jquery' %>
+    <%= stylesheet_link_tag 'extra_buttons' %>
     <%= javascript_include_tag 'jquery_data_table.js' %>
     <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%=javascript_include_tag "jquery.table2CSV.min" %>
     <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
     <script>
+      var tt_cancel_destination = "/clinic"
       jQuery(document).ready(function($) {
           $('#table_id').dataTable({
             "bAutoWidth": true,
-            "bPaginate": false,
             "bProcessing": true,
-            "sScrollY": "442px",
+            "sScrollY": "400px",
             "bInfo": true,
             "bPaginate": false
           });
-    search_box = $('#table_id').dataTable()
+    search_box = $('#report').dataTable()
     search = document.getElementsByTagName("input")[0];
     search.setAttribute("id","search");
     document.getElementById('search').setAttribute("onclick","showKeyboard();");
-    tt_cancel_destination = '/'
-    //document.getElementById("find").innerHTML = "<span>Back</span>";
-    //document.getElementById("find").style.cssFloat = "left";
+    document.getElementById("find").innerHTML = "<span>Back</span>";
+    document.getElementById("find").style.cssFloat = "left";
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     keyboard = document.getElementsByClassName("keypad")[0]
     function getCharButtonSetID(character,id){
@@ -71,11 +73,11 @@
       keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
     }
 
-    //data_table_length =document.getElementsByName('table_id_length')[0];
-    //data_table_length.setAttribute("style","font-size:20px;");
+    data_table_length =document.getElementsByName('table_id_length')[0];
+    data_table_length.setAttribute("style","font-size:20px;");
 
-    //table_length = document.getElementById("table_id_length");
-    //table_length.setAttribute("style","width:100px;");
+    table_length = document.getElementById("table_id_length");
+    table_length.setAttribute("style","width:100px;");
 
   })
     </script>
@@ -158,7 +160,7 @@
         border: 2px solid #9999FF;
         border-radius: 15px 15px 15px 15px;
         display: none;
-        height: 329px;
+        height: 304px;
         padding: 5px;
         position: absolute;
         right: 13px;
@@ -167,7 +169,7 @@
       }
     </style>
     <style>
-       div {
+      div {
         -moz-user-select: none;
       }
       .basic_span {
@@ -207,7 +209,7 @@
       #table_id_info{
         left: 10px;
         position: absolute;
-        top: 493px;
+        top: 476px;
         font-weight:bold;
       }
       #table_id_length{
@@ -218,47 +220,146 @@
       }
       #num{ display:none; }
       #char{ display:none; }
+      #report{
+        left: 2%;
+        position: absolute;
+        width: 1504px;
+      }
 
+
+    #number {
+    width:20%;
+    margin:10px;
+    background:white;
+    -moz-user-select:none;
+  }
+
+  #number a {
+          border-radius: 7px;
+          background-color: #669999;
+          border-bottom: 1px outset black;
+          border-style: outset;
+          border-top: 1px outset black;
+          color: white;
+          display: block;
+          padding: 10px 16px 10px 10px;
+          text-align: center;
+          text-decoration: none;
+  }
+
+
+    #gender_distribution{
+      text-align: center;
+      font-size: 14pt;
+    }
+    #age_groups{
+      text-align: center;
+      font-size: 14pt;
+    }
+    #display_only{
+    color: black;
+    text-align: center;
+    background-color: #E0E0E0;
+    }
     </style>
   </head>
   <body >
-     <%= image_tag(@logo, :class => "logo")%>
+    <%= image_tag(@logo, :class => "logo")%>
     <br /><b style="margin-left:75px">Kamuzu Central Hospital</b><br />
-     <b style="position:relative; top:0px;margin-left:75px">Admissions (Not yet discharged) By Team</b><br />
-     <b style="position:relative; top:0px;margin-left:75px">Team: <%=@team.titleize%> </b><br />
-     <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%></b><br />
+    <b style="position:relative; top:0px;margin-left:75px">ADT Team Report for <u><i><%= @team %></i></u> </b><br />
+     <b style="position:relative; top:0px;margin-left:75px">Start Date: <%=@start_date.strftime("%d-%m-%Y")%> </b><br />
      <b style="position:relative; top:0px;margin-left:75px">End Date: <%=@end_date.strftime("%d-%m-%Y")%></b><br />
-    <div>
-      <table  id="table_id" class="display" >
-        <thead>
-          <tr>
-            <th style="text-align:left; max-width: 130px;">National ID</th>
-            <th style="text-align:left; max-width: 150px;">First Name</th>
-            <th style="text-align:left; max-width: 150px;">Last Name</th>
-            <th style="text-align:left; max-width: 150px;">Current Residence</th>
-            <th style="text-align:left; max-width: 150px;">Home District</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @patient_details.each do |key, value| %>
-          <tr>
-            <td><%= value[:national_id] %></td>
-            <td><%= value[:fname] %></td>
-            <td><%= value[:lname] %></td>
-            <td><%= value[:residence] %></td>
-            <td><%= value[:home] %></td>
-          </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-    <div class="horizontal_line">
+<%#= raise (@end_date ).inspect %><br /><br />
+
+<div style="overflow:auto; height: 60%; position: absolute; left: 0%; width: 98%">
+     <table id="report" style="width: 96%">
+       <tr>
+         <td style="background-color: #9ACD32; font-size: 14pt;">Total Discharges</td>
+         <td id="number"><%= link_to((@total_discharges.count), {
+            :action=>"decompose_report",
+            :ids =>@total_discharge_ids,
+            :report_name => "Total Discharges for #{@team}"})
+          %>
+         </td>
+       </tr>
+       <tr style="background-color: gray">
+         <td id="gender_distribution" colspan="2" style="line-height: 46px; color: white; font-weight: bold" ><span>Discharges By Gender</span></td>
+       </tr>
+       <tr>
+         <td style="background-color: #F5F5F5; font-size: 14pt;">Males</td>
+         <td id="number"><%= link_to((@total_discharge_males.count), {
+              :action=>"decompose_report",
+              :ids =>@total_discharge_males_ids,
+              :report_name => "Males Total Discharges"})  %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Females</td>
+         <td id="number"><%=link_to((@total_discharge_females.count), {
+            :action=>"decompose_report",
+            :ids =>@total_discharge_females_ids,
+            :report_name => "Females Total Discharges"}) %></td>
+       </tr>
+       <tr style="background-color: gray">
+         <td id="age_groups" colspan="2" style="line-height: 46px; color: white; font-weight: bold">Discharges By Age Groups</td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Infants(0-2)
+       </td>
+         <td id="number"><%= link_to((@total_discharge_infants.count), {
+            :action=>"decompose_report",
+            :ids => @total_discharge_infants_ids,
+            :report_name => "Infants Total Discharges"}) %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Children(2-14)</td>
+         <td id="number"><%= link_to((@total_discharge_children.count), {
+            :action=>"decompose_report",
+            :ids =>@total_discharge_children_ids,
+            :report_name => "Children Total Discharges"}) %></td>
+       </tr>
+       <tr>
+         <td  style="background-color: #F5F5F5; font-size: 14pt;">Adults (>14)</td>
+         <td id="number"><%= link_to((@total_discharge_adults.count), {
+            :action=>"decompose_report",
+            :ids =>@total_discharge_adults_ids,
+            :report_name => "Adults Total Discharges"}) %></td>
+       </tr>
+
+     </table>
+</div>
+     <div class="horizontal_line">
       <hr width="100%" color="gray"/>
     </div>
     <div id="keypad">
       <span class="keypad">
       </span>
-    </center>
+
   </div>
+<script>
+/*  function setPosition(){
+    finish = document.getElementById('finishButton')
+    finish.style.position = 'absolute'
+    finish.style.left = '0%'
+  }
+  setTimeout("setPosition()",10);*/
+
+  function addPrintButton(){
+      buttons = document.getElementById('buttons')
+      buttons.innerHTML+='<button id="print" onclick="printDischargedPatientsPerTeam();" class="blue left" style="position :relative;"><span>Print</span></button>'
+      }
+   window.setTimeout("addPrintButton()",10)
+
+   function printDischargedPatientsPerTeam(){
+     jQuery.ajax({
+                    type: "POST",
+                    url: "/report/print_discharged_patients_per_team",
+                    data: "start_date=<%=@start_date%>" + "&end_date=<%=@end_date%>" + "&team=<%=@ward%>",
+                    success: function(){
+                            //alert("Successful")
+                    }
+
+            });
+   }
+</script>
 </body>
 </html>

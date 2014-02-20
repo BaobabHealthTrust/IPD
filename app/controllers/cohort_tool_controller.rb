@@ -2898,5 +2898,9 @@ class CohortToolController < ApplicationController
     @teams = Team.all.map(&:name).delete_if{|team|team.match(/NONE/i)} rescue []
     @kch_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
   end
+
+  def team_per_discharged_menu
+    @teams = Team.all.map(&:name).delete_if{|team|team.match(/NONE/i)} rescue []
+  end
 end
 

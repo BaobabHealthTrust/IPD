@@ -16,7 +16,8 @@ class ClinicController < GenericClinicController
       ["Shift Report", "/cohort_tool/shift_report_menu"],
       ["Report By Team", "/cohort_tool/report_team_menu"],
       ["Daily Report", "/cohort_tool/daily_report_menu"],
-      ["Admitted Patients per Team report", "/cohort_tool/team_per_admitted_menu"]
+      ["Admissions per Team", "/cohort_tool/team_per_admitted_menu"],
+      ["Discharges per Team", "/cohort_tool/team_per_discharged_menu"]
       #["IPD Reports", "/cohort_tool/ipd_report_index"]
       #["Graphical Reports", "/clinic/reports_tab_graphs"]
 		]

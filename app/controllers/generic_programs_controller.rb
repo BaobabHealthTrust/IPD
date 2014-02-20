@@ -123,14 +123,13 @@ class GenericProgramsController < ApplicationController
     @ipd_wards = Ward.find(:all, :conditions => ["voided =?",0]).collect{|ward|[ward.name.squish, ward.name.squish]}
     if request.method == :post
       patient_program = PatientProgram.find(params[:patient_program_id])
-=begin
+      patient_discharged = false
       if (patient_program.program.name.match(/IPD Program/i))
-        unless (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/ADMITTED/i))
+        if (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/DISCHARGED|PATIENT DIED|HOME ON REQUEST/i))
+          patient_discharged = true
           encounter = Encounter.new
           encounter.encounter_type = EncounterType.find_by_name('DISCHARGE PATIENT').id
           encounter.patient_id  = params[:patient_id]
-          encounter.provider_id = User.current.person_id
-          encounter.encounter_datetime = session[:datetime] rescue Time.now()
           encounter.save
 
           observation = {}
@@ -142,7 +141,7 @@ class GenericProgramsController < ApplicationController
           Observation.create(observation)
         end
       end
-=end
+  
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
 
       current_active_state = patient_program.patient_states.last
@@ -268,7 +267,7 @@ class GenericProgramsController < ApplicationController
          patient = Patient.find(params[:patient_id])
          next_task = next_task(patient)
          unless params[:location]
-            redirect_to(next_task) and return if transfered_internally
+            redirect_to(next_task) and return if transfered_internally || patient_discharged
             redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id]
          else
             render :text => "import suceeded" and return
