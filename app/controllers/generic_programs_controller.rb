@@ -101,8 +101,9 @@ class GenericProgramsController < ApplicationController
     
     @names = @states.map{|state|
       name = state.concept.concept_names.typed("SHORT").first.name rescue state.concept.fullname
-      next if name.blank? 
-      "<li value='#{state.id}'>#{name}</li>" unless name == params[:current_state]
+      next if name.blank?
+      next if name.match(/PATIENT TRANSFERRED OUT/i)
+      "<li value='#{state.id}'>#{name.squish}</li>" unless name == params[:current_state]
     }
     render :text => @names.join('')  
   end
