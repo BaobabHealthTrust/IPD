@@ -50,6 +50,9 @@
           <% if (@hiv_status rescue nil) != nil && (@hiv_status) != "" %>
             <span value="<%= @hiv_status rescue "" %>">HIV Status</span>
           <% end %>
+          <% unless @current_team.blank? %>
+             <span value="<%= @current_team rescue "" %>">Current Team</span>
+          <% end %>
         </div>
 
         <%
