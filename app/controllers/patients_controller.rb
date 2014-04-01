@@ -37,7 +37,20 @@ class PatientsController < GenericPatientsController
 
 		@user = current_user
 		#@user_privilege = @user.user_roles.collect{|x|x.role.downcase}
-	
+    group_following = Concept.find_by_name('GROUP FOLLOWING').id
+    ipd_program = Program.find_by_name('IPD program')
+    active_ipd_program = PatientProgram.find(:last ,:conditions => ["patient_id =? AND
+    date_completed IS NULL OR date_completed > NOW() AND program_id =?", @patient.id,
+        ipd_program.id])
+    encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+    @current_team = nil
+    unless active_ipd_program.blank?
+      team_obs = Observation.find(:last, :joins =>[:encounter],
+        :conditions => ["encounter_type =? AND concept_id =? AND person_id =?",
+          encounter_type.id, group_following, @patient.id])
+      @current_team = team_obs.answer_string.squish.titlecase rescue nil
+    end
+    
 		user_roles = UserRole.find(:all,:conditions =>["user_id = ?", current_user.id]).collect{|r|r.role.downcase}
 		inherited_roles = RoleRole.find(:all,:conditions => ["child_role IN (?)", user_roles]).collect{|r|r.parent_role.downcase}
 		user_roles = user_roles + inherited_roles
