@@ -140,6 +140,15 @@ class GenericProgramsController < ApplicationController
           observation[:person_id] ||= encounter.patient_id
           observation[:value_coded_or_text] = ProgramWorkflowState.find(params[:current_state]).concept.fullname
           Observation.create(observation)
+
+          observation = {}
+          observation[:concept_name] = "NAME OF DOCTOR"
+          observation[:encounter_id] = encounter.id
+          observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+          observation[:person_id] ||= encounter.patient_id
+          observation[:value_text] = params[:person][:names][:given_name].to_s + ' ' + params[:person][:names][:family_name].to_s
+          Observation.create(observation)
+
         end
       end
   

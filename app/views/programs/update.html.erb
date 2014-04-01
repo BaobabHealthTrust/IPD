@@ -100,6 +100,24 @@
           :condition => "document.getElementsByName('current_state')[0].value == 131", #The id of patient died state is 131
           :field_type => 'date',
           :helpText => "Date of Death" } %>
+
+  <%= text_field_tag "person[names][given_name]", nil, {
+    :id => 'given_name',
+    :field_type => 'alpha',
+    :helpText => 'First name  clinician of who discharged the patient',
+    :ajaxURL => '/person_names/given_names?search_string=',
+    :allowFreeText => true,
+    :condition => "document.getElementsByName('current_state')[0].value == 129"
+    } %>
+
+  <%= text_field_tag "person[names][family_name]", nil, {
+    :id => 'family_name',
+    :field_type => 'alpha',
+    :helpText => 'Last name  of  clinician who discharged the patient',
+    :ajaxURL => '/person_names/family_names?search_string=',
+    :allowFreeText => true,
+    :condition => "document.getElementsByName('current_state')[0].value == 129"
+    } %>
   <script>
     function resetNextButtonCaption(){
       $('nextButton').innerHTML = "<span>Next</span>"
