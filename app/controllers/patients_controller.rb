@@ -120,7 +120,7 @@ class PatientsController < GenericPatientsController
 
     @links << ["Visit Summary (Print)","/patients/dashboard_print_opd_visit/#{patient.id}"]
     @links << ["National ID (Print)","/patients/dashboard_print_national_id/#{patient.id}"]
-    @links << ["Demographics (Edit)","/patients/edit_demographics?patient_id=#{patient.id}"]
+    @links << ["Demographics (Edit)","/dde/edit_demographics?patient_id=#{patient.id}"]
     @links << ["Past Visits (View)","/patients/past_visits_summary/#{patient.id}"]
     @links << ["Wrist band (print)","/patients/band_print?patient_id=#{patient.id}"]
     @links << ["Admission form (Print)","/patients/print_admission_form?patient_id=#{patient.id}"]

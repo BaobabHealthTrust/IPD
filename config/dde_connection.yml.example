@@ -1,0 +1,15 @@
+default: &default
+  application_name: registration
+  dde_server: 127.0.0.1:3000
+  dde_username: admin
+  dde_password: password
+  site_code: TST
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

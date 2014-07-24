@@ -1,0 +1,177 @@
+<html>
+  <head>
+    <title>Clinic</title>
+    <script type="text/javascript" language="javascript" src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "<%= current_user rescue "" %>";
+      tstCurrentDate = "<%= @date %>";
+      tt_cancel_destination = '/logout';
+      tt_cancel_show = '/dde/search';
+    </script>
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'home' action=''>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Home Page</th>
+            </tr>
+            <h1 id='project_name'>
+              <div style="font-size: 0.8em; margin-top: 28px;">
+                <!--<%location_name = (@location.downcase == "outpatient" ? "IPD" : "IPD")
+                  if current_user.activities.include?('Manage Lab Orders') or current_user.activities.include?('Manage Lab Results') or
+                  current_user.activities.include?('Manage Sputum Submissions') or current_user.activities.include?('Manage TB Clinic Visits') or
+                  current_user.activities.include?('Manage TB Reception Visits') or current_user.activities.include?('Manage TB Registration Visits') or
+                  current_user.activities.include?('Manage HIV Status Visits') %>
+                    <span style="font-size: 55px;">ADT</span>
+                <%else%>
+                  <%= location_name %>
+               <%end%>-->
+               ADT
+              </div>
+            </h1>
+
+            <div id="facility"><%= @facility %></div>
+            <div id="location"><%= @location %></div>
+            <% retrospective = 'false'
+               retrospective = 'true' if session[:datetime]
+            %>
+            <div id="date" retrospective="<%= retrospective %>"><%= @date %></div>
+            <div id="user"><%= @user %></div>
+
+            <select id="tabs">
+              <option value='/clinic/overview_tab'>Overview</option>
+              <option value='/clinic/reports_tab'>Reports</option>
+              <%if @location == 'Chronic Cough'%>
+                <option value='/clinic/lab_tab'>Laboratory</option>
+              <%end%>
+              <% if current_user.admin? %>
+                <option value='/clinic/properties_tab'>Properties</option>
+              <%end%>
+              <option value='/clinic/administration_tab'>Administration</option>
+            </select>
+            <select id="links">
+
+              <option value='/logout' link='/logout'>Logout</option>
+<%# Show Find / Register Patient button on HIV Reception and Find by Name button
+on the rest of the stations %>
+
+              <%# if @location =~ /HIV Reception/ %>
+                <option value='/dde/search' link='/dde/search' ttSize="295px">Find or Register Patient</option>
+              <%# else %>
+                <!--<option value='/dde/search' link='/dde/search' ttSize="200px">Find By Name</option>-->
+              <%# end %>
+
+<%# Hide Find by ARV Number button on non-HIV workstations %>
+              <% if @location =~ /HIV/ %>
+                <option value="/people/find_by_arv_number" ttSize="265px">Find By ARV Number</option>
+              <% end %>
+              <% if development_environment? %>
+                <option value='/location?from=clinic' ttSize="100px">Swap Desk</option>
+              <% end %>
+
+              <option value='<%= ((session[:datetime].to_date rescue '') != '' ?
+                          "/people/reset_datetime" : "/people/set_datetime") %>'  ttSize="100px">
+                <%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %></option>
+              <!--option link='regimen.html'>Regimen</option-->
+            </select>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+
+    <% form_tag("/dde/process_scan_data", "method" => 'post', "enctype" => 'multipart/form-data', 
+      "id" => 'dde-home', "class" => "form-horizontal", "autocomplete" => "off", "role" => "form", "novalidate" => "novalidate") do %>
+      
+      <textarea id="person" name="person" style="display: none;" condition="false"></textarea>
+      
+    <% end %>
+        
+    <script type="text/javascript">
+      <!--
+      
+      var json = <%= {
+              "national_id" => nil,
+              "application" => "#{@settings["application_name"]}",
+              "site_code" => "#{@settings["site_code"]}",
+              "return_path" => "http://#{request.host_with_port}/process_result",
+              "names" =>
+              {
+                  "family_name" => nil,
+                  "given_name" => nil
+              },
+              "gender" => "#{params["gender"]}",
+              "attributes" => {
+                  "occupation" => nil,
+                  "cell_phone_number" => nil
+              },
+              "birthdate" => nil,
+              "patient" => {
+                  "identifiers" => []
+              },
+              "birthdate_estimated" => nil,
+              "addresses" => {
+                  "current_residence" => nil,
+                  "current_village" => nil,
+                  "current_ta" => nil,
+                  "current_district" => nil,
+                  "home_village" => nil,
+                  "home_ta" => nil,
+                  "home_district" => nil
+              }
+            }.to_json %>;
+  
+      <% if !@settings["dde_username"].blank? %>
+      
+        function barcodeScanAction(){
+          if(__$("barcode")){
+      
+              var npid = __$("barcode").value.replace("$", "");
+              
+              ajaxRequest(npid);
+            
+          }
+        }
+                
+        function ajaxRequest(id){
+          var url = "/process_data/" + id;
+          
+          var httpRequest = new XMLHttpRequest();
+          httpRequest.onreadystatechange = function() {
+              handleAjaxRequest(httpRequest);
+          };
+          try {
+              httpRequest.open("GET", url, true);
+              httpRequest.send(null);
+          } catch(e){
+          }
+        }
+        
+        function handleAjaxRequest(aXMLHttpRequest){
+          if (!aXMLHttpRequest) return;                    
+          
+          if (aXMLHttpRequest.readyState == 4 && (aXMLHttpRequest.status == 200 || 
+                aXMLHttpRequest.status == 304)) {
+                        
+              var result = aXMLHttpRequest.responseText;
+              
+              __$("person").innerHTML = result; 
+            
+              document.getElementById("dde-home").submit();
+                       
+          }
+        }
+        
+      <% end %>
+      
+      //-->
+    </script>
+    
+  </body>
+</html>

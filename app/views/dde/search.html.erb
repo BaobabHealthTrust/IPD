@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Patient Search</title>
+    
+    <script type='text/javascript' language='javascript' src='/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js' defer  ></script>
+    <style type="text/css">
+      .hidekeyboard #keyboard {
+         display: none !important;
+      }
+    
+      .element {
+        border: 1px solid #999;
+        background-color: #cadcd3;
+        color: #175034;
+        padding: 3px;
+        margin: 3px;
+        font-size: 24px;
+        cursor: pointer;
+        border-radius: 10px;
+      }
+    
+      div.odd {
+        background-color: #B2C4B4 !important;
+      }
+    
+      div.highlighted {
+        background-color: lightblue !important;
+        color: #000;
+      }
+    
+      div.female{
+        border-radius: 150px;
+        border-right: 5px solid magenta;
+        border-bottom: 1px solid magenta;
+        padding: 15px;
+        color: magenta;
+        background-color: rgba(223, 47, 229, 0.1);
+        width: 260px;
+        height: 260px;
+        margin: auto;
+      }
+    
+      div.male{
+        border-radius: 150px;
+        border-right: 5px solid #2f66e5;
+        border-bottom: 1px solid #2f66e5;
+        padding: 15px;
+        color: blue;
+        background-color: rgba(47, 102, 229, 0.1);
+        width: 260px;
+        height: 260px;
+        margin: auto;
+      }
+    
+    </style>
+    
+    <script type="text/javascript" defer>
+    
+      tt_cancel_destination = '/';
+      tt_cancel_show = '/';
+      
+      var patients = [];
+      var page = 1;
+      
+      function hidekeyboard(){
+        if(__$("keyboard")){
+          __$("keyboard").style.display = "none";
+        } else {
+          setTimeout("hidekeyboard()", 100);
+        }
+      }
+      
+      function loadNames(){
+          
+          var panel = document.createElement("div");
+          panel.style.borderRadius = "10px";
+          panel.style.width = "99%";
+          panel.style.height = "98%";
+          panel.style.padding = "10px";
+          
+          __$("inputFrame" + tstCurrentPage).appendChild(panel);
+      
+          var leftpanel = document.createElement("div");
+          leftpanel.style.border = "2px solid #B2C4B4";
+          leftpanel.style.width = "49.3%";
+          leftpanel.style.height = "98%";
+          leftpanel.id = "leftpanel";
+          leftpanel.style.cssFloat = "left";
+          leftpanel.style.borderRadius = "8px";
+          leftpanel.style.backgroundColor = "#e7efeb";
+          leftpanel.style.overflow = "auto";
+          
+          panel.appendChild(leftpanel);
+      
+          var rightpanel = document.createElement("div");
+          rightpanel.style.border = "2px solid #B2C4B4";
+          rightpanel.style.width = "49.3%";
+          rightpanel.style.height = "98%";
+          rightpanel.id = "rightpanel";
+          rightpanel.style.cssFloat = "right";
+          rightpanel.style.borderRadius = "10px";
+          rightpanel.style.backgroundColor = "#e7efeb";
+          rightpanel.style.overflow = "auto";
+          
+          panel.appendChild(rightpanel);
+      
+          var footer = document.createElement("div");
+          footer.id = "extras";
+          footer.style.cssFloat = "right";
+          
+          __$("buttons").appendChild(footer);
+      
+          var newPatient = document.createElement("button");
+          newPatient.innerHTML = "<span>New Patient</span>";
+          newPatient.id = "newPatient";
+          newPatient.style.cssFloat = "right";
+          
+          newPatient.onmousedown = function(){
+            window.location = "/new_patient?given_name=" + __$("given_name").value.trim() + 
+                "&family_name=" + __$("family_name").value.trim() + "&gender=" +
+                __$("gender").value.trim();
+          }
+          
+          footer.appendChild(newPatient);
+      
+          var btnRight = document.createElement("button");
+          btnRight.innerHTML = "<span>&rarr;</span>";
+          btnRight.id = "btnFirst";
+          btnRight.style.cssFloat = "right";
+          
+          btnRight.onmousedown = function(){
+            page += 1;
+              
+            if(__$("nextButton")){
+              __$("nextButton").className = "button gray navButton";
+              __$("nextButton").onclick = function(){};
+            }
+                  
+            ajaxSearch(page);
+          }
+          
+          footer.appendChild(btnRight);
+      
+          var btnLeft = document.createElement("button");
+          btnLeft.innerHTML = "<span>&larr;</span>";
+          btnLeft.id = "btnFirst";
+          btnLeft.style.cssFloat = "right";
+          
+          btnLeft.onmousedown = function(){
+            if(page - 1 > 0){
+              page -= 1;
+            }
+              
+            if(__$("nextButton")){
+              __$("nextButton").className = "button gray navButton";
+              __$("nextButton").onclick = function(){};
+            }
+                  
+            ajaxSearch(page);
+          }
+          
+          footer.appendChild(btnLeft);
+      
+          var btnFirst = document.createElement("button");
+          btnFirst.innerHTML = "<span>|&larr;</span>";
+          btnFirst.id = "btnFirst";
+          btnFirst.style.cssFloat = "right";
+          
+          btnFirst.onmousedown = function(){
+            page = 1;
+                
+            if(__$("nextButton")){
+              __$("nextButton").className = "button gray navButton";
+              __$("nextButton").onclick = function(){};
+            }
+                  
+            ajaxSearch(page);
+          }
+          
+          footer.appendChild(btnFirst);
+      
+          ajaxSearch(page);
+      }
+      
+      function deselectAllAndSelect(me){
+        for(var i = 0; i < __$("rightpanel").children.length; i++){
+          if(__$("rightpanel").children[i].id == me){
+            __$("rightpanel").children[i].className = "element highlighted";
+          } else {
+            __$("rightpanel").children[i].className = "element " + (__$("rightpanel").children[i].getAttribute("tag") == "odd" ? "odd" : "");
+          }
+        }
+      }
+      
+      function ajaxSearch(page){      
+          var url = "/ajax_search?given_name=" + __$("given_name").value.trim() + 
+              "&family_name=" + __$("family_name").value.trim() + "&gender=" + 
+               __$("gender").value.trim() + "&page=" + page;
+                 
+          if(__$("nextButton")){
+            __$("nextButton").className = "button gray navButton";
+            __$("nextButton").onclick = function(){};
+          }
+               
+          var httpRequest = new XMLHttpRequest();
+          httpRequest.onreadystatechange = function() {
+              handleAjaxRequest(httpRequest);
+          };
+          try {
+              httpRequest.open('GET', url, true);
+              httpRequest.send(null);
+          } catch(e){
+          }
+      }
+      
+      function handleAjaxRequest(aXMLHttpRequest) {
+        if (!aXMLHttpRequest) return;                    
+
+        __$("leftpanel").innerHTML = "";
+        __$("rightpanel").innerHTML = "";
+       
+        if(__$("nextButton")){
+          __$("nextButton").className = "button gray navButton";
+          __$("nextButton").onclick = function(){};
+        }
+              
+        if (aXMLHttpRequest.readyState == 4 && aXMLHttpRequest.status == 200) {
+                      
+            var result = aXMLHttpRequest.responseText;
+            
+            patients = JSON.parse(result);
+            
+            if(Object.keys(patients).length == 0){
+              __$("rightpanel").innerHTML = "<div style='margin: auto; padding: 20px; font-size: 24px; font-style: italic;'>No results found!</div>";
+            }
+            
+            for(var i = 0; i < patients.length; i++){
+              
+              var div = document.createElement("div");
+              div.id = i;
+              div.className = "element " + (i%2 > 0 ? "odd" : "");
+              div.setAttribute("tag", (i%2 > 0 ? "odd" : "even"));
+              
+              div.onclick = function(){
+                deselectAllAndSelect(this.id);
+                
+                showPatient(this.id);
+                
+                __$("patient").value = this.id;
+                
+                if(__$('nextButton')){
+                  __$("nextButton").innerHTML = "<span>Select</span>"
+                  __$("nextButton").className = "green navButton";
+                  
+                  __$('nextButton').onmousedown = function(){
+                    // if(this.getAttribute("local") == true){
+                    
+                    document.forms[0].setAttribute("action", "/dde/process_scan_data");
+                      
+                    /*} else {
+                      document.forms[0].setAttribute("action", "/process_result");
+                    }*/
+                    
+                    document.forms[0].submit();
+                  }
+                }
+              }
+              
+              div.innerHTML = "<table width='100%'><tr><td style='width: 50%'>" + 
+                  patients[i]["names"]["given_name"] + " " + patients[i]["names"]["family_name"] +
+                  " (" + patients[i]["age"] + ")" + "</td><td>" + patients[i]["national_id"] + 
+                  "</td><td style='width: 30px; background-color: white; border-radius: 60px; padding: 5px; border: 1px solid #666;'>" + 
+                  (patients[i]["gender"] == "M" ? "<img src='/images/male.png' width='50px' alt='Male' />" : 
+                  (patients[i]["gender"] == "F" ? "<img src='/images/female.png' width='50px' alt='Female' />" : "")) + "</td></tr></table>";
+              
+              __$("rightpanel").appendChild(div);
+              
+            }
+            
+        }
+      
+      }
+        
+      function showPatient(pos){
+        __$("leftpanel").innerHTML = "";
+        
+        if(__$("json")){                   
+          __$("json").innerHTML = JSON.stringify(patients[pos]);
+        }
+          
+        var table = document.createElement("table");
+        table.style.margin = "auto";
+        table.style.paddingTop = "10px";
+        table.setAttribute("cellpadding", 10);
+        table.setAttribute("cellspacing", 0);
+        table.style.fontSize = "32px";
+        table.style.color = "#175034";
+        table.style.width = "100%";
+        
+        __$("leftpanel").appendChild(table);
+        
+        var tbody = document.createElement("tbody");
+        
+        table.appendChild(tbody);
+        
+        var tr1 = document.createElement("tr");
+        
+        tbody.appendChild(tr1);
+        
+        var cell1_1 = document.createElement("th");
+        cell1_1.style.textAlign = "right";
+        cell1_1.style.color = "#175034";
+        cell1_1.innerHTML = "Patient Name:";
+        cell1_1.style.borderRight = "1px dotted #175034";
+        
+        tr1.appendChild(cell1_1);
+        
+        var cell1_2 = document.createElement("td");
+        cell1_2.style.fontStyle = "italic";
+        cell1_2.innerHTML = patients[pos]["names"]["given_name"] + " " + patients[pos]["names"]["family_name"];
+        
+        tr1.appendChild(cell1_2);
+        
+        var tr2 = document.createElement("tr");
+        
+        tbody.appendChild(tr2);
+        
+        var cell2_1 = document.createElement("th");
+        cell2_1.style.textAlign = "right";
+        cell2_1.style.color = "#175034";
+        cell2_1.innerHTML = "Age:";
+        cell2_1.style.borderRight = "1px dotted #175034";
+        
+        tr2.appendChild(cell2_1);
+        
+        var cell2_2 = document.createElement("td");
+        cell2_2.style.fontStyle = "italic";
+        cell2_2.innerHTML = (patients[pos]["birthdate_estimated"] ? "~" : "") + patients[pos]["age"];
+        
+        tr2.appendChild(cell2_2);
+        
+        var tr3 = document.createElement("tr");
+        
+        tbody.appendChild(tr3);
+      
+        var cell3_1 = document.createElement("th");
+        cell3_1.style.textAlign = "right";
+        cell3_1.style.color = "#175034";
+        cell3_1.innerHTML = "National ID";
+        cell3_1.style.borderRight = "1px dotted #175034";
+        
+        tr3.appendChild(cell3_1);
+        
+        var cell3_2 = document.createElement("td");
+        cell3_2.style.fontStyle = "italic";
+        cell3_2.innerHTML = patients[pos]["national_id"];
+        
+        tr3.appendChild(cell3_2);
+          
+        for(var k = 0; k < patients[pos]["patient"]["identifiers"].length; k++){
+        
+          var tr3 = document.createElement("tr");
+          
+          tbody.appendChild(tr3);
+        
+          var cell3_1 = document.createElement("th");
+          cell3_1.style.textAlign = "right";
+          cell3_1.style.color = "#175034";
+          cell3_1.innerHTML = Object.keys(patients[pos]["patient"]["identifiers"][k])[0] + ":";
+          cell3_1.style.borderRight = "1px dotted #175034";
+          
+          tr3.appendChild(cell3_1);
+          
+          var cell3_2 = document.createElement("td");
+          cell3_2.style.fontStyle = "italic";
+          cell3_2.innerHTML = patients[pos]["patient"]["identifiers"][k][Object.keys(patients[pos]["patient"]["identifiers"][k])[0]] ;
+          
+          tr3.appendChild(cell3_2);
+          
+        }
+        
+        var tr4 = document.createElement("tr");
+        
+        tbody.appendChild(tr4);
+        
+        var cell4_1 = document.createElement("th");
+        cell4_1.style.textAlign = "right";
+        cell4_1.style.color = "#175034";
+        cell4_1.innerHTML = "&nbsp;";
+        cell4_1.style.borderRight = "1px dotted #175034";
+        
+        tr4.appendChild(cell4_1);
+        
+        var cell4_2 = document.createElement("td");
+        cell4_2.style.fontStyle = "italic";
+        cell4_2.innerHTML = "<div class='" + (patients[pos]["gender"] == "M" ? "male" : 
+            (patients[pos]["gender"] == "F" ? "female" : "")) + "'>" + (patients[pos]["gender"] == "M" ? "<img src='/images/male.png' height='250' alt='Male' />" : 
+            (patients[pos]["gender"] == "F" ? "<img src='/images/female.png' height='250' alt='Female' />" : "")) + "</div>";
+            
+        cell4_2.setAttribute("align", "center");
+            
+        tr4.appendChild(cell4_2);
+        
+        var tr5 = document.createElement("tr");
+        
+        tbody.appendChild(tr5);
+        
+        var cell5_1 = document.createElement("th");
+        cell5_1.style.textAlign = "right";
+        cell5_1.style.color = "#175034";
+        cell5_1.innerHTML = "Residence:";
+        cell5_1.style.borderRight = "1px dotted #175034";
+        
+        tr5.appendChild(cell5_1);
+        
+        var cell5_2 = document.createElement("td");
+        cell5_2.style.fontStyle = "italic";
+        cell5_2.innerHTML = patients[pos]["addresses"]["current_village"];
+        
+        tr5.appendChild(cell5_2);
+        
+      }
+      
+    </script>
+    
+  </head>
+  <body>
+    <div id='content'>
+      <% form_tag("/process_result", "method" => 'post', "enctype" => 'multipart/form-data', "id" => 'form', "style" => "display: none") do %>
+        <%= hidden_field_tag "patient", nil %>
+        <table width='100%' cellpadding=10 cellspacing=0>
+          <tr>
+            <th colspan=2>
+              Search
+            </th>
+          </tr>
+          <tr>
+            <td>
+              First Name
+            </td>
+            <td>
+              <input type="text" id="given_name" name="given_name" value="" helpText="First Name" 
+                  ajaxURL='/person_names/given_names?search_string=' allowFreeText=true />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Family Name
+            </td>
+            <td>
+              <input type="text" id="family_name" name="family_name" value="" helpText="Family Name" optional="true"
+                ajaxURL='/person_names/family_names?search_string=' allowFreeText=true />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Gender
+            </td>
+            <td>
+              <select id="gender" name="gender" value="" helpText="Gender" >
+                <option></option>
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Select Patient or Create New Patient
+            </td>
+            <td>
+              <input type="text" id="selected_patient" name="selected_patient" value="" 
+                  helpText="Select Patient or Create New Patient" tt_onLoad="loadNames(); hidekeyboard(); __$('nextButton').onmousedown = function(){};" optional="true" 
+                   tt_pageStyleClass="NoControls NoKeyboard hidekeyboard" tt_onUnLoad="__$('nextButton').className = 'green navButton'; __$('nextButton').onmousedown = function(){gotoNextPage()}; if(__$('extras')) __$('buttons').removeChild(__$('extras'));" />
+            </td>
+          </tr>
+        </table>
+        
+        <textarea id="json" name="person" condition=false ></textarea>
+        
+      <% end %>
+    </div>
+  </body>
+</html>

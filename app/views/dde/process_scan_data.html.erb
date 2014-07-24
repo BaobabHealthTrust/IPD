@@ -1,0 +1,552 @@
+<% @results = [] if @results.blank?  %>
+<style type="text/css">
+  button {
+     margin-top: 10px;
+  }
+</style>
+
+<% if @dontstop %>
+
+  <% form_tag("/process_result", "method" => 'post', "enctype" => 'multipart/form-data', "id" => 'form', "style" => "display: none") do %>
+      <textarea id="json" name="person" ><%= @results %></textarea>
+  <% end %>
+
+  <center>
+  
+    <div style="height: 650px; font-size: 36px; color: blue; font-style: italic; vertical-align: middle;">
+      <div style="margin: auto; margin-top: 300px;">
+        Loading. Please wait...
+      </div>
+    </div>
+    
+  </center>
+
+  <script type="text/javascript">
+    <!--
+    
+    document.getElementById("form").submit();
+    
+    //-->
+  </script>
+   
+<% else %>
+   
+<div class="table" style="width: 100%; height: 100%; border-spacing: 5px;">
+  <div class="row">
+    <div class="cell" style="width: 50%; border-radius: 1px; overflow: auto; 
+        border: 1px solid #666; vertical-align: top; padding: 10px;">
+        
+      <div  style="font-size: 32px; padding: 5px; background-color: #84cfa5; 
+          text-align: center; border-radius: 0px; margin: auto; margin-bottom: 10px;">
+        Captured Data
+      </div>
+      
+      <div id="captured" style="height: 40%; width: 100%; border: 1px solid #000; overflow: auto;">
+        <div class="table" style="width: 100%; border-spacing: 0px;">
+          <div class="row">
+            <div class="cell bold label_cell">
+              First Name:
+            </div>
+            <div class="cell  input_cell ">
+              &nbsp;<%= @json["names"]["given_name"] rescue nil %>
+            </div>
+            <div class="cell">
+              &nbsp;
+            </div>
+          <!--/div>
+            
+          <div class="row"-->
+            <div class="cell bold label_cell">
+              Last Name:
+            </div>
+            <div class="cell  input_cell">
+              &nbsp;<%= @json["names"]["family_name"] rescue nil %>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="cell bold label_cell">
+              Gender:
+            </div>
+            <div class="cell  input_cell">
+              <% gender = {"F" => "Female", "M" => "Male"} %>
+              &nbsp;<%= gender[@json["gender"]] rescue nil %>
+            </div>
+            <div class="cell">
+              &nbsp;
+            </div>
+          <!--/div>
+          
+          <div class="row"-->
+            <div class="cell bold label_cell">
+              Birthdate:
+            </div>
+            <div class="cell  input_cell">
+              &nbsp;<%= ((@json["birthdate_estimated"] rescue false) ? "~" : "") %><%= @json["birthdate"].to_date.strftime("%d/%b/%Y") rescue nil %>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="cell bold label_cell">
+              National ID:
+            </div>
+            <div class="cell  input_cell">
+              &nbsp;<%= @json["national_id"] rescue nil %>
+            </div>
+            <div class="cell">
+              &nbsp;
+            </div>
+          <!--/div>
+          
+          <div class="row"-->
+            <div class="cell bold label_cell">
+              Other Identifiers:
+            </div>
+            <div class="cell  input_cell">
+              &nbsp;<%= @json["patient"]["identifiers"].collect{|id| "#{id.keys[0]}: #{id[id.keys[0]]}"}.join("\n") rescue nil %>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="cell bold label_cell no_bottom">
+              Current Address:
+            </div>
+            <div class="cell  input_cell no_bottom">
+              <%= @json["addresses"]["current_residence"] rescue nil %><br/>
+              <%= @json["addresses"]["current_village"] rescue nil %><br/>
+              <%= @json["addresses"]["current_ta"] rescue nil %><br/>
+              <%= @json["addresses"]["current_district"] rescue nil %>
+              &nbsp;
+            </div>
+            <div class="cell">
+              &nbsp;
+            </div>
+          <!--/div>
+          
+          <div class="row"-->
+            <div class="cell bold label_cell no_bottom">
+              Home Address:
+            </div>
+            <div class="cell input_cell no_bottom">
+              <%= @json["addresses"]["home_village"] rescue nil %><br/>
+              <%= @json["addresses"]["home_ta"] rescue nil %><br/>
+              <%= @json["addresses"]["home_district"] rescue nil %>
+              &nbsp;
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      
+      <div id="matches_label" style="font-size: 32px; padding: 5px; background-color: #84cfa5; 
+          text-align: center; border-radius: 0px; margin: auto; margin-bottom: 10px; margin-top: 10px;">
+        Matched Data
+      </div>
+      
+      <div id="matched" style="height: 40%; width: 100%; border: 1px solid #000; overflow: auto;">        
+        &nbsp;        
+      </div>
+      
+    </div>
+    <div class="cell" style="width: 50%; border-radius: 1px; border: 1px solid #666; overflow: hidden;">
+      
+      <% if !@results.nil? and @results.length == 0 %>
+
+        <div id="selections" style="width: 100%; border: none; padding: 10px; ">
+          <div style="width: 100%; height: 100%; font-size: 36px; text-align: center; padding-top: 60px;">
+            No matching existing people found!
+          </div>
+        </div>
+        
+      <% else %>
+
+        <div id="selections" style="width: 100%; border: none; padding: 0px; ">
+        
+        </div>
+
+      <% end %>
+
+    </div>
+  </div>
+</div>
+
+<div style="min-height: 105px !important; color: #ccc !important; 
+    text-align: center !important; padding-top: 5px !important; position: absolute; 
+    bottom: 0px; width: 100%; background-color: #333; left: 0px;">
+      <button class='button_red' id='btncancel' style='float: left; margin-left: 20px; margin-top: 10px;' onclick="back()">
+          Cancel
+      </button>
+      
+      <% if @results.length > 0 %>
+      
+        <button id="btnSelect" class='button_green' style='float: right; margin-right: 20px;'>
+            Select Person
+        </button>
+      
+        <!--button id="btnUpdate" class='button_blue' style='float: right;' onclick="ajaxProcessRequest('update')" >
+            Update Person
+        </button>
+      
+        <button id="btnAdd" class='button_blue' style='float: right;' onclick="ajaxProcessRequest('create')" >
+            New Person
+        </button-->
+      
+      <% elsif !params[:person].blank? %>
+      
+        <!--button id="btnAdd" class='button_blue' style='float: right; margin-right: 20px;' onclick="ajaxProcessRequest('create')" >
+            New Person
+        </button-->
+      
+      <% end %>
+      
+      <% if @results.length > 0 %>
+      
+        <button id="btnRight" class='button_blue' style='float: right;' >
+            &rarr;
+        </button>
+        
+        <button id="btnLeft" class='button_blue' style='float: right;' >
+            &larr;
+        </button>
+        
+        <button id="btnFirst" class='button_blue' style='float: right;' 
+              onclick="ajaxRequest(1);">
+            |&larr;
+        </button>
+        
+      <% end %>
+      
+</div>
+
+<% form_tag("/process_result", "method" => 'post', "enctype" => 'multipart/form-data', "id" => 'form') do %>
+    <textarea id="json" name="person" ><%= @results %></textarea>
+<% end %>
+
+<script type="text/javascript">
+  <!--
+  
+  var json = <%= (params[:person]).to_json rescue {} %>;    // JSON.parse(<%= (params[:person]).to_json rescue {} %>);
+  var people = [];
+  
+  function ajaxProcessRequest(target){
+    var url = "/process_confirmation";
+    // var auth = "<%= Base64.encode64("#{@settings["app_username"]}:#{@settings["app_password"]}").strip %>";
+    
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function() {
+        handleAjaxProcessRequest(httpRequest);
+    };
+    try {
+        httpRequest.open("POST", url, true);
+        httpRequest.setRequestHeader("Content-type","application/json;charset=UTF-8");
+        // httpRequest.setRequestHeader('Authorization', auth);
+        httpRequest.send(JSON.stringify({person: json, target: target}));
+    } catch(e){
+    }
+  }
+  
+  function handleAjaxProcessRequest(aXMLHttpRequest){
+    if (!aXMLHttpRequest) return;                    
+
+    if (aXMLHttpRequest.readyState == 4 && (aXMLHttpRequest.status == 200 || 
+          aXMLHttpRequest.status == 304)) {
+                  
+        var result = aXMLHttpRequest.responseText;
+        
+        if(__$("json")){
+          var operson = JSON.parse(result);
+          var iperson = JSON.parse(json);
+                    
+          if(typeof(iperson["patient_id"]) != "undefined"){
+            operson["patient_id"] = iperson["patient_id"];
+          }
+                        
+          __$("json").innerHTML = JSON.stringify(operson);
+        }
+        
+        if(__$("form")){
+          __$("form").submit();
+        }
+    }
+  }
+    
+  function ajaxRequest(page){
+    var url = "/dde/ajax_process_data";
+    // var auth = "<%= Base64.encode64("#{@settings["app_username"]}:#{@settings["app_password"]}").strip %>";
+    
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function() {
+        handleAjaxRequest(httpRequest, page);
+    };
+    try {
+        httpRequest.open("POST", url, true);
+        httpRequest.setRequestHeader("Content-type","application/json;charset=UTF-8");
+        // httpRequest.setRequestHeader('Authorization', auth);
+        // httpRequest.withCredentials = true;
+        httpRequest.send(JSON.stringify({person: json, page: page}));
+    } catch(e){
+    }
+  }
+  
+  function handleAjaxRequest(aXMLHttpRequest, page){
+    if (!aXMLHttpRequest) return;                    
+
+    if (aXMLHttpRequest.readyState == 4 && (aXMLHttpRequest.status == 200 || 
+          aXMLHttpRequest.status == 304)) {
+                  
+        var result = aXMLHttpRequest.responseText;
+        
+        people = JSON.parse(result);
+        
+        if(__$("matches_label")){
+          __$("matches_label").innerHTML = "&nbsp;";
+        }
+        
+        if(__$("btnSelect")){
+          __$("btnSelect").className = "button_gray";
+          __$("btnSelect").removeAttribute("onclick");
+        }
+        
+        if(__$("btnUpdate")){
+          __$("btnUpdate").className = "button_gray";
+          __$("btnUpdate").removeAttribute("onclick");
+        }
+        
+        if(people.length <= 0 || people.length < <%= (CONFIG["pagesize"].to_i rescue 10) %>){
+          if(__$("btnRight")){
+            __$("btnRight").className = "button_gray";
+            __$("btnRight").removeAttribute("onclick");
+          }
+        } else {
+          if(__$("btnRight")){
+            __$("btnRight").className = "button_blue";
+            
+            __$("btnRight").setAttribute("tag", parseInt(page) + 1);
+            
+            __$("btnRight").onclick = function(){
+              ajaxRequest(this.getAttribute("tag"));
+            }
+          }
+        }
+        
+        if(page == 1){
+          if(__$("btnLeft")){
+            __$("btnLeft").className = "button_gray";
+            __$("btnLeft").removeAttribute("onclick");
+          }
+        } else {
+          if(__$("btnLeft")){
+            __$("btnLeft").className = "button_blue";
+            
+            __$("btnLeft").setAttribute("tag", parseInt(page) - 1);
+            
+            __$("btnLeft").onclick = function(){
+              ajaxRequest(this.getAttribute("tag"));
+            }
+          }
+        }
+        
+        if(__$("matched")){
+          __$("matched").innerHTML = "&nbsp;";
+        }
+        
+        if(__$("selections")){
+          __$("selections").innerHTML = "";
+                      
+          var ul = document.createElement("ul");
+          ul.id = "options";
+          ul.className = "listing";
+          
+          __$("selections").appendChild(ul);
+          
+          var gender = {M: "Male", F: "Female"};
+          
+          for(var i = 0; i < people.length; i++){
+            var obj = JSON.parse(people[i]);
+            
+            var li = document.createElement("li");
+            li.id = i;
+            li.style.cursor = "pointer";
+            li.style.backgroundColor = (i % 2 == 0 ? "#eee" : "");
+            li.style.border = (i % 2 > 0 ? "1px solid #eee" : "");
+            li.innerHTML = obj["names"]["given_name"] + " " + obj["names"]["family_name"] + " (" + gender[obj["gender"]] + " - " + obj["_id"] + ")" + (obj.local != undefined ? " <i style='color: blue;'>[Local]</i>" : "");
+            
+            li.onclick = function(){ 
+              for(var j = 0; j < __$("options").children.length; j++){
+                if(__$("options").children[j].id != this.id){
+                  __$("options").children[j].removeAttribute("class");
+                }
+              }      
+                           
+              this.className = "selected";
+                   
+              loadData(this.id);
+            }
+            
+            ul.appendChild(li);
+          }
+        }
+        
+        
+        
+    }    
+  }
+    
+  function loadData(pos){
+    if(__$("matched")){
+      __$("matched").innerHTML = "";
+      
+      if(__$("matches_label")){
+        __$("matches_label").innerHTML = "Matched Data";
+      }
+        
+      var obj = JSON.parse(people[parseInt(pos)]);      
+      
+      if(__$("btnSelect")){
+        __$("btnSelect").className = "button_green";
+        __$("btnSelect").setAttribute("pos", pos);
+        
+        __$("btnSelect").onclick = function(){  
+             
+          if(__$("json")){
+            var operson = JSON.parse(people[parseInt(this.getAttribute("pos"))]);
+            var iperson = JSON.parse(json);
+                      
+            if(typeof(iperson["patient_id"]) != "undefined"){
+              operson["patient_id"] = iperson["patient_id"];
+            }
+                           
+            __$("json").innerHTML = JSON.stringify(operson);
+          }
+          
+          if(__$("form")){
+            __$("form").submit();
+          }
+        }
+      }
+             
+      if(__$("btnUpdate")){
+        __$("btnUpdate").className = "button_blue";
+        __$("btnUpdate").setAttribute("pos", pos);
+        
+        __$("btnUpdate").onclick = function(){
+          var obj = JSON.parse(people[parseInt(this.getAttribute("pos"))]);      
+          
+          json["national_id"] = obj["_id"];
+          
+          ajaxProcessRequest("update");
+        }
+      }
+          
+      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      var gender = {"F":"Female", "M":"Male"};
+              
+      var rows = [
+          [
+            {
+              field:"First Name",
+              value: obj.names.given_name
+            },
+            {
+              field:"Last Name",
+              value: obj.names.family_name
+            }
+          ],
+          [
+            {
+              field:"Gender",
+              value: gender[obj.gender]
+            },
+            {
+              field:"Birthdate",
+              value: (obj.birthdate_estimated ? "~" : "") + (new Date(obj.birthdate)).getDate() + "/" + 
+                    months[(new Date(obj.birthdate)).getMonth()] + "/" + (new Date(obj.birthdate)).getFullYear()
+            }
+          ],
+          [
+            {
+              field:"National ID",
+              value: obj._id
+            },
+            {
+              field:"Other Identifiers",
+              value: []
+            }
+          ],
+          [
+            {
+              field:"Current Address",
+              value: (obj.addresses.current_residence != null ? obj.addresses.current_residence : "") + "<br />" + 
+                     (obj.addresses.current_village != null ? obj.addresses.current_village : "") + "<br />" + 
+                    (obj.addresses.current_ta != null ? obj.addresses.current_ta : "") + "<br />" +
+                    (obj.addresses.current_district != null ? obj.addresses.current_district : ""),
+              classes: "no_bottom"
+            },
+            {
+              field:"Home Address",
+              value: (obj.addresses.home_village != null ? obj.addresses.home_village : "") + "<br />" + 
+                    (obj.addresses.home_ta != null ? obj.addresses.home_ta : "") + "<br />" +
+                    (obj.addresses.home_district != null ? obj.addresses.home_district : ""),
+              classes: "no_bottom"
+            }
+          ]
+        ];          
+      
+        for(var e = 0; e < obj.patient.identifiers.length; e++){
+          rows[2][1]["value"].push(Object.keys(obj.patient.identifiers[e]) + ": " + obj.patient.identifiers[e][Object.keys(obj.patient.identifiers[e])] + "<br />");
+        }
+      
+        var table = document.createElement("div");
+        table.className = "table";
+        table.style.width = "100%";
+        table.style.borderSpacing = "0px";
+        
+        __$("matched").appendChild(table);
+        
+        for(var i in rows){
+          var row = document.createElement("div");
+          row.className = "row";
+          
+          table.appendChild(row);
+          
+          var cell1 = document.createElement("div");
+          cell1.className = "cell bold label_cell" + (rows[i][0].classes != undefined ? " " + rows[i][0].classes : "");
+          cell1.innerHTML = rows[i][0].field;
+          
+          row.appendChild(cell1);
+          
+          var cell2 = document.createElement("div");
+          cell2.className = "cell input_cell" + (rows[i][0].classes != undefined ? " " + rows[i][0].classes : "");
+          cell2.innerHTML = rows[i][0].value;
+          
+          row.appendChild(cell2);
+          
+          var cell3 = document.createElement("div");
+          cell3.className = "cell";
+          cell3.innerHTML = "&nbsp;";
+          
+          row.appendChild(cell3);
+          
+          var cell4 = document.createElement("div");
+          cell4.className = "cell bold label_cell" + (rows[i][1].classes != undefined ? " " + rows[i][1].classes : "");
+          cell4.innerHTML = rows[i][1].field;
+          
+          row.appendChild(cell4);
+          
+          var cell5 = document.createElement("div");
+          cell5.className = "cell input_cell" + (rows[i][1].classes != undefined ? " " + rows[i][1].classes : "");
+          cell5.innerHTML = rows[i][1].value;
+          
+          row.appendChild(cell5);
+        } 
+    }        
+  }
+     
+  ajaxRequest(1);                      
+  
+  //-->
+</script>
+      
+<% end %>
