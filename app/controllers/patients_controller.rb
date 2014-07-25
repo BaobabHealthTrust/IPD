@@ -193,9 +193,25 @@ class PatientsController < GenericPatientsController
       label.left_margin = 50
       units = {"WEIGHT"=>"kg", "HT"=>"cm"}
       encs = patient.encounters.find(:all,:conditions =>["DATE(encounter_datetime) = ?",date])
+      encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+
+      admission_enc = Encounter.find(:last, :conditions => ["patient_id =? AND
+          encounter_type =?", patient.id, encounter_type.id])
+      unless admission_enc.blank?
+        first_enc = admission_enc.encounter_datetime.strftime("%d/%b/%Y")
+        admission_time_concept_id =  Concept.find_by_name('ADMISSION TIME').id
+        admission_time = admission_enc.observations.find(:last, :conditions => ["concept_id =?",
+            admission_time_concept_id]).answer_string.squish rescue nil
+        admission_time = (Time.parse(admission_time) rescue nil) unless admission_time.blank?
+        admission_time = (admission_time.strftime("%H:%M") rescue nil) unless admission_time.blank?
+        first_enc = first_enc.to_s + ' ' + admission_time.to_s
+      else
+        first_enc = encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")
+      end
+      
       return nil if encs.blank?
 
-      label.draw_multi_text("Visit: #{encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")}" +
+      label.draw_multi_text("Visit: #{first_enc}" +
     " - #{encs.last.encounter_datetime.strftime("%d/%b/%Y %H:%M")}", :font_reverse => true)
 
       encs.each {|encounter|
