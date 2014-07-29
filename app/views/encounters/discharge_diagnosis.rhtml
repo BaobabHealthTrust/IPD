@@ -37,18 +37,44 @@
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.person_id %>
+  <%
+    unless (params[:dead].blank?)
+      primary_diagnosis_help_text = 'Cause of Death'
+      detailed_primary_diagnosis_help_text = 'Detailed cause of death'
+      specific_primary_diagnosis_help_text = 'Specific cause of death'
 
+      secondary_diagnosis_help_text = 'Secondary cause of death'
+      detailed_secondary_diagnosis_help_text = 'Detailed secondary cause of death'
+      specific_secondary_diagnosis_help_text = 'Specific secondary detailed cause of death'
+
+      additional_diagnosis_help_text = 'Addition cause of death'
+      detailed_additional_diagnosis_help_text = 'Detailed addition cause of death'
+      specific_additional_diagnosis_help_text = 'Specific addition cause of death'
+    else
+      primary_diagnosis_help_text = 'Discharge Diagnosis'
+      detailed_primary_diagnosis_help_text = 'Detailed discharge diagnosis'
+      specific_primary_diagnosis_help_text = 'Specific discharge diagnosis'
+
+      secondary_diagnosis_help_text = 'Secondary Discharge Diagnosis'
+      detailed_secondary_diagnosis_help_text = 'Detailed Discharge secondary diagnosis'
+      specific_secondary_diagnosis_help_text = 'Specific discharge secondary diagnosis'
+
+      additional_diagnosis_help_text = 'Additional Discharge Diagnosis'
+      detailed_additional_diagnosis_help_text = 'Detailed Discharge additional diagnosis'
+      specific_additional_diagnosis_help_text = 'Additional discharge specific secondary diagnosis'
+    end
+  %>
 	<%= touch_select_tag "PRIMARY DIAGNOSIS", @patient, nil,
 		{	:id => "primary_diagnosis",
 			:ajaxURL => "/encounters/diagnoses?search_string=",
-		 	:helpText => "Discharge Diagnosis" } %>
+		 	:helpText => "#{primary_diagnosis_help_text}" } %>
 
 	<%= touch_select_tag "DETAILED PRIMARY DIAGNOSIS", @patient, nil,
 		{	:id => "primary_diagnosis_details",
                         :parent_concept_name => "PRIMARY DIAGNOSIS",
 		 	:condition => 'diagnoses_requiring_details.contains($("primary_diagnosis").value.toUpperCase())',
 			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("primary_diagnosis").value)',
-		 	:helpText => "Detailed discharge diagnosis" } %>
+		 	:helpText => "#{detailed_primary_diagnosis_help_text}" } %>
 
 	<%= touch_text_field_tag "SPECIFIC PRIMARY DIAGNOSIS", @patient, nil,
 		{	:id => "specific_diagnosis",
@@ -57,14 +83,14 @@
 		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:allowFreeText => 'true',
 			:textCase => "upper",
-		 	:helpText => "Specific discharge diagnosis" } %>
+		 	:helpText => "#{specific_primary_diagnosis_help_text}" } %>
 		 	 	
 	<%= touch_select_tag "SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "secondary_diagnosis",
 		  :optional => true,
 	 		:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:ajaxURL => "/encounters/diagnoses?search_string=",
-		 	:helpText => "Secondary Discharge Diagnosis" } %>
+		 	:helpText => "#{secondary_diagnosis_help_text}" } %>
 
 	<%= touch_select_tag "DETAILED SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "secondary_diagnosis_details",
@@ -73,7 +99,7 @@
 			:ajaxURL => "/encounters/daignosis_details?search_string=",
 		 	:tt_OnUnload => "setTimeout(updateNextFinish, 20)",
 			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("secondary_diagnosis").value)',
-		 	:helpText => "Detailed Discharge secondary diagnosis" } %>
+		 	:helpText => "#{detailed_secondary_diagnosis_help_text}" } %>
 
 	<%= touch_text_field_tag "SPECIFIC SECONDARY DIAGNOSIS", @patient, nil,
 		{	:id => "sec_specific_diagnosis",
@@ -81,7 +107,7 @@
 		 	:condition => 'diagnoses_requiring_specification.contains($("secondary_diagnosis").value.toUpperCase())',
 			:allowFreeText => 'true',
 			:textCase => "upper",
-		 	:helpText => "Specific discharge secondary diagnosis" } %>
+		 	:helpText => "#{specific_secondary_diagnosis_help_text}" } %>
 
 			<% program_id = Program.find_by_name('IPD PROGRAM').id %>
 			<% patient_program_id = @patient.patient_programs.current.local.select{|p| p.program_id == program_id }.last.patient_program_id rescue nil %>
@@ -101,7 +127,7 @@
 					:ajaxURL => "/encounters/diagnoses?search_string=",
 					:optional => "true",
 					:tt_onLoad => "setTimeout(updateNextFinish, 20)",
-				 	:helpText => "Additional Discharge Diagnosis" } %>
+				 	:helpText => "#{additional_diagnosis_help_text}" } %>
 
 			<%= touch_select_tag "DETAILED ADDITIONAL DIAGNOSIS", @patient, nil,
 				{	:id => "additional_secondary_diagnosis_details_#{counter}",
@@ -109,7 +135,7 @@
 				 	:condition => "diagnoses_requiring_details.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
 					:ajaxURL => "/encounters/daignosis_details?search_string=",
 					:tt_onLoad => "set_ajaxURL_for_suggestions(document.getElementById('additional_diagnosis_#{counter}').value);",
-				 	:helpText => "Detailed Discharge additional diagnosis" } %>
+				 	:helpText => "#{detailed_additional_diagnosis_help_text}" } %>
 
 			<%= touch_text_field_tag "SPECIFIC ADDITIONAL DIAGNOSIS", @patient, nil,
 				{	:id => "additional_specific_diagnosis_#{counter}",
@@ -117,7 +143,7 @@
 				 	:condition => "diagnoses_requiring_specification.contains($('additional_diagnosis_#{counter}').value.toUpperCase())",
 					:allowFreeText => 'true',
 					:textCase => "upper",
-				 	:helpText => "Additional discharge specific secondary diagnosis" } %>
+				 	:helpText => "#{specific_additional_diagnosis_help_text}" } %>
 	<% end %>
 	
 	<% if @retrospective %>

@@ -277,6 +277,7 @@ class GenericProgramsController < ApplicationController
          patient = Patient.find(params[:patient_id])
          next_task = next_task(patient)
          unless params[:location]
+            redirect_to(next_task.to_s + '&dead=true') and return if (patient_program.patient.person.dead == 1)
             redirect_to(next_task) and return if transfered_internally || patient_discharged
             redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id]
          else
