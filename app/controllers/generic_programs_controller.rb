@@ -126,6 +126,24 @@ class GenericProgramsController < ApplicationController
       patient_program = PatientProgram.find(params[:patient_program_id])
       patient_discharged = false
       if (patient_program.program.name.match(/IPD Program/i))
+
+        group_following = Concept.find_by_name('GROUP FOLLOWING').id
+        encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+
+          team_obs = Observation.find(:last, :joins =>[:encounter], :conditions => [
+              "encounter_type =? AND concept_id =? AND person_id =?",
+              encounter_type.id, group_following, params[:patient_id]]
+          )
+          current_team = Location.current_team
+          admission_team = team_obs.answer_string.squish rescue nil
+          unless admission_team.blank?
+            Location.current_team = admission_team
+          end
+          #The above code makes sure the team that admitted the patient should also discharge the
+          #same patient
+
+
+
         if (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/DISCHARGED|PATIENT DIED|HOME ON REQUEST/i))
           patient_discharged = true
           encounter = Encounter.new
@@ -150,6 +168,7 @@ class GenericProgramsController < ApplicationController
           Observation.create(observation)
 
         end
+        Location.current_team = current_team #Resetting to the current team
       end
   
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
