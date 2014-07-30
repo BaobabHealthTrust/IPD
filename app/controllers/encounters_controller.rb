@@ -11,13 +11,14 @@ class EncountersController < GenericEncountersController
 			@retrospective = false
 		end
 		#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    
       group_following = Concept.find_by_name('GROUP FOLLOWING').id
       ipd_program = Program.find_by_name('IPD program')
       active_ipd_program = PatientProgram.find(:last ,:conditions => ["patient_id =? AND
-      date_completed IS NULL OR date_completed > NOW() AND program_id =?", @patient.id,
-          ipd_program.id])
+        (date_completed IS NULL OR date_completed >= NOW() OR DATE(date_completed)='#{session_date}')
+        AND program_id =?", @patient.id, ipd_program.id])
+    
       encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
-
       unless active_ipd_program.blank?
         team_obs = Observation.find(:last, :joins =>[:encounter],
           :conditions => ["encounter_type =? AND concept_id =? AND person_id =?",
@@ -25,6 +26,7 @@ class EncountersController < GenericEncountersController
         admission_team = team_obs.answer_string.squish rescue nil
         (Location.current_team = admission_team)  unless admission_team.blank?
       end
+
       #The above code makes sure the team that admitted the patient should also discharge the
       #same patient in the background in regardless of the team that has logged in
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
