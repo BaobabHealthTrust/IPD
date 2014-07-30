@@ -1,5 +1,28 @@
 class GenericEncountersController < ApplicationController
   def create(params=params, session=session)
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+      group_following = Concept.find_by_name('GROUP FOLLOWING').id
+      ipd_program = Program.find_by_name('IPD program')
+      today = session[:datetime].to_date rescue Date.today
+      active_ipd_program = PatientProgram.find(:last ,:conditions => ["patient_id =? AND
+        (date_completed IS NULL OR date_completed >= NOW() OR
+        DATE(date_completed)='#{today}')
+        AND program_id =?", params[:encounter]["patient_id"], ipd_program.id])
+
+      encounter_type = EncounterType.find_by_name("ADMIT PATIENT")
+      unless active_ipd_program.blank?
+        team_obs = Observation.find(:last, :joins =>[:encounter],
+          :conditions => ["encounter_type =? AND concept_id =? AND person_id =?",
+            encounter_type.id, group_following, params[:encounter]["patient_id"]])
+        admission_team = team_obs.answer_string.squish rescue nil
+        (Location.current_team = admission_team)  unless admission_team.blank?
+      end
+
+      #The above code makes sure the team that admitted the patient should also discharge the
+      #same patient in the background in regardless of the team that has logged in
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    
     if params[:change_appointment_date] == "true"
       session_date = session[:datetime].to_date rescue Date.today
       type = EncounterType.find_by_name("APPOINTMENT")                            
