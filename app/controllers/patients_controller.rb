@@ -50,7 +50,9 @@ class PatientsController < GenericPatientsController
           encounter_type.id, group_following, @patient.id])
       @current_team = team_obs.answer_string.squish.titlecase rescue nil
     end
-    
+
+    Location.current_team = session[:team_name] unless session[:team_name].blank?
+
 		user_roles = UserRole.find(:all,:conditions =>["user_id = ?", current_user.id]).collect{|r|r.role.downcase}
 		inherited_roles = RoleRole.find(:all,:conditions => ["child_role IN (?)", user_roles]).collect{|r|r.parent_role.downcase}
 		user_roles = user_roles + inherited_roles
