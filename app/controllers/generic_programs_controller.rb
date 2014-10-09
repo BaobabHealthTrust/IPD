@@ -125,6 +125,7 @@ class GenericProgramsController < ApplicationController
     if request.method == :post
       patient_program = PatientProgram.find(params[:patient_program_id])
       patient_discharged = false
+      session_date = session[:datetime].to_date rescue Date.today
       if (patient_program.program.name.match(/IPD Program/i))
 
         group_following = Concept.find_by_name('GROUP FOLLOWING').id
@@ -142,12 +143,11 @@ class GenericProgramsController < ApplicationController
           #The above code makes sure the team that admitted the patient should also discharge the
           #same patient
 
-
-
         if (ProgramWorkflowState.find(params[:current_state]).concept.fullname.match(/DISCHARGED|PATIENT DIED|HOME ON REQUEST/i))
           patient_discharged = true
           encounter = Encounter.new
           encounter.encounter_type = EncounterType.find_by_name('DISCHARGE PATIENT').id
+          encounter.encounter_datetime = session_date
           encounter.patient_id  = params[:patient_id]
           encounter.save
 
@@ -190,7 +190,7 @@ class GenericProgramsController < ApplicationController
         if patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED (EXTERNAL FACILITY)' ||
             patient_state.program_workflow_state.concept.fullname.upcase == 'PATIENT TRANSFERRED (WITHIN FACILITY)'
           encounter = Encounter.new(params[:encounter])
-          encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+          encounter.encounter_datetime = session_date
           encounter.save
           
           if transfered_internally
