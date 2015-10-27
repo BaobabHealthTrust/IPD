@@ -1,0 +1,31 @@
+default: &default
+  show_middle_name: true
+  show_maiden_name: true
+  show_birthyear: true
+  show_birthmonth: true
+  show_birthdate: true
+  show_age: true
+  show_region_of_origin: true
+  show_district_of_origin: true
+  show_t_a_of_origin: true
+  show_home_village: true
+  show_current_region: true
+  show_current_district: true
+  show_current_t_a: true
+  show_current_village: true
+  show_current_landmark: true
+  show_cell_phone_number: true
+  show_office_phone_number: true
+  show_home_phone_number: true
+  show_occupation: true
+  show_nationality: true
+  default_gender_female: false
+  
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

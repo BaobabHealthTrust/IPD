@@ -1,0 +1,634 @@
+<style>
+
+    .tt_controls_year_of_birth #qwerty {
+        display: none;
+    }
+
+    .tt_controls_age_estimate #qwerty {
+        display: none;
+    }
+
+    .tt_controls_cell_phone_number #qwerty {
+        display: none;
+    }
+
+    .tt_controls_ground_phone_number #qwerty {
+        display: none;
+    }
+
+    .tt_controls_office_phone_number #qwerty {
+        display: none;
+    }
+
+    .tt_controls_year_of_birth #Unknown {
+        display: block;
+    }
+
+    .tt_controls_age_estimate #Unknown {
+        display: none;
+    }
+
+    .tt_controls_middle_name #na {
+        display: block;
+    }
+
+    .tt_controls_ground_phone_number #Unknown {
+        display: block;
+    }
+
+    .tt_controls_region_of_origin .keyboard {
+        display: none;
+    }
+
+    .tt_controls_current_region .keyboard {
+        display: none;
+    }
+
+    .tt_controls_month_of_birth .keyboard {
+        display: none !important;
+    }
+
+    #tt_page_month_of_birth .options {
+        height: 570px;
+    }
+
+    #tt_page_month_of_birth .options li {
+        font-size: 30px;
+    }
+
+    .tt_controls_home_village #space, #apostrophe {
+        display: inline;
+    }
+
+    .tt_controls_home_district #num {
+        display: none;
+    }
+
+    .tt_controls_current_traditional_authority_ta #space {
+        display: inline;
+    }
+
+    .tt_controls_current_village_residence #space {
+        display: inline;
+    }
+
+    .tt_controls_cell_phone_number #num, #plus, #apostrophe, #star, #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal {
+        display: none;
+    }
+
+    .tt_controls_home_phone_number #num, #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal {
+        display: none;
+    }
+
+    .tt_controls_office_phone_number #num, #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal {
+        display: none;
+    }
+
+    .tt_controls_occupation .keyboard {
+        display: none;
+    }
+
+    #tt_page_occupation .options {
+        height: 500px;
+    }
+
+    #tt_page_occupation .options li {
+        font-size: 30px;
+    }
+
+    #space {
+        display: inline;
+    }
+
+    .nota #na {
+        display: block;
+    }
+
+    #num {
+        display: block;
+    }
+
+    #char {
+        display: none;
+    }
+
+    #apostrophe {
+        display: inline;
+    }
+
+    .tt_controls_home_district #num {
+        display: none;
+    }
+
+    .tt_controls_current_district #num {
+        display: none;
+    }
+
+    .tt_controls_current_city_place_or_area_of_residence #num {
+        display: block;
+    }
+
+    .tt_controls_current_city_place_or_area_of_residence #char {
+        display: block;
+    }
+
+    .tt_controls_closest_landmark_or_plot_number #num {
+        display: block;
+    }
+
+    .tt_controls_closest_landmark_or_plot_number #char {
+        display: block;
+    }
+
+    .azButton .numericKeyboard #char {
+        display: block;
+    }
+
+    .tt_controls_occupation #keyboard {
+        display: none !important;
+    }
+
+</style>
+
+<script>
+    <% if params[:relation] %>
+    var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
+    <% else %>
+    var tt_cancel_destination = "/clinic"
+    <% end %>
+
+    var dob_year = null;
+    var dob_month = null;
+    dob_day = null;
+    var set_dob = null;
+
+    var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    var json = <%= {
+          "national_id" => nil,
+          "application" => "#{@settings["application_name"]}",
+          "site_code" => "#{@settings["site_code"]}",
+          "return_path" => "http://#{request.host_with_port}/process_result",
+          "names" =>
+          {
+              "family_name" => nil,
+              "given_name" => nil,
+              "middle_name" => nil,
+              "maiden_name" => nil
+          },
+          "gender" => "#{params["gender"]}",
+          "person_attributes" => {
+              "country_of_residence" => nil,
+              "citizenship" => nil,
+              "occupation" => nil,
+              "home_phone_number" => nil,
+              "cell_phone_number" => nil,
+              "office_phone_number" => nil,
+              "race" => nil
+          },
+          "birthdate" => nil,
+          "patient" => {
+              "identifiers" => []
+          },
+          "birthdate_estimated" => nil,
+          "addresses" => {
+              "current_residence" => nil,
+              "current_village" => nil,
+              "current_ta" => nil,
+              "current_district" => nil,
+              "home_village" => nil,
+              "home_ta" => nil,
+              "home_district" => nil,
+              "landmark" => nil
+          }
+        }.to_json %>;
+
+    function sendToDDE() {
+        json.names.given_name = __$("first_name").value;
+        json.names.family_name = __$("last_name").value;
+        json.names.middle_name = (__$("middle_name") ? __$("middle_name").value : null);
+        json.names.maiden_name = (__$("maiden_name") ? __$("maiden_name").value : null);
+        json.names.gender = __$("gender").value;
+
+        var dob = "1900-01-01";
+        var dob_est = false;
+
+        dob_year = __$("year_of_birth").value.trim();
+        dob_month = __$("month_of_birth").value.trim();
+        dob_day = __$("date_of_birth").value.trim();
+
+        if (dob_year.match(/^$/)) {
+            dob_year = null;
+        }
+
+        if (dob_month.match(/^$/)) {
+            dob_month = null;
+        }
+
+        if (dob_day.match(/^$/)) {
+            dob_day = null;
+        }
+
+        if (dob_year == null || String(dob_year).toLowerCase() == "unknown") {
+            var yr = (new Date()).getFullYear() - parseInt(__$("age_estimate").value);
+
+            dob = yr + "-07-05";
+            dob_est = true;
+        } else if ((dob_year != null && String(dob_year).toLowerCase() != "unknown") && (dob_month == null || String(dob_month).toLowerCase() == "unknown")) {
+            dob = dob_year + "-07-10";
+            dob_est = true;
+        } else if ((dob_year != null && String(dob_year).toLowerCase() != "unknown") &&
+                (dob_month != null && String(dob_month).toLowerCase() != "unknown") &&
+                (dob_day == null || String(dob_day).toLowerCase() == "unknown")) {
+            dob = dob_year + "-" + padZeros(dob_month, 2) + "-15";
+            dob_est = true;
+        } else {
+            dob = dob_year + "-" + padZeros(dob_month, 2) + "-" + padZeros(dob_day, 2);
+            dob_est = false;
+        }
+
+        json.birthdate = dob;
+
+        json.birthdate_estimated = dob_est;
+
+        json.addresses.landmark = (
+                __$("closest_landmark_or_plot_number") ?
+                        __$("closest_landmark_or_plot_number").value : null
+                );
+
+        json.addresses.current_residence = (
+                __$("closest_landmark_or_plot_number") ?
+                        __$("closest_landmark_or_plot_number").value : null
+                );
+
+        json.addresses.current_village = (
+                __$("current_location_or_village") ?
+                        __$("current_location_or_village").value : null
+                );
+
+        json.addresses.current_ta = (
+                __$("current_area_of_residence") ?
+                        __$("current_area_of_residence").value : null
+                );
+
+        json.addresses.current_district = (
+                __$("current_district") ?
+                        __$("current_district").value : null
+                );
+
+        json.addresses.home_village = (
+                __$("home_village") ?
+                        __$("home_village").value : null
+                );
+
+        json.addresses.home_ta = (
+                __$("ancestral_traditional_authority") ?
+                        __$("ancestral_traditional_authority").value : null
+                );
+
+        json.addresses.home_district = (
+                __$("district_of_origin") ?
+                        __$("district_of_origin").value : null
+                );
+
+        json.person_attributes.country_of_residence = (__$("country") ?
+                    __$("country").value : null
+                );
+
+        json.person_attributes.citizenship = (
+                __$("nationality") ?
+                        (__$("nationality").value.trim().toLowerCase() == "other" ? (__$("race") ?
+                                __$("race").value : "Other") : __$("nationality").value) : null
+                );
+
+        json.person_attributes.occupation = (
+                __$("occupation") ?
+                        __$("occupation").value : null
+                );
+
+        json.person_attributes.home_phone_number = (
+                __$("home_phone_number") ?
+                        __$("home_phone_number").value : null
+                );
+
+        json.person_attributes.cell_phone_number = (
+                __$("cell_phone_number") ?
+                        __$("cell_phone_number").value : null
+                );
+
+        json.person_attributes.office_phone_number = (
+                __$("office_phone_number") ?
+                        __$("office_phone_number").value : null
+                );
+
+        json["print_barcode"] = true;
+
+        __$("person").innerHTML = JSON.stringify(json);
+
+        __$("creation").submit();
+    }
+
+    function seen(page) {
+        for (var i = page; i >= 0; i--) {
+            skipped[i] = 1;
+        }
+    }
+
+    function setDOB() {
+        try {
+            dob_year = document.getElementById('tt_page_year_of_birth').getElementsByTagName("input")[0].value
+        } catch (e) {
+            dob_year = dob_year
+        }
+        try {
+            dob_month = document.getElementById('tt_page_month_of_birth').getElementsByTagName("input")[0].getAttribute('tstvalue')
+            if (dob_month.length == 1)
+                dob_month = 0 + dob_month
+        } catch (e) {
+            dob_month = dob_month
+        }
+        try {
+            dob_day = document.getElementById('tt_page_birth_day').getElementsByTagName("input")[0].value
+            if (dob_day.length == 1)
+                dob_day = 0 + dob_day
+        } catch (e) {
+            dob_day = dob_day
+        }
+
+        set_dob = (dob_year + '-' + dob_month + '-' + dob_day)
+        return true
+    }
+
+    function validateDOB() {
+        setDOB();
+        curr_date = new Date();
+
+        if (dateCreate(set_dob) == 'Invalid Date') {
+            if (set_dob.split('-')[1] == 'Unknown')
+                return true
+
+            if (curr_date.getFullYear() == parseInt(dob_year)) {
+                if ((curr_date.getMonth() + 1) < parseInt(dob_month)) {
+                    if (document.getElementById('tt_page_month_of_birth') != null)
+                        return true
+
+                    return false
+                }
+            }
+
+            if (dob_month == 'Unknown') {
+                if (curr_date.getFullYear() == parseInt(dob_year)) {
+                    if ((curr_date.getMonth() + 1) < parseInt(dob_month))
+                        return false
+                }
+            }
+        } else {
+            if (document.getElementById('tt_page_month_of_birth') != null)
+                return true
+
+            if (curr_date < dateCreate(set_dob))
+                return false
+        }
+        return true
+    }
+
+    function dateCreate(date_str) {
+        intyear = 0;
+        intmonth = 0;
+        intday = 0;
+        intyear = parseInt(date_str.substring(0, 4))
+        intmonth = (parseInt(date_str.substring(5, 7)) - 1)
+        intday = (parseInt(date_str.substring(8, 10)))
+
+        if (intmonth == -1)
+            intmonth = (parseInt(date_str.substring(5, 7).substring(1, 2)) - 1)
+
+        if (intday == 0)
+            intday = parseInt(date_str.substring(8, 10).substring(1, 2))
+
+        return new Date(intyear, intmonth, intday);
+    }
+
+    function set_ajaxURL_for_suggestions(url, filter_value) {
+        $('touchscreenInput' + tstCurrentPage).setAttribute('ajaxURL', url + filter_value + "&search_string=");
+        listSuggestions(tstCurrentPage);
+    }
+
+    function upNextButton() {
+        $('nextButton').innerHTML = '<span>Finish</span>';
+
+        $('nextButton').onmousedown = function () {
+
+            sendToDDE()
+
+        };
+    }
+
+</script>
+
+<% form_tag "/people/create" do %>
+
+    <%= text_field_tag "person[names][given_name]", params[:given_name],
+                       {:id => "first_name",
+                        :condition => "'#{params[:given_name]}'.trim().length == 0",
+                        :helptext => "First Name"} %>
+
+    <%= text_field_tag "person[names][middle_name]", nil,
+                       {:id => "middle_name",
+                        :optional => true,
+                        :tt_onLoad => "if('#{params[:given_name]}'.trim().length > 0){if(__$('backButton')){__$('backButton').style.display='none';}}",
+                        :helptext => "Middle Name"} if @show_middle_name %>
+
+    <%= text_field_tag "person[names][family_name]", params[:family_name],
+                       {:id => "last_name",
+                        :condition => "'#{params[:family_name]}'.trim().length == 0",
+                        :helptext => "Last Name"} %>
+
+    <%= select_tag "person[gender]", options_for_select([["Male", "M"], ["Female", "F"], ["", ""]], params[:gender]),
+                   {:id => "gender",
+                    :condition => "'#{params[:gender]}'.trim().length == 0",
+                    :helptext => "Gender"} %>
+
+    <%= text_field_tag "person[names][family_name2]", nil,
+                       {:id => "maiden_name",
+                        :condition => "__$('gender').value == 'Female'",
+                        :helptext => "Maiden Name"} if @show_maiden_name %>
+
+    <%= text_field_tag "person[birth_year]", nil,
+                       {:id => "year_of_birth",
+                        :field_type => "number",
+                        :tt_pageStyleClass => "NumbersWithUnknown",
+                        :absoluteMax => Date.today.year,
+                        :absoluteMin => (Date.today.year - 120),
+                        :min => (Date.today.year - 80),
+                        :helptext => "Year Of Birth"} %>
+
+    <%= select_tag "person[birth_month]", month_name_options,
+                   {:id => "month_of_birth",
+                    :helptext => "Month Of Birth",
+                    :tt_pageStyleClass => "tt_controls_month_of_birth",
+                    :condition => '__$("year_of_birth").value != "Unknown"'} %>
+
+    <%= text_field_tag "person[birth_day]", nil,
+                       {:id => "date_of_birth",
+                        :helptext => "Date Of Birth",
+                        :tt_onLoad => "getDayOfMonthPicker($('year_of_birth').value, $('month_of_birth').value);$('nextButton').style.display = 'block';",
+                        :condition => '__$("year_of_birth").value != "Unknown" && __$("month_of_birth").value != "Unknown"'} %>
+
+    <%= text_field_tag "person[age_estimate]", nil,
+                       {:id => "age_estimate",
+                        :field_type => "number",
+                        :tt_pageStyleClass => "NumbersOnly",
+                        :max => 90,
+                        :condition => '__$("year_of_birth").value.toLowerCase() == "unknown"',
+                        :absoluteMax => 120,
+                        :helptext => "Age"} %>
+
+    <%= text_field_tag "person[citizenship]", nil,
+                   {:id => "nationality",
+                    :ajaxURL => "",
+                    :tt_requireNextClick => false,
+                    :tt_onLoad => "$('nextButton').style.display = 'none'; set_ajaxURL_for_suggestions('/dde/nationality?filter_value=', __$('nationality').value);",
+                    :helptext => "Nationality"} if @show_region_of_origin %>
+
+    <%= text_field_tag "person[race]", nil,
+                       {:id => "race",
+                        :helptext => "Specify nationality",
+                        :tt_onLoad => "$('nextButton').style.display = 'block';",
+                        :condition => '__$("nationality").value == "Other"'} if @show_region_of_origin %>
+
+    <%= select_tag "REGION OF ORIGIN", options_for_select([["Northern Region", "Northern+Region"],
+                                                           ["Central Region", "Central+Region"], ["Southern Region", "Southern+Region"], ["", ""]]),
+                   {:id => "region_of_origin",
+                    :tt_requireNextClick => false,
+                    :condition => "__$('nationality').value == 'Malawian'",
+                    :tt_onLoad => "$('nextButton').style.display = 'none';",
+                    :helptext => "Region Of Origin"} if @show_region_of_origin %>
+
+    <%= text_field_tag "person[addresses][address2]", nil,
+                   {:id => "district_of_origin",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('nationality').value == 'Malawian'",
+                    :tt_onLoad => "$('nextButton').style.display = 'none'; set_ajaxURL_for_suggestions('/dde/district?filter_value=', __$('region_of_origin').value); ",
+                    :helptext => "District Of Origin"} if @show_region_of_origin %>
+
+    <%= text_field_tag "person[addresses][county_district]", nil,
+                   {:id => "ancestral_traditional_authority",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('nationality').value == 'Malawian'",
+                    :tt_onLoad => "set_ajaxURL_for_suggestions('/dde/traditional_authority?filter_value=', __$('district_of_origin').value);",
+                    :helptext => "Ancestral Traditional Authority"} if @show_region_of_origin %>
+
+    <%= text_field_tag "person[addresses][neighborhood_cell]", nil,
+                   {:id => "home_village",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('nationality').value == 'Malawian'",
+                    :tt_onLoad => "set_ajaxURL_for_suggestions('/dde/village?filter_value=', __$('ancestral_traditional_authority').value);",
+                    :helptext => "Home Village"} if @show_region_of_origin %>
+
+    <%= text_field_tag "person[country]", nil,
+                   {:id => "country",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :tt_onLoad => "$('nextButton').style.display = 'none'; set_ajaxURL_for_suggestions('/dde/country?filter_value=', __$('country').value); ",
+                    :helptext => "Country of Residence"} if @show_current_district %>
+
+    <%= select_tag "CURRENT REGION", options_for_select([["Northern Region", "Northern+Region"],
+                                                         ["Central Region", "Central+Region"], ["Southern Region", "Southern+Region"], ["", ""]]),
+                   {:id => "current_region",
+                    :tt_requireNextClick => false,
+                    :condition => "__$('country').value == 'Malawi'",
+                    :tt_onLoad => "$('nextButton').style.display = 'none';",
+                    :helptext => "Current Region"} if @show_current_district %>
+
+    <%= text_field_tag "person[addresses][state_province]", nil,
+                   {:id => "current_district",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('country').value == 'Malawi'",
+                    :tt_onLoad => "set_ajaxURL_for_suggestions('/dde/district?filter_value=', __$('current_region').value); ",
+                    :helptext => "Current District"} if @show_current_district %>
+
+    <%= text_field_tag "CURRENT AREA OR T/A", nil,
+                   {:id => "current_area_of_residence",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('country').value == 'Malawi'",
+                    :tt_onLoad => "$('nextButton').style.display = 'none'; set_ajaxURL_for_suggestions('/dde/traditional_authority?filter_value=', __$('current_district').value);",
+                    :helptext => "Current Area Of Residence"} if @show_current_t_a %>
+
+    <%= text_field_tag "person[addresses][city_village]", nil,
+                   {:id => "current_location_or_village",
+                    :tt_requireNextClick => false,
+                    :ajaxURL => "",
+                    :condition => "__$('country').value == 'Malawi'",
+                    :tt_onLoad => "$('nextButton').style.display = 'none'; set_ajaxURL_for_suggestions('/dde/village?filter_value=', __$('current_area_of_residence').value);",
+                    :helptext => "Current Location Or Village"} if @show_current_village %>
+
+    <%= text_field_tag "person[addresses][address1]", nil,
+                       {:id => "closest_landmark_or_plot_number",
+                        :helpText => 'Closest Landmark or Plot number<br />' +
+                                '<div style="font-size:0.7em;font-style:italic; margin-left: 40px;">' +
+                                '(Please do not enter words like: near, close to, infront of, behind)</div>',
+                        :allowFreeText => true,
+                        :ajaxURL => '',
+                        :condition => "__$('country').value == 'Malawi'",
+                        :tt_pageStyleClass => "azButton",
+                        :tt_onLoad => "$('nextButton').style.display = 'block'; set_ajaxURL_for_suggestions('/dde/landmark?filter_value='
+                         ,document.getElementById('current_location_or_village').value);"} if @show_current_landmark%>
+
+
+    <%= text_field_tag "person[cell_phone_number]", nil,
+                       {:id => "cell_phone_number",
+                        :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$|^N\\/A$",
+                        :validationMessage => "Not a valid phone number",
+                        :tt_pageStyleClass => "NumbersWithUnknown nota",
+                        :tt_onLoad  => '$("nextButton").style.display = "block" ',
+                        :field_type => 'number',
+                        :helptext => "Cell Phone Number"} if @show_cell_phone_number %>
+
+    <%= text_field_tag "person[office_phone_number]", nil,
+                       {:id => "office_phone_number",
+                        :tt_pageStyleClass => "NumbersWithUnknown nota",
+                        :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$|^N\\/A$",
+                        :validationMessage => "Not a valid phone number",
+                        :tt_onLoad  => '$("nextButton").style.display = "block" ',
+                        :field_type => 'number',
+                        :helptext => "Office Phone Number"} if @show_office_phone_number %>
+
+    <%= text_field_tag "person[home_phone_number]", nil,
+                       {:id => "home_phone_number",
+                        :tt_pageStyleClass => "NumbersWithUnknown nota",
+                        :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$|^N\\/A$",
+                        :validationMessage => "Not a valid phone number",
+                        :tt_onLoad  => '$("nextButton").style.display = "block" ',
+                        :field_type => 'number',
+                        :helptext => "Home Phone Number"} if @show_home_phone_number %>
+
+    <%= select_tag "person[occupation]", options_for_select(@occupations),
+                   {:id => "occupation",
+                    :tt_pageStyleClass => "tt_controls_occupation",
+                    :helptext => "Occupation",
+                    :optional => !@show_occupation,
+                    :tt_onLoad => "$('nextButton').style.display = 'block';upNextButton();"} %>
+
+    <!-- Make sure patient is created -->
+
+    <%= hidden_field_tag "person[patient]", "" %>
+
+    <input type='hidden' name='user_id' value='<%= params[:user_id] %>'/>
+    <input type='hidden' name='location_id' value='<%= params[:location_id] %>'/>
+
+    <%= submit_tag "Create person" %>
+
+<% end %>
+
+<% form_tag("/dde/send_to_dde", "method" => 'post', "enctype" => 'multipart/form-data',
+            "id" => 'creation', "class" => "form-horizontal", "autocomplete" => "off", "role" => "form", "novalidate" => "novalidate") do %>
+
+    <textarea id="person" name="person" style="display: none;" condition="false"></textarea>
+
+<% end %>

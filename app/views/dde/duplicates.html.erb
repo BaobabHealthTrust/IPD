@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Duplicates</title>
+		<style type="text/css">
+			
+			html {
+			  font-size: 62.5%;
+
+			  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+			}
+			body {
+			  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			  font-size: 14px;
+			  color: #333;
+			  background-color: #fff;
+			  -moz-user-select: none;
+			  overflow: hidden;
+			   min-height: 690px;
+			   -moz-user-select: none;
+			}
+			
+			div {				
+			   -moz-user-select: none;				
+			}
+			
+			.starter-template {
+			  padding: 40px 15px;
+			  text-align: center;
+			}
+			.starter-template {
+			  padding: 40px 15px;
+			  text-align: center;
+			}
+			form .alert,
+			  form .process
+			  {
+				  display: none;
+			  }
+			 
+			/*@import url('/bootstrap/css/bootstrap.min.css');
+			@import url('/bootstrap/css/bootstrap.css');*/
+			/* New styles */
+
+			label.valid {
+				width: 24px;
+				height: 24px;
+				background: url(/images/valid.png) center center no-repeat;
+				display: inline-block;
+				text-indent: -9999px;
+			}
+			label.error {
+				font-weight: bold;
+				color: red;
+				padding: 2px 8px;
+				margin-top: 2px;
+			}
+			
+			.head {
+			  padding-top: 15px !important;
+			  padding-bottom: 18px !important;
+			}
+			
+			.submenu-show
+			{
+				border-radius: 3px;
+				display: block;
+				left: 100%;
+				margin-top: -25px !important;
+				moz-border-radius: 3px;
+				position: absolute;
+				webkit-border-radius: 3px;
+			}
+			.submenu-hide
+			{
+				display: none !important;
+				float: right;
+				position: relative;
+				top: auto;
+			}
+			.navbar .submenu-show:before
+			{
+				border-bottom: 7px solid transparent;
+				border-left: none;
+				border-right: 7px solid rgba(0, 0, 0, 0.2);
+				border-top: 7px solid transparent;
+				left: -7px;
+				top: 10px;
+			}
+
+			.navbar .submenu-show:after
+			{
+				border-bottom: 6px solid transparent;
+				border-left: none;
+				border-right: 6px solid #fff;
+				border-top: 6px solid transparent;
+				left: 10px;
+				left: -6px;
+				top: 11px;
+			}
+			   
+			.table {
+			  display: table;
+			  border-spacing: 1px;
+			}
+			.row {
+			  display: table-row;
+			}
+			.cell {
+			  display: table-cell;
+			}
+					
+			button {
+				font-size: 1em;
+				padding: 15px;
+				min-width: 120px;
+				cursor: pointer;
+				min-height: 80px;
+				border-radius: 10px !important;
+				margin: 3px;
+			}
+
+			button:active{
+				background-color: #ffc579 !important; 
+				background-image: -webkit-gradient(linear, left top, left bottom, from(#ffc579), to(#fb9d23)) !important;
+				background-image: -webkit-linear-gradient(top, #ffc579, #fb9d23) !important;
+				background-image: -moz-linear-gradient(top, #ffc579, #fb9d23) !important;
+				background-image: -ms-linear-gradient(top, #ffc579, #fb9d23) !important;
+				background-image: -o-linear-gradient(top, #ffc579, #fb9d23) !important;
+				background-image: linear-gradient(to bottom, #ffc579, #fb9d23);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#ffc579, endColorstr=#fb9d23) !important;
+			}
+
+			.button_blue{
+				 border:1px solid #7eb9d0; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-size:28px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-decoration:none; display:inline-block;text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; color: #FFFFFF;
+				 background-color: #a7cfdf; background-image: -webkit-gradient(linear, left top, left bottom, from(#a7cfdf), to(#23538a));
+				 background-image: -webkit-linear-gradient(top, #a7cfdf, #23538a);
+				 background-image: -moz-linear-gradient(top, #a7cfdf, #23538a);
+				 background-image: -ms-linear-gradient(top, #a7cfdf, #23538a);
+				 background-image: -o-linear-gradient(top, #a7cfdf, #23538a);
+				 background-image: linear-gradient(to bottom, #a7cfdf, #23538a);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#a7cfdf, endColorstr=#23538a);
+			}
+
+			.button_blue:hover{
+				 border:1px solid #5ca6c4;
+				 background-color: #82bbd1; background-image: -webkit-gradient(linear, left top, left bottom, from(#82bbd1), to(#193b61));
+				 background-image: -webkit-linear-gradient(top, #82bbd1, #193b61);
+				 background-image: -moz-linear-gradient(top, #82bbd1, #193b61);
+				 background-image: -ms-linear-gradient(top, #82bbd1, #193b61);
+				 background-image: -o-linear-gradient(top, #82bbd1, #193b61);
+				 background-image: linear-gradient(to bottom, #82bbd1, #193b61);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#82bbd1, endColorstr=#193b61);
+			}
+
+			.button_green{
+				 border:1px solid #34740e; 
+				 -webkit-border-radius: 3px; 
+				 -moz-border-radius: 3px;
+				 border-radius: 3px;
+				 font-size:28px;
+				 font-family:arial, helvetica, sans-serif; 
+				 padding: 10px 10px 10px 10px; 
+				 text-decoration:none; 
+				 display:inline-block;
+				 text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+				 font-weight:bold; color: #FFFFFF;
+				 background-color: #4ba614; 
+				 background-image: -webkit-gradient(linear, left top, left bottom, from(#4ba614), to(#008c00));
+				 background-image: -webkit-linear-gradient(top, #4ba614, #008c00);
+				 background-image: -moz-linear-gradient(top, #4ba614, #008c00);
+				 background-image: -ms-linear-gradient(top, #4ba614, #008c00);
+				 background-image: -o-linear-gradient(top, #4ba614, #008c00);
+				 background-image: linear-gradient(to bottom, #4ba614, #008c00);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#4ba614, endColorstr=#008c00);
+			}
+
+			.button_green:hover{
+				 border:1px solid #224b09;
+				 background-color: #36780f; background-image: -webkit-gradient(linear, left top, left bottom, from(#36780f), to(#005900));
+				 background-image: -webkit-linear-gradient(top, #36780f, #005900);
+				 background-image: -moz-linear-gradient(top, #36780f, #005900);
+				 background-image: -ms-linear-gradient(top, #36780f, #005900);
+				 background-image: -o-linear-gradient(top, #36780f, #005900);
+				 background-image: linear-gradient(to bottom, #36780f, #005900);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#36780f, endColorstr=#005900);
+			}
+
+			.button_red{
+				 border:1px solid #72021c; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-size:28px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-decoration:none; display:inline-block;text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; color: #FFFFFF;
+				 background-color: #a90329; background-image: -webkit-gradient(linear, left top, left bottom, from(#a90329), to(#6d0019));
+				 background-image: -webkit-linear-gradient(top, #a90329, #6d0019);
+				 background-image: -moz-linear-gradient(top, #a90329, #6d0019);
+				 background-image: -ms-linear-gradient(top, #a90329, #6d0019);
+				 background-image: -o-linear-gradient(top, #a90329, #6d0019);
+				 background-image: linear-gradient(to bottom, #a90329, #6d0019);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#a90329, endColorstr=#6d0019);
+			}
+
+			.button_red:hover{
+				 border:1px solid #450111;
+				 background-color: #77021d; background-image: -webkit-gradient(linear, left top, left bottom, from(#77021d), to(#3a000d));
+				 background-image: -webkit-linear-gradient(top, #77021d, #3a000d);
+				 background-image: -moz-linear-gradient(top, #77021d, #3a000d);
+				 background-image: -ms-linear-gradient(top, #77021d, #3a000d);
+				 background-image: -o-linear-gradient(top, #77021d, #3a000d);
+				 background-image: linear-gradient(to bottom, #77021d, #3a000d);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#77021d, endColorstr=#3a000d);
+			}
+
+			.button_gray{
+				 border:1px solid #ccc; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-size:28px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-decoration:none; display:inline-block;text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; color: #FFFFFF;
+				 background-color: #ccc; background-image: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
+				 background-image: -webkit-linear-gradient(top, #ccc, #999);
+				 background-image: -moz-linear-gradient(top, #ccc, #999);
+				 background-image: -ms-linear-gradient(top, #ccc, #999);
+				 background-image: -o-linear-gradient(top, #ccc, #999);
+				 background-image: linear-gradient(to bottom, #ccc, #999);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#ccc, endColorstr=#999);
+			}
+
+			.button_gray:hover{
+				 border:1px solid #ccc;
+				 background-color: #ddd; background-image: -webkit-gradient(linear, left top, left bottom, from(#333), to(#ccc));
+				 background-image: -webkit-linear-gradient(top, #333, #ccc);
+				 background-image: -moz-linear-gradient(top, #333, #ccc);
+				 background-image: -ms-linear-gradient(top, #333, #ccc);
+				 background-image: -o-linear-gradient(top, #333, #ccc);
+				 background-image: linear-gradient(to bottom, #333, #ccc);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#333, endColorstr=#ccc);
+			}
+			
+			.bold {
+			  font-weight: bold;
+			  color: #284b38;
+			}
+			
+			.label_cell {
+			  font-size: 1.2em; 
+			  padding: 5px; 
+			  text-align: right;
+			  border-bottom: 1px dotted #999; 
+			  border-right: 1px dotted #999; 
+			  width: 25%;
+			}
+			.input_cell {
+			  font-size: 1.5em; 
+			  padding: 5px; 
+			  border-bottom: 1px dotted #999;
+			}
+			
+			.no_bottom {
+			  border-bottom: none;
+			}
+			
+			.listing {
+				overflow: auto;
+				height: 100%;
+				margin-top: 0px;
+				margin-bottom: 0px;
+				padding-left: 0px;
+			}
+
+			.listing li{  
+				color: black;
+				list-style: none;
+				padding: 10px;
+				padding-left: 20px;
+				padding-right: 10px;
+				margin-top: 1px;
+				margin-bottom: 1px;
+				font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
+				font-size:2.5em;
+			}
+
+			.selected {
+			  background-color: lightblue !important;
+			}
+			
+			.odd {
+			  background-color: #eee;
+			}
+			
+			.placeholder {
+				font-style: italic;
+				color: #ccc;
+			}
+			
+			.text {
+				font-style: normal;
+				color: #000;
+			}
+			
+		</style>
+		
+	</head>
+	<body onresize="resizePage()" onload="resizePage()">
+		
+		<div id="main" style="width: 100%; height: 100%; border: 1px solid #000; height: 100%; margin: 0px; min-width: 1142px; min-height: 690px;"></div>
+		
+		<script>
+		
+			<% if !flash["error"].nil? %>
+			
+				alert("<%= flash["error"] %>");
+			
+			<% end %>
+		
+			<% if !flash["notice"].nil? %>
+			
+				alert("<%= flash["notice"] %>");
+			
+			<% end %>
+		
+			var imgTick = 'data:image/png;base64,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';
+      
+			var imgUnTick = 'data:image/png;base64,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';      
+		
+			var barcode = "data:image/png;base64,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";
+			
+			var globalTarget, globalParent, globalPosition;
+			
+			var globalPeople = [];
+			
+			var globalSearchURL = "/dde_search_by_name";
+			var globalBarcodeSearchURL = "/dde_search_by_id";
+						
+			var barcodeTimerHnd;
+			var timerSpacing = 1000;			
+		
+			var selected = {};
+			
+			var fields = [
+					"Identifiers", 
+					"Given Name", 
+					"Middle Name",
+					"Family Name", 
+					"Gender", 
+					"Birthdate",
+					"Birthdate Estimated",
+					"Current Village", 
+					"Current T/A", 
+					"Current District", 
+					"Home Village", 
+					"Home T/A", 
+					"Home District", 
+					"Occupation", 
+					"Home Phone Number", 
+					"Cell Phone Number", 
+					"Office Phone Number",
+					"Citizenship", 
+					"Race"
+				];
+						
+			function __$(id){
+				return document.getElementById(id);
+			}
+		
+			function loadPage(){
+				if(__$("main")){
+					__$("main").innerHTML = "";
+				}
+				
+				var table = document.createElement("div");
+				table.style.display = "table";
+				table.style.width = "100%";
+				table.style.height = "100%";
+				table.style.minWidth = "1142px";
+				
+				__$("main").appendChild(table);
+				
+				var row1 = document.createElement("div");
+				row1.style.display = "table-row";
+				
+				table.appendChild(row1);
+				
+				var row2 = document.createElement("div");
+				row2.style.display = "table-row";
+				
+				table.appendChild(row2);
+				
+				var cell1 = document.createElement("div");
+				cell1.style.display = "table-cell";
+				
+				row1.appendChild(cell1);
+				
+				var cell2 = document.createElement("div");
+				cell2.style.display = "table-cell";
+				
+				row2.appendChild(cell2);
+				
+				var tbl1 = document.createElement("div");
+				tbl1.id = "tbl1";
+				tbl1.style.display = "table";
+				tbl1.style.width = "100%";
+				tbl1.style.height = "100%";
+				tbl1.style.borderSpacing = "8px";
+				
+				cell1.appendChild(tbl1);
+				
+				var rowt1 = document.createElement("div");
+				rowt1.style.display = "table-row";
+				
+				tbl1.appendChild(rowt1);				
+				
+				var leftCell = document.createElement("div");
+				leftCell.id = "leftCell";
+				leftCell.style.display = "table-cell";
+				leftCell.style.border = "1px #709bbb solid";
+				leftCell.style.borderRadius = "10px";
+				leftCell.style.verticalAlign = "top";
+				leftCell.style.maxWidth = "50%";
+				
+				rowt1.appendChild(leftCell);
+				
+				var midCell = document.createElement("div");
+				midCell.style.display = "table-cell";
+				midCell.style.border = "1px #709bbb solid";
+				midCell.style.borderRadius = "10px";
+				midCell.style.width = "100px";
+				midCell.style.verticalAlign = "middle";
+				midCell.style.textAlign = "center";
+				
+				rowt1.appendChild(midCell);
+				
+				var rightCell = document.createElement("div");
+				rightCell.style.display = "table-cell";
+				rightCell.style.border = "1px #709bbb solid";
+				rightCell.style.borderRadius = "10px";
+				rightCell.style.verticalAlign = "top";
+				rightCell.style.maxWidth = "50%";
+				
+				rowt1.appendChild(rightCell);
+				
+				var btnAdd = document.createElement("button");
+				btnAdd.innerHTML = "<<";
+				btnAdd.className = "button_gray";
+				btnAdd.style.minWidth = "75px";
+				btnAdd.style.width = "80px";
+				
+				btnAdd.id = "btnAdd";
+				
+				midCell.appendChild(btnAdd);
+				
+				var btnRemove = document.createElement("button");
+				btnRemove.innerHTML = ">>";
+				btnRemove.className = "button_gray";
+				btnRemove.style.minWidth = "75px";
+				btnRemove.style.width = "80px";
+				
+				btnRemove.id = "btnRemove";
+				
+				midCell.appendChild(btnRemove);
+				
+				var tbl2 = document.createElement("div");
+				tbl2.id = "tbl2";
+				tbl2.style.display = "table";
+				tbl2.style.width = "100%";
+				tbl2.style.height = "351px";
+				tbl2.style.borderSpacing = "8px";
+				
+				cell2.appendChild(tbl2);
+				
+				var rowt2 = document.createElement("div");
+				rowt2.style.display = "table-row";
+				
+				tbl2.appendChild(rowt2);				
+				
+				var keyboardCell = document.createElement("div");
+				keyboardCell.style.display = "table-cell";
+				keyboardCell.style.border = "1px #709bbb solid";
+				keyboardCell.style.borderRadius = "10px";
+				keyboardCell.style.verticalAlign = "middle";
+				keyboardCell.style.minWidth = "842px";
+				keyboardCell.style.height = "351px";
+				keyboardCell.id = "keyboard";
+				
+				rowt2.appendChild(keyboardCell);
+				
+				var navCell = document.createElement("div");
+				navCell.style.display = "table-cell";
+				navCell.style.border = "1px #709bbb solid";
+				navCell.style.width = "250px";
+				navCell.style.borderRadius = "10px";
+				navCell.style.textAlign = "center";
+				navCell.style.verticalAlign = "bottom";
+				
+				rowt2.appendChild(navCell);
+				
+				var btnCancel = document.createElement("button");
+				btnCancel.innerHTML = "Cancel";
+				btnCancel.className = "button_red";
+				btnCancel.style.margin = "10px";
+				btnCancel.style.marginBottom = "160px";
+				btnCancel.style.width = "90%";
+				
+				navCell.appendChild(btnCancel);
+				
+				var btnSave = document.createElement("button");
+				btnSave.innerHTML = "Save";
+				btnSave.className = "button_gray";
+				btnSave.style.margin = "10px";
+				btnSave.style.width = "90%";
+				btnSave.id = "btnSave";
+				
+				navCell.appendChild(btnSave);
+				
+				var cursor = document.createElement("div");
+				cursor.id = "cursor";
+				cursor.style.height = "60px";
+				cursor.style.width = "60px";
+				cursor.style.overflow = "hidden";
+				cursor.innerHTML = "<span style='font-size: 72px;'>*</span>";
+				cursor.style.color = "red";
+				
+				document.body.appendChild(cursor);
+				
+				var tblPrimary = document.createElement("div");
+				tblPrimary.style.display = "table";
+				tblPrimary.style.width = "100%";
+				tblPrimary.style.height = "100%";
+				tblPrimary.style.borderSpacing = "5px";
+				
+				leftCell.appendChild(tblPrimary);
+				
+				var tblSecondary = document.createElement("div");
+				tblSecondary.style.display = "table";
+				tblSecondary.style.width = "100%";
+				tblSecondary.style.height = "100%";
+				tblSecondary.style.borderSpacing = "5px";
+				
+				rightCell.appendChild(tblSecondary);
+				
+				appendBranch("Primary", tblPrimary);
+				
+				appendBranch("Secondary", tblSecondary);
+				
+				
+			}
+		
+			function saveChanges(){
+				
+				var result = {};
+				
+				for(var i = 0; i < fields.length; i++){
+					
+					var value = null;
+					
+					if(__$("original" + fields[i])){
+						
+						if(fields[i] == "Identifiers"){
+							
+							var identifiers = __$("originalIdentifiers").getAttribute("identifiers");	// JSON.parse(__$("originalIdentifiers").getAttribute("identifiers"));
+							
+							value = identifiers;
+							
+						} else {
+							
+							value = __$("original" + fields[i]).innerHTML.trim().replace(/&nbsp;/, "");
+							
+							value = (value.trim().length == 0 ? null : value);
+							
+						}
+					
+					}
+					
+					result[fields[i]] = value;
+					
+				}
+				
+				var form = document.createElement("form");
+				form.setAttribute("action", "/push_merge");
+				form.setAttribute("method", "post");
+				
+				form.innerHTML = "<textarea name='data'>" + JSON.stringify(result) + "</textarea>";
+				
+				document.body.appendChild(form);
+				
+				form.submit();
+				
+			}
+		
+			function appendBranch(branch, parent){
+							
+				var row1 = document.createElement("div");
+				row1.style.display = "table-row";
+				
+				parent.appendChild(row1);
+				
+				var cell1 = document.createElement("div");
+				cell1.style.display = "table-cell";
+				cell1.style.fontSize = "28px";
+				cell1.style.verticalAlign = "middle";
+				
+				row1.appendChild(cell1);
+				
+				var tblC1 = document.createElement("div");
+				tblC1.style.display = "table";
+				tblC1.style.width = "100%";
+				
+				cell1.appendChild(tblC1);
+				
+				var rowC1 = document.createElement("div");
+				rowC1.style.display = "table-row";
+				
+				tblC1.appendChild(rowC1);
+				
+				var cellC1_1 = document.createElement("div");
+				cellC1_1.style.display = "table-cell";
+				cellC1_1.style.verticalAlign = "middle";
+				cellC1_1.style.textAlign = "left";
+				cellC1_1.innerHTML = (branch == "Primary" ? "Primary" : "Secondary") + " Patient";
+				
+				rowC1.appendChild(cellC1_1);				
+				
+				var cellC1_2 = document.createElement("div");
+				cellC1_2.style.display = "table-cell";
+				cellC1_2.style.verticalAlign = "middle";
+				cellC1_2.style.textAlign = "right";
+				cellC1_2.style.paddingTop = "5px";
+				cellC1_2.style.paddingBottom = "0px";
+				
+				rowC1.appendChild(cellC1_2);				
+				
+				var img = document.createElement("img");
+				img.setAttribute("src", barcode);
+				
+				cellC1_2.appendChild(img);
+				
+				var cellC1_3 = document.createElement("div");
+				cellC1_3.style.display = "table-cell";
+				cellC1_3.style.border = "1px inset #709bbb";
+				cellC1_3.style.verticalAlign = "middle";
+				cellC1_3.style.textAlign = "center";
+				cellC1_3.style.width = "60px";
+				cellC1_3.style.cursor = "pointer";
+				cellC1_3.style.overflow = "hidden";
+				cellC1_3.id = "barcode" + (branch == "Primary" ? "Primary" : "Secondary");
+				cellC1_3.setAttribute("target", (branch == "Primary" ? "Primary" : "Secondary") + "Input");
+				
+				cellC1_3.onclick = function(){
+					
+					clearTimeout(barcodeTimerHnd);
+					
+					if(__$("popupkeyboard")){
+						
+						document.body.removeChild(__$("popupkeyboard"));
+						
+					}
+											
+					if(__$("cursor") && __$(this.getAttribute("target") + "Cursor")){
+						
+						__$(this.getAttribute("target") + "Cursor").appendChild(__$("cursor"));
+						
+					}
+				
+					var branch = (this.getAttribute("target").match(/primary/i) ? "Primary" : "Secondary");
+					
+					if(this.innerHTML.trim().length == 0){
+						
+						var tick = document.createElement("img");
+						tick.setAttribute("src", imgTick);
+						tick.setAttribute("height", "50px");
+						
+						this.appendChild(tick);
+						
+						if(__$(this.getAttribute("target"))){
+							
+							__$(this.getAttribute("target")).setAttribute("tag", "Scan " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient Barcode");
+							
+							__$(this.getAttribute("target")).value = "Scan " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient Barcode";
+						
+							globalTarget = __$(this.getAttribute("target"));
+						
+							globalTarget.focus();
+						
+							globalTarget.value = "";
+							
+							selected = {};
+							
+							if(__$("btnAdd")){
+								
+								__$("btnAdd").className = "button_gray";
+								
+								__$("btnAdd").onclick = function(){};
+								
+								if(__$("btnSave")){
+									
+									__$("btnSave").className = "button_gray";
+									
+									__$("btnSave").onclick = function(){};
+									
+								}
+												
+							}
+							
+							if(__$("btnRemove")){
+								
+								__$("btnRemove").className = "button_gray";
+								
+								__$("btnRemove").onclick = function(){};
+								
+							}
+							
+							if(__$("Details" + this.getAttribute("target"))){
+								
+								__$("Details" + this.getAttribute("target")).innerHTML = "";
+								
+							}
+							
+							if(__$("keyboard")){
+								
+								__$("keyboard").innerHTML = "";
+								
+							}
+						
+							__$(this.getAttribute("target")).className = "text";
+						
+							barcodeTimerHnd = setTimeout("checkBarcode()", 1);
+							
+						}
+						
+					} else {
+						
+						this.innerHTML = "";
+						
+						if(__$(this.getAttribute("target"))){
+							
+							__$(this.getAttribute("target")).setAttribute("tag", "Select " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient");
+							
+							__$(this.getAttribute("target")).value = "Select " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient";
+							
+							__$(this.getAttribute("target")).className = "placeholder";
+							
+						}
+						
+					}
+					
+				}
+				
+				rowC1.appendChild(cellC1_3);				
+				
+				var row2 = document.createElement("div");
+				row2.style.display = "table-row";
+				
+				parent.appendChild(row2);
+				
+				var cell2 = document.createElement("div");
+				cell2.style.display = "table-cell";
+				
+				row2.appendChild(cell2);
+				
+				var tblC2 = document.createElement("div");
+				tblC2.style.display = "table";
+				tblC2.style.width = "100%";
+				
+				cell2.appendChild(tblC2);
+				
+				var rowC2 = document.createElement("div");
+				rowC2.style.display = "table-row";
+				
+				tblC2.appendChild(rowC2);
+				
+				var cellC2_1 = document.createElement("div");
+				cellC2_1.style.display = "table-cell";
+				cellC2_1.style.border = "1px solid #709bbb";
+				cellC2_1.style.verticalAlign = "middle";
+				cellC2_1.style.textAlign = "center";
+				
+				rowC2.appendChild(cellC2_1);				
+				
+				var cellC2_2 = document.createElement("div");
+				cellC2_2.style.display = "table-cell";
+				cellC2_2.style.border = "1px solid #709bbb";
+				cellC2_2.style.height = "60px";
+				cellC2_2.style.width = "60px";
+				cellC2_2.style.textAlign = "center";
+				cellC2_2.style.verticalAlign = "middle";
+				cellC2_2.id = (branch == "Primary" ? "Primary" : "Secondary") + "InputCursor";
+				
+				rowC2.appendChild(cellC2_2);				
+				
+				var input = document.createElement("input");
+				input.type = "input";
+				input.id = (branch == "Primary" ? "Primary" : "Secondary") + "Input";
+				input.style.width = "97%";
+				input.style.margin = "auto";
+				input.style.fontSize = "28px";
+				input.style.padding = "10px";
+				input.style.border = "none";
+				input.className = "placeholder";
+				input.setAttribute("tag", "Select " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient");
+				input.value = "Select " + (branch == "Primary" ? "Primary" : "Secondary") + " Patient";
+				
+				input.onfocus = function(){
+					
+					if(this.value.trim() == this.getAttribute("tag")){
+						
+						this.value = "";
+						this.className = "text";
+						
+					}
+										
+					var id = "barcode" + (this.id.match(/primary/i) ? "Primary" : "Secondary");
+					
+					if(__$(id) && __$(id).innerHTML.trim().length > 0){
+						
+						if(__$("keyboard")){
+							
+							__$("keyboard").innerHTML = "";
+							
+						}
+						
+						this.value = "";
+						
+						globalTarget = this;
+						
+						barcodeTimerHnd = setTimeout("checkBarcode()", 1);
+						
+					} 
+											
+					if(__$("cursor") && __$(this.id + "Cursor")){
+						
+						__$(this.id + "Cursor").appendChild(__$("cursor"));
+						
+					}
+									
+				}
+				
+				input.onclick = function(){
+					
+					if(this.value.trim() == this.getAttribute("tag")){
+						
+						this.value = "";
+						this.className = "text";
+						
+					}
+					
+					if(__$("popupkeyboard")){
+						
+						document.body.removeChild(__$("popupkeyboard"));
+						
+					} 
+					
+					var id = "barcode" + (this.id.match(/primary/i) ? "Primary" : "Secondary");
+					
+					if(__$(id) && __$(id).innerHTML.trim().length == 0){
+						
+						clearTimeout(barcodeTimerHnd);
+						
+						showKeyboard(__$("keyboard"), this);
+						
+					}
+					
+				}
+				
+				input.onblur = function(){
+					
+					if(this.value.trim() == ""){
+						
+						this.value = this.getAttribute("tag");
+						this.className = "placeholder";
+						
+					}
+					
+					clearTimeout(barcodeTimerHnd);
+					
+				}
+				
+				input.onkeyup = function(){
+															
+					var id = "barcode" + (this.id.match(/primary/i) ? "Primary" : "Secondary");
+					
+					if(__$(id) && __$(id).innerHTML.trim().length == 0){
+							
+						globalTarget = this;
+						
+						perfomClick();
+						
+					}
+					
+				}
+				
+				cellC2_1.appendChild(input);
+				
+				var row3 = document.createElement("div");
+				row3.style.display = "table-row";
+				
+				parent.appendChild(row3);
+				
+				var cell3 = document.createElement("div");
+				cell3.style.display = "table-cell";
+				cell3.style.height = "30px";
+				cell3.style.fontSize = "24px";
+				cell3.style.paddingLeft = "10px";
+				cell3.innerHTML = (branch == "Primary" ? "&nbsp;" : "Select Fields To Merge");
+				
+				row3.appendChild(cell3);
+				
+				var row4 = document.createElement("div");
+				row4.style.display = "table-row";
+				
+				parent.appendChild(row4);
+				
+				var cell4 = document.createElement("div");
+				cell4.style.display = "table-cell";
+				
+				row4.appendChild(cell4);
+				
+				var display = document.createElement("div");
+				display.style.border = "1px solid #709bbb";
+				display.style.borderRadius = "10px";
+				display.style.fontSize = "24px";
+				display.style.padding = "5px";
+				display.id = "Details" + (branch == "Primary" ? "Primary" : "Secondary") + "Input";
+				display.style.overflow = "auto";
+				
+				display.onscroll = function(){
+					
+					if(this.id.match(/primary/i)){
+						
+						if(__$("DetailsPrimaryInput") && __$("DetailsSecondaryInput")){
+							
+							__$("DetailsSecondaryInput").scrollTop = __$("DetailsPrimaryInput").scrollTop;
+							
+						}
+						
+					} else {
+						
+						if(__$("DetailsPrimaryInput") && __$("DetailsSecondaryInput")){
+							
+							__$("DetailsPrimaryInput").scrollTop = __$("DetailsSecondaryInput").scrollTop;
+							
+						}
+						
+					}
+					
+				}
+				
+				cell4.appendChild(display);
+				
+			}
+		
+			function checkBarcode(){
+				
+				clearTimeout(barcodeTimerHnd);
+				
+				if(globalTarget.value.trim().match(/\$$/)){
+					
+					globalTarget.value = globalTarget.value.replace(/\$/,"");
+					
+					loadBarcodeAjax(globalTarget.id, globalTarget, globalBarcodeSearchURL, globalTarget.value);
+					
+				}
+				
+				barcodeTimerHnd = setTimeout("checkBarcode()", timerSpacing);
+				
+			}
+		
+			function showKeyboard(parent, target, caps, abc, numeric){
+				
+				if(target == undefined || parent == undefined) return;
+				
+				if(abc == undefined){
+					abc = false;
+				}
+				
+				if(numeric == undefined){
+					
+					numeric = false;
+					
+				}
+				
+				if(caps == undefined){
+					
+					caps = false;
+					
+				}
+				
+				parent.innerHTML = "";
+				
+				if(__$("cursor") && __$(target.id + "Cursor")){
+					
+					__$(target.id + "Cursor").appendChild(__$("cursor"));
+					
+				}
+				
+				globalTarget = target;
+				
+				globalParent = parent;
+				
+				var table = document.createElement("div");
+				table.style.display = "table";
+				table.style.margin = "auto";
+				table.style.borderSpacing = "0px";
+				
+				parent.appendChild(table);
+				
+				var keys = [];
+				
+				if(abc){
+					
+					keys = [
+						["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+						["K", "L", "M", "N", "O", "P", "Q", "R", "S"],
+						["T", "U", "V", "W", "X", "Y", "Z", "&larr;"],
+						["cap", "space", "num", "qwe"]
+					];
+					
+				} else if(numeric){
+					
+					keys = [
+						["7", "8", "9", "qwe"],
+						["4", "5", "6", "("],
+						["1", "2", "3", ")"],
+						[".","0", ",","&larr;"]
+					];
+					
+				} else {
+					
+					keys = [
+						["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+						["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+						["Z", "X", "C", "V", "B", "N", "M", "&larr;"],
+						["cap", "space", "num", "abc"]
+					];
+					
+				}
+				
+				for(var i = 0; i < keys.length; i++){
+					
+					var row = document.createElement("div");
+					row.style.display = "table-row";
+					
+					table.appendChild(row);
+					
+					var cell = document.createElement("div");
+					cell.style.display = "table-cell";
+					cell.style.verticalAlign = "middle";
+					cell.style.textAlign = "center";
+					
+					row.appendChild(cell);
+					
+					for(var j = 0; j < keys[i].length; j++){
+						
+						var button = document.createElement("button");
+						button.className = "button_blue";
+						
+						button.id = keys[i][j];
+						
+						button.style.minHeight = "75px";
+							
+						button.style.height = "75px";
+							
+						if(keys[i][j] == "space"){
+							
+							button.style.width = "350px";
+							button.innerHTML = "&nbsp;";
+							
+							button.onclick = function(){
+								
+								globalTarget.value += " ";
+								
+							}
+							
+						} else {
+							
+							button.style.minWidth = "75px";
+							
+							button.style.width = "75px";
+							
+							if(keys[i][j] == "&larr;"){
+								
+								button.onclick = function(){
+									
+									if(!globalTarget.value.match(/select.*patient/i)){
+										
+										globalTarget.value = globalTarget.value.substring(0, (globalTarget.value.length - 1));
+										
+										if(globalTarget.value.trim().length == 0){
+											
+											globalTarget.className = "placeholder";
+											
+											globalTarget.value = globalTarget.getAttribute("tag");
+											
+											if(__$("popupkeyboard")){
+												
+												document.body.removeChild(__$("popupkeyboard"));
+												
+											}
+											
+										} else {
+											
+											loadAjax(globalTarget.id, globalTarget, globalSearchURL, globalTarget.value);								
+											
+										}
+										
+									}
+									
+								}
+								
+								button.innerHTML = keys[i][j];
+								
+							} else if(keys[i][j].toLowerCase() == "cap"){
+								
+								button.onclick = function(){
+									
+									showKeyboard(globalParent, globalTarget, !caps, abc, numeric);
+													
+									if(__$("popupkeyboard")){
+										
+										document.body.removeChild(__$("popupkeyboard"));
+										
+									} 
+					
+								}
+								
+								button.innerHTML = (!caps ? keys[i][j].toUpperCase() : keys[i][j].toLowerCase());
+								
+							} else if(keys[i][j].toLowerCase() == "num"){
+								
+								button.onclick = function(){
+									
+									showKeyboard(globalParent, globalTarget, caps, abc, true);
+												
+									if(__$("popupkeyboard")){
+										
+										document.body.removeChild(__$("popupkeyboard"));
+										
+									} 
+					
+								}
+								
+								button.innerHTML = keys[i][j];
+								
+							} else if(keys[i][j].toLowerCase() == "abc"){
+								
+								button.onclick = function(){
+									
+									showKeyboard(globalParent, globalTarget, caps, true);
+												
+									if(__$("popupkeyboard")){
+										
+										document.body.removeChild(__$("popupkeyboard"));
+										
+									} 
+					
+								}
+								
+								button.innerHTML = keys[i][j];
+							
+							} else if(keys[i][j].toLowerCase() == "qwe"){
+								
+								button.onclick = function(){
+									
+									showKeyboard(globalParent, globalTarget, caps, false);
+												
+									if(__$("popupkeyboard")){
+										
+										document.body.removeChild(__$("popupkeyboard"));
+										
+									} 
+					
+								}
+								
+								button.innerHTML = keys[i][j];
+							
+							} else {
+								
+								button.onclick = function(){
+									
+									if(globalTarget.value.match(/select.*patient/i)){
+										
+										globalTarget.value = "";
+										
+										globalTarget.className = "text";											
+										
+									}
+									
+									globalTarget.value += this.innerHTML;
+									
+									loadAjax(globalTarget.id, globalTarget, globalSearchURL, globalTarget.value);
+								
+								}
+																
+								button.innerHTML = (caps ? keys[i][j].toUpperCase() : keys[i][j].toLowerCase());							
+								
+							}
+							
+						}
+						
+						cell.appendChild(button);
+						
+					}
+				}
+				
+			}
+				
+			function perfomClick(){
+				
+				if(!globalTarget.value.match(/select.*patient/i)){
+						
+					if(globalTarget.value.trim().length == 0){
+						
+						if(__$("popupkeyboard")){
+							
+							document.body.removeChild(__$("popupkeyboard"));
+							
+						}
+						
+					} else {
+						
+						loadAjax(globalTarget.id, globalTarget, globalSearchURL, globalTarget.value);								
+						
+					}
+					
+				} else if(globalTarget.value.match(/select.*patient/i)){
+										
+					globalTarget.value = "";
+					
+					globalTarget.className = "text";											
+					
+					loadAjax(globalTarget.id, globalTarget, globalSearchURL, globalTarget.value);
+				
+				}
+				
+			}	
+					
+			function loadBarcodeAjax(id, target1, url, search){   
+				
+				globalPeople = [];
+				
+				var textfile;
+				
+				if (window.XMLHttpRequest)
+				{ 
+					textfile = new XMLHttpRequest(); 
+				}
+				
+				textfile.onreadystatechange = function ()
+				{   
+					if (textfile.readyState == 4 && textfile.status == 200)
+					{ 
+						var content = textfile.responseText; 
+						
+						var results = JSON.parse(content);
+						
+						var options = {};
+						
+						for(var i = 0; i < results.length; i++){
+							
+							options[i] = results[i]["names"]["Given Name"] + " " + results[i]["names"]["Family Name"];
+							
+							globalPeople.push(results[i]);
+								
+						}
+						
+						if(globalPeople.length < 2){
+							
+							globalPosition = 0;
+							
+							globalTarget.value = options[0];
+							
+							loadPerson();
+							
+						} else {
+						
+							if(__$("popupkeyboard")){
+								
+								__$("popupkeyboard").innerHTML = "";
+								
+								addCombo(__$("popupkeyboard"), options, "single", target1, true, id, "clearLookup('" + id + "'); loadPerson();");
+								
+							} else {
+								
+								addList(__$(id), options, "single", target1, "clearLookup('" + id + "'); loadPerson();", (__$("main").offsetHeight - 520) + "px", __$(id).offsetWidth + "px");
+								
+							}
+							
+						}
+						
+					}
+				}
+				textfile.open("GET", url + "?search=" + search.trim(), true);
+				textfile.send();
+					
+				
+			}						
+		
+			function loadAjax(id, target1, url, search){   
+				
+				globalPeople = [];
+				
+				var textfile;
+				
+				if (window.XMLHttpRequest)
+				{ 
+					textfile = new XMLHttpRequest(); 
+				}
+				
+				textfile.onreadystatechange = function ()
+				{   
+					if (textfile.readyState == 4 && textfile.status == 200)
+					{ 
+						var content = textfile.responseText; 
+						
+						var results = JSON.parse(content);
+						
+						var options = {};
+						
+						for(var i = 0; i < results.length; i++){
+							
+							options[i] = results[i]["names"]["Given Name"] + " " + results[i]["names"]["Family Name"];
+							
+							globalPeople.push(results[i]);
+								
+						}
+						
+						if(__$("popupkeyboard")){
+							
+							__$("popupkeyboard").innerHTML = "";
+							
+							addCombo(__$("popupkeyboard"), options, "single", target1, true, id, "clearLookup('" + id + "'); loadPerson();");
+							
+						} else {
+							
+							addList(__$(id), options, "single", target1, "clearLookup('" + id + "'); loadPerson();", (__$("main").offsetHeight - 520) + "px", __$(id).offsetWidth + "px");
+							
+						}
+						
+					}
+				}
+				textfile.open("GET", url + "?search=" + search.trim(), true);
+				textfile.send();
+					
+				
+			}
+						
+			function checkCtrl(obj){
+				var o = obj;
+				var t = o.offsetTop;
+				var l = o.offsetLeft + 1;
+				var w = o.offsetWidth;
+				var h = o.offsetHeight;
+
+				while((o ? (o.offsetParent != document.body) : false)){
+					o = o.offsetParent;
+					t += (o ? o.offsetTop : 0);
+					l += (o ? o.offsetLeft : 0);
+				}
+				return [w, h, t, l];
+			}
+						
+			function clearLookup(id){
+				
+				if(__$(id)){
+					
+					__$(id).removeAttribute("lookup");
+					
+				}
+				
+			}
+				
+			function addList(parent, options, optionType, target1, action, lHeight, lWidth){
+			  if(parent == undefined || options == undefined || target1 == undefined || optionType == undefined){
+				  return;
+			  }
+			  
+			  var id = parent.id;
+			  
+			  if(__$(id)){
+				  
+				if(__$("popupkeyboard")){
+				
+				  document.body.removeChild(__$("popupkeyboard"));
+				
+				} else {
+				
+				  var pos = checkCtrl(__$(id));
+				  var list = document.createElement("div");
+				  list.style.position = "absolute";
+				  list.style.border = "1px solid #999";
+				  list.style.boxShadow = "inset 0px 11px 8px -10px #CCC, inset 0px -11px 8px -10px #CCC";
+				  list.style.width = (lWidth != undefined ? lWidth : "300px");
+				  list.style.height = (lHeight != undefined ? lHeight : "618px");
+				  list.id = "popupkeyboard";
+				  list.style.left = (pos[3]) + "px";
+				  list.style.top = (pos[2] + pos[1] - (__$("main-content-area") ? __$("main-content-area").scrollTop : 0)) + "px";
+				  list.style.backgroundColor = "#fff";
+				  list.style.overflow = "auto";
+				  
+				  document.body.appendChild(list);
+				  
+				  addCombo(list, options, optionType, target1, (optionType == "single" ? true : false), id, action);
+				  
+				  // [w, h, t, l]
+				  var lpos = checkCtrl(__$("popupkeyboard"));
+				  var w = window.innerWidth;
+				  var h = window.innerHeight;
+				  
+				  if(lpos[0] + lpos[3] > w){
+					
+					__$("popupkeyboard").style.left = (w - lpos[0] - 10) + "px";
+					
+				  }              
+				  
+				  if(lpos[1] + lpos[2] > h){
+					
+					if((pos[2] - lpos[1] + 5) < 0){
+						
+						__$("popupkeyboard").style.top = (pos[2] - lpos[1] + ((pos[2] - lpos[1] - 5) * -1)) + "px";
+						
+					} else {
+						
+						__$("popupkeyboard").style.top = (pos[2] - lpos[1] - 2) + "px";
+						
+					}
+					
+				  }  
+					  
+				}
+			  }
+
+			}
+		
+			/* 
+				parent:       control to attach to
+				options:      value:display associative array e.g. {"F":"Female","M":"Male"} 
+				optionType:   [single|multiple] for single or multiple selection with 
+								default single selection
+				target1:       target display control to receive value
+			*/
+			function addCombo(parent, options, optionType, target1, collapseOnClick, id, action, selected){
+			  if(parent == undefined || options == undefined || target1 == undefined || optionType == undefined){
+				 
+				return;
+			  }
+			   
+			  if(collapseOnClick == undefined){
+				
+				collapseOnClick = false;
+				
+			  }
+			  
+			  if(id == undefined){
+				
+				id = null;
+				
+			  }
+			  
+			  if(action == undefined){
+				
+				action = null;
+				
+			  }
+			  
+			  if(selected == undefined){
+				
+				selected = {};
+				
+			  }
+			  
+			  var base = document.createElement("div");
+			  base.style.width = "100%";
+			  base.style.height = "100%"; // "618px";
+			  base.style.overflow = "auto";
+			  
+			  parent.appendChild(base);
+			  
+			  var ul = document.createElement("ul");
+			  ul.style.marginTop = "0px";
+			  ul.style.marginBottom = "5px";
+			  ul.style.paddingLeft = "0px";
+			  ul.style.paddingTop = "0px";
+			  
+			  var uls = document.getElementsByTagName("ul");
+			  
+			  ul.id = "ul" + (uls.length + 1);
+			  
+			  base.appendChild(ul);
+			  
+			  var i = 0;
+			  
+			  for(var key in options){
+				var li = document.createElement("li");
+				li.style.color = "black";
+				li.style.listStyle = "none";
+				li.style.paddingLeft = "5px";
+				li.style.paddingRight ="5px";
+				li.style.marginTop = "2px";
+				li.style.marginBottom = "2px";
+				li.style.fontFamily = '"Nimbus Sans L","Arial Narrow",sans-serif';
+				li.style.fontSize = "2em";
+				li.style.padding = "10px";
+				li.style.cursor = "pointer";
+				li.setAttribute("target", ul.id);
+				li.setAttribute("collapseonclick", collapseOnClick);
+				li.setAttribute("parent", id);
+				li.setAttribute("action", action);
+				
+				li.setAttribute("tag", (i % 2 > 0 ? "odd" : "even"));
+				
+				if(selected[key]){
+				  
+				  li.style.backgroundColor = "lightblue";
+				  li.setAttribute("selecttag", true);
+				  li.style.color = "black";
+				  
+				} else {
+				  
+				  li.style.backgroundColor = (i % 2 > 0 ? "#eee" : "");
+				  
+				}
+				
+				li.onmouseover = function(){
+				  if(this.getAttribute("selecttag") == null){
+					this.style.backgroundColor = "#999";
+					this.style.color = "#eee";
+				  }
+				}
+				
+				li.onmouseout = function(){
+				  if(this.getAttribute("selecttag") == null){
+					if(this.getAttribute("tag") == "odd"){
+					  this.style.backgroundColor = "#eee";
+					} else {
+					  this.style.backgroundColor = "";
+					}
+					this.style.color = "#000";
+				  }
+				}
+				
+				li.setAttribute("value", key);
+				li.innerHTML = options[key];       
+				
+				ul.appendChild(li);
+				
+				actOnSingle(li, target1);
+				
+				i++;
+			  }
+			  
+			  return ul;
+			}
+
+			function actOnSingle(li, target1){
+			  if(li == undefined || target1 == undefined){
+				return;
+			  }
+
+			  li.onmousedown = function(){
+				if(this.getAttribute("target") != null){
+				  if(__$(this.getAttribute("target"))){
+					var opts = __$(this.getAttribute("target")).children;
+					
+					for(var i = 0; i < opts.length; i++){
+					  if(opts[i].getAttribute("selecttag") != null){
+						opts[i].removeAttribute("selecttag");
+						opts[i].style.backgroundColor = (opts[i].getAttribute("tag") == "odd" ? "#eee" : "");
+						
+						target1.value = "";
+					  }
+					}
+				  }
+				  
+				  this.setAttribute("selecttag", true);
+				  this.style.backgroundColor = "lightblue";
+				  this.style.color = "black";
+				  
+				  target1.className = "text";
+				  
+				  target1.value = this.innerHTML;
+				  
+				  globalPosition = parseInt(this.getAttribute("value"));
+				  
+				  if(this.getAttribute("collapseonclick") != null && this.getAttribute("collapseonclick") == "true"){
+					
+					eval(this.getAttribute("action"));
+					
+					document.body.removeChild(__$("popupkeyboard"));
+				
+					if(__$("shield")){
+						
+						showShield();
+						
+					}
+				
+				  } else if(this.getAttribute("action")!= null){
+							
+					eval(this.getAttribute("action"));        
+					
+				  }
+				}
+			  }
+			}
+
+			function loadPerson(){
+				
+				var person = globalPeople[globalPosition];
+				
+				if(__$("Details" + globalTarget.id)){
+					
+					__$("Details" + globalTarget.id).innerHTML = "";
+					
+					var table = document.createElement("div");
+					table.style.display = "table";
+					table.style.borderSpacing = "0px";
+					table.style.width = "100%";
+					
+					__$("Details" + globalTarget.id).appendChild(table);									
+					
+					for(var i = 0; i < fields.length; i++){
+					
+						var row = document.createElement("div");
+						row.style.display = "table-row";
+						row.style.backgroundColor = (i % 2 > 0 ? "#eee" : "");
+						row.setAttribute("tag", (i % 2> 0 ? "even" : "odd"));
+						row.setAttribute("target", (globalTarget.id.match(/primary/i) ? "P" : "S") + i)
+						row.id = "row" + (globalTarget.id.match(/primary/i) ? "P" : "S") + i;
+						
+						table.appendChild(row);
+						
+						if(!globalTarget.id.match(/primary/i)){
+							
+							if(fields[i].trim().toLowerCase() != "identifiers"){
+									
+								row.style.cursor = "pointer";
+									
+								row.onclick = function(){
+									
+									if(__$("secondary" + this.getAttribute("field"))){
+										
+										if(selected[this.getAttribute("field")]){
+											
+											delete selected[this.getAttribute("field")];
+											
+											this.style.backgroundColor = (this.getAttribute("tag") == "even" ? "#eee" : "");
+											
+											if(__$("checkbox" + this.getAttribute("target"))){
+												
+												__$("checkbox" + this.getAttribute("target")).innerHTML = "";
+												
+											}
+											
+										} else {
+											
+											selected[this.getAttribute("field")] = true;
+											
+											this.style.backgroundColor = "lightBlue";
+											
+											var img = document.createElement("img");
+											img.setAttribute("src", imgTick);
+											img.setAttribute("height", "30px");
+											
+											if(__$("checkbox" + this.getAttribute("target"))){
+												
+												__$("checkbox" + this.getAttribute("target")).appendChild(img);
+												
+											}
+											
+										}
+										
+										if(__$("btnAdd") && Object.keys(selected).length > 0){
+											
+											__$("btnAdd").className = "button_blue";
+											
+											__$("btnAdd").onclick = function(){
+												
+												loadSelections();
+												
+												if(__$("btnSave")){
+													
+													__$("btnSave").className = "button_green";
+													
+													__$("btnSave").onclick = function(){
+														
+														saveChanges();
+														
+													}
+													
+												}
+												
+											}
+											
+										} else {
+											
+											__$("btnAdd").className = "button_gray";
+											
+											__$("btnAdd").onclick = function(){};
+											
+											if(__$("btnSave")){
+												
+												__$("btnSave").className = "button_gray";
+												
+												__$("btnSave").onclick = function(){};
+												
+											}
+												
+										}
+										
+									}
+									
+								}
+								
+								var cell0 = document.createElement("div");
+								cell0.style.display = "table-cell";
+								cell0.style.padding = "5px";
+								cell0.style.width = "40px";
+								cell0.style.textAlign = "center";
+								cell0.style.verticalAlign = "middle";
+								cell0.style.borderBottom = "1px dotted #999";
+								
+								row.appendChild(cell0);
+								
+								var checkbox = document.createElement("div");
+								checkbox.style.border = "1px solid #999";
+								checkbox.style.width = "30px";
+								checkbox.style.height = "30px";
+								checkbox.style.backgroundColor = "#fff";
+								
+								checkbox.id = "checkbox" + (globalTarget.id.match(/primary/i) ? "P" : "S") + i;
+								
+								cell0.appendChild(checkbox);
+								
+							} else {
+								
+								var cell0 = document.createElement("div");
+								cell0.style.display = "table-cell";
+								cell0.style.padding = "5px";
+								cell0.style.width = "40px";
+								cell0.style.textAlign = "center";
+								cell0.style.verticalAlign = "middle";
+								cell0.style.borderBottom = "1px dotted #999";
+								
+								row.appendChild(cell0);
+								
+							}
+							
+						}
+						
+						var cell1 = document.createElement("div");
+						cell1.style.display = "table-cell";
+						cell1.style.padding = "10px";
+						cell1.style.fontWeight = "bold";
+						cell1.style.textAlign = "right";
+						cell1.innerHTML = fields[i] + " :";
+						cell1.style.borderBottom = "1px dotted #999";
+						
+						row.appendChild(cell1);
+						
+						var cell2 = document.createElement("div");
+						cell2.style.display = "table-cell";
+						cell2.style.padding = "10px";
+						cell2.style.borderLeft = "1px #999 dotted";
+						cell2.style.borderBottom = "1px dotted #999";
+						
+						var label = "&nbsp;";
+						
+						switch(fields[i]){
+							case "Identifiers":
+								
+								var identifiers = {
+										"National ID" : person["National ID"], 
+										"Identifiers" : person["patient"]["identifiers"]
+									};
+									
+								var str = "<b>" + identifiers["National ID"] + "</b> (";
+								
+								var seed = str;
+								
+								for(var k = 0; k < identifiers["Identifiers"].length; k++){
+									
+									str += (str.trim() != seed.trim() ? "," : "") + identifiers["Identifiers"][k][Object.keys(identifiers["Identifiers"][k])[0]];
+									
+								}
+								
+								str += ")"
+								
+								label = str;
+							
+								cell2.setAttribute("identifiers", JSON.stringify(identifiers));
+							
+								break;
+							case "Given Name":
+								label = person["names"]["Given Name"];
+							
+								break;
+							case "Family Name":
+								label = person["names"]["Family Name"];
+							
+								break;
+							case "Gender":
+								label = (person["Gender"] == "F" ? "Female" : (person["Gender"] == "M" ? "Male" : ""));
+							
+								break;
+							default:
+								if(person[fields[i]] != undefined)
+									label = person[fields[i]];
+							
+								break;
+						}
+						
+						cell2.innerHTML = label;
+						
+						row.setAttribute("field", fields[i]);
+						
+						if(globalTarget.id.match(/primary/i)){
+							
+							cell2.id = "original" + fields[i];
+							
+							cell2.setAttribute("original_text", label);
+							
+						} else {
+														
+							cell2.id = "secondary" + fields[i];							
+							
+						}
+						
+						row.appendChild(cell2);
+						
+					}
+						
+				}
+				
+			}
+
+			function loadSelections(){
+				
+				if(__$("secondaryIdentifiers") && __$("originalIdentifiers")){
+					
+					var current = JSON.parse(__$("originalIdentifiers").getAttribute("identifiers"));
+					
+					var incoming = JSON.parse(__$("secondaryIdentifiers").getAttribute("identifiers"));
+					
+					current["Merged"] = incoming;
+					
+					var str = "<b>" + current["National ID"] + "</b> (";
+					
+					var seed = str;
+							
+					for(var i = 0; i < current["Identifiers"].length; i++){
+						
+						str += (str.trim() != seed.trim() ? "," : "") + current["Identifiers"][i][Object.keys(current["Identifiers"][i])[0]];
+						
+					}
+					
+					str += (str.trim() != seed.trim() ? "," : "") + "<i><b>" + current["Merged"]["National ID"] + "</b></i>";
+					
+					for(var i = 0; i < current["Merged"]["Identifiers"].length; i++){
+						
+						str += (str.trim() != seed.trim() ? "," : "")+ current["Merged"]["Identifiers"][i][Object.keys(current["Merged"]["Identifiers"][i])[0]];
+						
+					}
+					
+					str += ")"
+					
+					__$("originalIdentifiers").setAttribute("identifiers", JSON.stringify(current));
+							
+					__$("originalIdentifiers").innerHTML = str;
+				} 
+				
+				var keys = Object.keys(selected);
+				
+				for(var i = 0; i < keys.length; i++){
+					
+					if(__$("secondary" + keys[i]) && __$("original" + keys[i])){
+						
+						__$("original" + keys[i]).innerHTML = __$("secondary" + keys[i]).innerHTML.trim();
+						
+					}
+					
+				}
+				
+				if(__$("btnRemove")){
+					
+					__$("btnRemove").className = "button_blue";
+					
+					__$("btnRemove").onclick = function() {
+						
+						reverseAssign();
+						
+					}
+					
+				}
+				
+			}
+
+			function reverseAssign(){
+				
+				if(__$("originalIdentifiers")){
+					
+					var current = JSON.parse(__$("originalIdentifiers").getAttribute("identifiers"));
+					
+					delete current["Merged"];
+					
+					var str = "<b>" + current["National ID"] + "</b> (";
+					
+					var seed = str;
+							
+					for(var i = 0; i < current["Identifiers"].length; i++){
+						
+						str += (str.trim() != seed.trim() ? "," : "") + current["Identifiers"][i][Object.keys(current["Identifiers"][i])[0]];
+						
+					}
+					
+					str += ")"
+					
+					__$("originalIdentifiers").setAttribute("identifiers", JSON.stringify(current));
+						
+					__$("originalIdentifiers").innerHTML = str;
+				}
+				
+				var keys = Object.keys(selected);
+				
+				for(var i = 0; i < keys.length; i++){
+					
+					if(__$("secondary" + keys[i]) && __$("original" + keys[i])){
+						
+						__$("original" + keys[i]).innerHTML = __$("original" + keys[i]).getAttribute("original_text").trim();
+						
+					}
+					
+				}
+				
+				if(__$("btnRemove")){
+					
+					__$("btnRemove").className = "button_gray";
+					
+					__$("btnRemove").onclick = function(){};
+					
+				}
+				
+				
+			}
+
+			function resizePage(){
+				
+				if(__$("main")){
+					
+					__$("main").style.height = (window.innerHeight - 20) + "px";
+					
+				}
+				
+				if(__$("tbl1") && __$("tbl2")){
+					
+					__$("tbl1").style.height = (window.innerHeight - __$("tbl2").offsetHeight - 25) + "px"
+					
+				}
+				
+				if(__$("DetailsPrimaryInput")){
+					
+					__$("DetailsPrimaryInput").style.height = (window.innerHeight - 620) + "px";
+					
+					__$("DetailsPrimaryInput").style.width = ((window.innerWidth/2) - 100) + "px";
+					
+				}
+				
+				if(__$("DetailsSecondaryInput")){
+					
+					__$("DetailsSecondaryInput").style.height = (window.innerHeight - 620) + "px";
+					
+					__$("DetailsSecondaryInput").style.width = ((window.innerWidth/2) - 100) + "px";
+					
+				}
+				
+			}
+		
+			loadPage();
+			
+		</script>
+	</body>	
+</html>
