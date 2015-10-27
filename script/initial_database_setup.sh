@@ -44,6 +44,7 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/tasks.sq
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/moh_regimens_only.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/regimen_indexes.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/retrospective_station_entries.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/openmrs_metadata_1_7.sql
 
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/privilege.sql
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/bart2_role_privileges.sql
