@@ -50,6 +50,15 @@ production:
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
  use_teams: yes
  facility.ward.printers: ip_address1:printer_name1,ip_address2:printer_name2
+ create.from.dde2.server: true
+ dde2_basic_http_auth: true
+ dde2_server_ip: localhost:3009
+ dde2_server_password: ipdadmin
+ dde2_server_username: ipdadmin
+ app.name: IPD
+ app.site: KCH
+ app.description: IPD Application at KCH
+ app.token:
 
 development:
  encounter_privilege_map: Procedures done:Manage procedures done,Outpatient diagnosis:Manage outpatient diagnoses,Update hiv status:Manage HIV Status Visits,Vitals:Manage Vitals,Give drugs:Manage Give Drugs,Lab orders:Manage Lab Orders,Symptoms:Manage Symptoms,Social history:Manage Social History, Admit patient:Manage Patient Admissions,Discharge patient:Manage Patient Discharges
