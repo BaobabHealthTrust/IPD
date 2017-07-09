@@ -382,7 +382,7 @@ module DDE2Service
   end  
     
   def self.add_new_patient(person)
-    
+   
     person_params = {
                       "family_name" => person["family_name"], 
                       "given_name" => person["given_name"], 

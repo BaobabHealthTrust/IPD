@@ -1993,9 +1993,9 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
                       "current_residence" => address_params["neighborhood_cell"],
                       "current_ta" => address_params["city_village"],
                       "current_district" => address_params["county_district"],
-                      "home_village" => address_params["address1"],
-                      "home_ta" => address_params["address2"],
-                      "home_district" => address_params["state_province"],
+                      "home_village" => address_params["Other"],
+                      "home_ta" => address_params["county_district"],
+                      "home_district" => address_params["address2"],
                       "identifiers" => {"old_identification_number"=> old_identifier}}
 
     unless params["remote"]

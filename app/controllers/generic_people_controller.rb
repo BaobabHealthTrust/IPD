@@ -231,7 +231,7 @@ class GenericPeopleController < ApplicationController
     end
 
     person = PatientService.create_patient_from_dde(params) if create_from_dde_server
-    person = PatientService.create_patient_from_dde2(params) if create_patient_from_dde2
+    person = PatientService.create_patient_from_dde2(params) if create_from_dde2_server
     DDEService.create_footprint(PatientService.get_patient(person).national_id, "ADT") if create_from_dde_server
 
     unless person.blank?
