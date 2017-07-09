@@ -622,7 +622,7 @@ module DDE2Service
     end
     
     def self.description
-      return CoreService.get_global_property_value("app.description")rescue ""
+      return CoreService.get_global_property_value("app.description") rescue ""
     end
 
     def self.token
