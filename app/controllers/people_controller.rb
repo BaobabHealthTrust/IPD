@@ -44,6 +44,12 @@ class PeopleController < GenericPeopleController
             redirect_to :action => 'duplicates' ,:search_params => params
             return
           end
+        elsif create_from_dde2_server
+            person =  JSON.parse(DDE2Service.search_by_identifier(params[:identifier])) rescue nil
+            if person && person["data"]["matches"] > 1
+                redirect_to :action => 'duplicates' ,:search_params => params
+                return
+            end  
         end
         found_person = local_results.first
       else
@@ -62,6 +68,14 @@ class PeopleController < GenericPeopleController
             redirect_to :action => 'remote_duplicates' ,:search_params => params
             return
           end
+        elsif params[:identifier].length != 6 and create_from_dde2_server
+          patient = DDE2Service::Patient.new(found_person.patient)
+          national_id_replaced = patient.check_old_national_id(params[:identifier])
+          if national_id_replaced.to_s != "true" and national_id_replaced.to_s !="false"
+            redirect_to :action => 'remote_duplicates' ,:search_params => params
+            return
+          end
+          
         end
 
         if params[:relation]
@@ -108,6 +122,28 @@ class PeopleController < GenericPeopleController
       results.age = cul_age(results.birthdate.to_date , results.birthdate_estimated)
       @search_results[results.national_id] = results
     end if create_from_dde_server
+
+
+    (PatientService.search_from_remote_dde2(params) || []).each do |data|
+      person = JSON.parse(data) 
+      national_id = person["data"]["hits"].first["npid"] rescue nil
+      national_id = person["data"]["hits"].first["patient"]["identifiers"]["old_identification_number"] if national_id.blank? rescue nil
+      next if national_id.blank?
+      results = PersonSearch.new(national_id)
+      results.national_id = national_id
+      results.current_residence = person["data"]["hits"].first["addresses"]["current_residence"]
+      results.person_id = 0
+      results.home_district = person["data"]["hits"].first["addresses"]["home_district"]
+      results.traditional_authority =  person["data"]["hits"].first["addresses"]["home_ta"]
+      results.name = person["data"]["hits"].first["names"]["given_name"] + " " + person["data"]["hits"].first["names"]["family_name"]
+      results.occupation = person["data"]["hits"].first["occupation"]
+      results.sex = (person["data"]["hits"].first["gender"] == 'M' ? 'Male' : 'Female')
+      results.birthdate_estimated = (person["data"]["hits"].first["birthdate_estimated"]).to_i
+      results.birth_date = birthdate_formatted((person["data"]["hits"].first["birthdate"]).to_date , results.birthdate_estimated)
+      results.birthdate = (person["data"]["hits"].first["birthdate"]).to_date
+      results.age = cul_age(results.birthdate.to_date , results.birthdate_estimated)
+      @search_results[results.national_id] = results
+    end if create_from_dde2_server
 
     (@people || []).each do | person |
       patient = PatientService.get_patient(person) rescue nil
