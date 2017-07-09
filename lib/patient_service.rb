@@ -4,6 +4,7 @@ module PatientService
 	require 'json'
 	require 'rest_client'
   require 'dde_service'
+  require 'dde2_service'
   
   def self.search_from_remote(params)                                           
     return [] if params[:given_name].blank?                                     
@@ -1387,6 +1388,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     } unless identifier.blank? rescue nil
     return people unless people.blank?
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
+    create_from_dde2_server = CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
     if create_from_dde_server
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
       dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
@@ -1443,6 +1445,55 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
       passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
       return [self.create_from_form(passed["person"])]
+    elsif create_from_dde2_server
+      
+        person = JSON.parse(DDE2Service.search_by_identifier(identifier)) rescue nil
+        return [] if data.blank?
+
+        passed_national_id = (person["data"]["hits"].first["npid"]) rescue nil
+        if passed_national_id.blank?
+          return [get_remote_person_dde2(person["data"]["hits"].first["npid"])]
+        end
+
+        birthdate_year = (person["data"]["hits"].first["birthdate"]).to_date.year rescue "Unknown"
+        birthdate_month = (person["data"]["hits"].first["birthdate"]).to_date.month rescue nil
+        birthdate_day = (person["data"]["hits"].first["birthdate"]).to_date.day rescue nil
+        birthdate_estimated = (person["data"]["hits"].first["birthdate_estimated"])
+        gender = (person["data"]["hits"].first["gender"] == 'M' ? 'Male' : 'Female')
+
+        passed = {
+          "person"=>{"occupation"=> person["data"]["hits"].first["occupation"],
+          "age_estimate"=> birthdate_estimated,
+          "cell_phone_number"=> person["data"]["hits"].first["attributes"]["cell_phone_number"],
+          "birth_month"=> birthdate_month ,
+          "addresses"=>{"address1"=> person["data"]["hits"].first["addresses"]["current_ta"],
+                        "address2"=> person["data"]["hits"].first["addresses"]["home_ta"],
+                        "city_village"=> person["data"]["hits"].first["addresses"]["current_village"],
+                        "state_province"=> person["data"]["hits"].first["addresses"]["home_district"],
+                        "neighborhood_cell"=> person["data"]["hits"].first["addresses"]["home_village"],
+                        "county_district"=> person["data"]["hits"].first["addresses"]["current_district"]},
+          "gender"=> gender ,
+          "patient"=>{"identifiers"=>{"National id" =>  person["data"]["hits"].first["npid"]}},
+          "birth_day"=>birthdate_day,
+          "home_phone_number"=> person["data"]["hits"].first["attributes"]["home_phone_number"],
+          "names"=>{"family_name"=> person["data"]["hits"].first["names"]["family_name"],
+                      "given_name"=> person["data"]["hits"].first["names"]["given_name"],
+                      "middle_name"=> person["data"]["hits"].first["names"]["middle_name"]},
+          "birth_year"=> birthdate_year},
+          "filter_district"=>"",
+          "filter"=>{"region"=>"",
+          "t_a"=>""},
+          "relation"=>""
+          }
+
+      unless passed_national_id.blank?
+        patient = PatientIdentifier.find(:first,
+          :conditions =>["voided = 0 AND identifier = ?",passed_national_id]).patient rescue nil
+        return [patient.person] unless patient.blank?
+      end
+
+      passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
+      return [self.create_from_form(passed["person"])]  
     end
     return people
   end
@@ -1829,6 +1880,204 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     ['','Driver','Housewife','Messenger','Business','Farmer','Salesperson','Teacher',
      'Student','Security guard','Domestic worker', 'Police','Office worker',
      'Preschool child','Mechanic','Prisoner','Craftsman','Healthcare Worker','Soldier'].sort.concat(["Other","Unknown"])
+  end
+
+  def self.update_demographics(params)
+    person = Person.find(params['person_id'])
+    if params.has_key?('person')
+      params = params['person']
+    end
+
+    address_params = params["addresses"]
+    names_params = params["names"]
+    patient_params = params["patient"]
+    person_attribute_params = params["attributes"]
+
+    params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|attributes/) }
+    birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
+
+    person_params = params_to_process.reject{|key,value| key.match(/birth_|race|action|controller|cat|age_estimate/) }
+
+    unless birthday_params.blank?
+      if birthday_params["birth_year"] == "Unknown"
+        self.set_birthdate_by_age(person,birthday_params["age_estimate"])
+      else
+        self.set_birthdate(person,birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+      end rescue nil
+      person.birthdate_estimated = 1 if params["birthdate_estimated"] == 'true'
+      person.save!
+    end
+
+    person.update_attributes(person_params) if !person_params.empty?
+    person.names.first.update_attributes(names_params) if names_params
+    person.addresses.first.update_attributes(address_params) if address_params
+
+    #update or add new person attribute
+    person_attribute_params.each{|attribute_type_name, attribute|
+      attribute_type = PersonAttributeType.find_by_name(attribute_type_name.humanize.titleize) || PersonAttributeType.find_by_name("Unknown id")
+      #find if attribute already exists
+      exists_person_attribute = PersonAttribute.find(:first, :conditions => ["person_id = ? AND person_attribute_type_id = ?", person.id, attribute_type.person_attribute_type_id]) rescue nil
+      if exists_person_attribute
+        exists_person_attribute.update_attributes({'value' => attribute})
+      else
+        person.person_attributes.create("value" => attribute, "person_attribute_type_id" => attribute_type.person_attribute_type_id)
+      end
+    } if person_attribute_params
+
+    create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
+    create_from_dde2_server = CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
+    if create_from_dde_server
+      patient_bean = get_patient(person)
+      DDEService.update_demographics(patient_bean)
+    elsif create_from_dde2_server
+      patient_bean = get_patient(person)
+      DDE2Service.update_demographics(patient_bean)
+    end
+
+  end
+
+
+  def self.create_patient_from_dde2(params)
+    old_identifier = params["identifier"] rescue nil
+	  address_params = params["person"]["addresses"]
+		names_params = params["person"]["names"]
+		patient_params = params["person"]["patient"]
+    birthday_params = params["person"]
+		params_to_process = params.reject{|key,value|
+      key.match(/identifiers|addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/)
+    }
+		birthday_params = params_to_process["person"].reject{|key,value| key.match(/gender/) }
+		person_params = params_to_process["person"].reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
+
+		if person_params["gender"].to_s == "Female"
+      person_params["gender"] = 'F'
+		elsif person_params["gender"].to_s == "Male"
+      person_params["gender"] = 'M'
+		end
+
+		unless birthday_params.empty?
+		  if birthday_params["birth_year"] == "Unknown"
+			  birthdate = Date.new(Date.today.year - birthday_params["age_estimate"].to_i, 7, 1)
+        birthdate_estimated = 1
+		  else
+			  year = birthday_params["birth_year"]
+        month = birthday_params["birth_month"]
+        day = birthday_params["birth_day"]
+
+        month_i = (month || 0).to_i
+        month_i = Date::MONTHNAMES.index(month) if month_i == 0 || month_i.blank?
+        month_i = Date::ABBR_MONTHNAMES.index(month) if month_i == 0 || month_i.blank?
+
+        if month_i == 0 || month == "Unknown"
+          birthdate = Date.new(year.to_i,7,1)
+          birthdate_estimated = 1
+        elsif day.blank? || day == "Unknown" || day == 0
+          birthdate = Date.new(year.to_i,month_i,15)
+          birthdate_estimated = 1
+        else
+          birthdate = Date.new(year.to_i,month_i,day.to_i)
+          birthdate_estimated = 0
+        end
+		  end
+    else
+      birthdate_estimated = 0
+		end
+
+    passed_params = { "given_name" => names_params["given_name"], 
+                      "family_name" => names_params["family_name"],
+                      "gender" => (person_params["gender"] == 'M' ? 'Male' : 'Female'),
+                      "birthdate" => birthdate,
+                      "birthdate_estimated" => (birthdate_estimated == 0 ? false : true),
+                      "attributes" => {"occupation"=> params["person"]["occupation"],
+                                       "cell_phone_number" => params["person"]["cell_phone_number"]},
+                      "current_residence" => address_params["neighborhood_cell"],
+                      "current_ta" => address_params["city_village"],
+                      "current_district" => address_params["county_district"],
+                      "home_village" => address_params["address1"],
+                      "home_ta" => address_params["address2"],
+                      "home_district" => address_params["state_province"],
+                      "identifiers" => {"old_identification_number"=> old_identifier}}
+
+    unless params["remote"]
+      national_id = DDE2Service.add_new_patient(passed_params)
+    else
+      national_id = params["person"]["patient"]["identifiers"]["National id"]
+      national_id = params["person"]["value"] if national_id.blank? rescue nil
+      return national_id
+    end
+
+	  person = self.create_from_form(params[:person] || params["person"])
+
+    identifier_type = PatientIdentifierType.find_by_name("National id") || PatientIdentifierType.find_by_name("Unknown id")
+    person.patient.patient_identifiers.create("identifier" => national_id,
+      "identifier_type" => identifier_type.patient_identifier_type_id) unless national_id.blank?
+    return person
+  end
+
+  def self.search_demographics_from_remote_dde2(params) 
+
+    return [] if params[:person][:names]['given_name'].blank?
+    return [] if params[:person][:names]['family_name'].blank?
+    return [] if params[:person]['gender'].blank?
+
+    given_name = params[:person][:names]['given_name']
+    family_name = params[:person][:names]['family_name']
+    gender = params[:person]['gender']   
+    raise params[:person].inspect            
+
+    people = JSON.parse(DDE2Service.search_by_name_and_gender(give_name, family_name, gender))
+                                                                                                             
+  end
+
+  def self.search_from_remote_dde2(params)
+    return [] if params['given_name'].blank?
+    return [] if params['family_name'].blank?
+    return [] if params['gender'].blank?
+
+    given_name = params['given_name']
+    family_name = params['family_name']
+    gender = params['gender'] == "M" ? "Male" : "Female"  
+
+    return DDE2Service.search_by_name_and_gender(given_name, family_name, gender)
+    
+  end
+
+  def self.get_remote_person_dde2(identifier)
+    data = JSON.parse(DDE2Service.search_by_identifier(identifier)) rescue nil
+    return [] if data.blank?
+    birthdate_year = (person["data"]["hits"].first["birthdate"]).to_date.year rescue "Unknown"
+    birthdate_month = (person["data"]["hits"].first["birthdate"]).to_date.month rescue nil
+    birthdate_day = (person["data"]["hits"].first["birthdate"]).to_date.day rescue nil
+    birthdate_estimated = (person["data"]["hits"].first["birthdate_estimated"])
+    gender = (person["data"]["hits"].first["gender"] == 'M' ? 'Male' : 'Female')
+
+    passed = {
+       "person"=>{"occupation"=> person["data"]["hits"].first["occupation"],
+       "age_estimate"=> birthdate_estimated,
+       "cell_phone_number"=> person["data"]["hits"].first["attributes"]["cell_phone_number"],
+       "birth_month"=> birthdate_month ,
+       "addresses"=>{"address1"=> person["data"]["hits"].first["addresses"]["current_ta"],
+                    "address2"=> person["data"]["hits"].first["addresses"]["home_ta"],
+                    "city_village"=> person["data"]["hits"].first["addresses"]["current_village"],
+                    "state_province"=> person["data"]["hits"].first["addresses"]["home_district"],
+                    "neighborhood_cell"=> person["data"]["hits"].first["addresses"]["home_village"],
+                    "county_district"=> person["data"]["hits"].first["addresses"]["current_district"]},
+       "gender"=> gender ,
+       "patient"=>{"identifiers"=>{"National id" =>  person["data"]["hits"].first["npid"]}},
+       "birth_day"=>birthdate_day,
+       "home_phone_number"=> person["data"]["hits"].first["attributes"]["home_phone_number"],
+       "names"=>{"family_name"=> person["data"]["hits"].first["names"]["family_name"],
+                  "given_name"=> person["data"]["hits"].first["names"]["given_name"],
+                  "middle_name"=> person["data"]["hits"].first["names"]["middle_name"]},
+       "birth_year"=> birthdate_year},
+       "filter_district"=>"",
+       "filter"=>{"region"=>"",
+       "t_a"=>""},
+       "relation"=>""
+      }
+
+    passed["person"].merge!("identifiers" => {"National id" => person["data"]["hits"].first["npid"]})
+    return PatientService.create_from_form(passed["person"])
   end
 
 end
