@@ -1,3 +1,4 @@
+include CoreService
 =begin
   Things to watch out for:
 
@@ -589,43 +590,43 @@ module DDE2Service
   class ServerConnection
     def self.address
       if basic_http_auth?
-        server_ip = GlobalProperty.find_by_property("dde2_server_ip").property_value rescue ""
+        server_ip = CoreService.get_global_property_value("dde2_server_ip") rescue ""
         return "http://#{username}:#{password}@#{server_ip}"
       else
-          return GlobalProperty.find_by_property("dde2_server_ip").property_value rescue ""
+          return CoreService.get_global_property_value("dde2_server_ip") rescue ""
       end  
       
     end
 
     def self.username
-      return GlobalProperty.find_by_property("dde2_server_username").property_value rescue ""
+      return CoreService.get_global_property_value("dde2_server_username") rescue ""
     end    
 
     def self.password
-      return GlobalProperty.find_by_property("dde2_server_password").property_value rescue ""
+      return CoreService.get_global_property_value("dde2_server_password") rescue ""
     end
     
     def self.basic_http_auth?
-        return GlobalProperty.find_by_property("dde2_basic_http_auth").property_value rescue true
+        return CoreService.get_global_property_value("dde2_basic_http_auth") rescue true
     end  
 
   end
 
   class ClientConnection
     def self.name
-      return "Registration"
+      return CoreService.get_global_property_value("app.name") rescue "IPD"
     end
     
     def self.code
-      return "KCH"
+      return CoreService.get_global_property_value("app.site") rescue "" 
     end
     
     def self.description
-      return "Patient Registration application at Kamuzu Central Hospital"
+      return CoreService.get_global_property_value("app.description")rescue ""
     end
 
     def self.token
-      return "c98NtYoucP3X"
+      return CoreService.get_global_property_value("app.token") rescue ""
     end
   end  
 

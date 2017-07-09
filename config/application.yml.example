@@ -103,6 +103,15 @@ development:
   Paediatric_HDU,Paediatric_Oncology,Paediatric_Under 5 Clinic
  use_teams: yes
  facility.ward.printers: ip_address1:printer_name1,ip_address2:printer_name2
+ create.from.dde2.server: true
+ dde2_basic_http_auth: true
+ dde2_server_ip: localhost:3009
+ dde2_server_password: ipduser
+ dde2_server_username: ipduser
+ app.name: IPD
+ app.site: KCH
+ app.description: IPD Application at KCH
+ app.token:
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: yes
