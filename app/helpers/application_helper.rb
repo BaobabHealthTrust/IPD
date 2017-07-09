@@ -253,6 +253,10 @@ module ApplicationHelper
     CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
   end 
 
+   def create_from_dde2_server                                                    
+    CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
+  end
+
   def current_user_roles                                                        
     user_roles = UserRole.find(:all,:conditions =>["user_id = ?", current_user.id]).collect{|r|r.role}
     RoleRole.find(:all,:conditions => ["child_role IN (?)", user_roles]).collect{|r|user_roles << r.parent_role}

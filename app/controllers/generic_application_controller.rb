@@ -118,6 +118,10 @@ class GenericApplicationController < ActionController::Base
     CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
   end
 
+  def create_from_dde2_server                                                    
+    CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
+  end 
+
   def concept_set(concept_name)
     concept_id = ConceptName.find_by_name(concept_name).concept_id
     set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
