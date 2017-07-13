@@ -1,0 +1,17 @@
+default: &default
+  application_name: IPD
+  dde_server: 192.168.12.70:3009
+  dde_username: ipdadmin
+  dde_password: ipdadmin
+  description: IPD Application
+  site_code: KCH
+  secure_connection: false
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
