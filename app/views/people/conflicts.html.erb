@@ -1,0 +1,271 @@
+
+<script>
+    tt_cancel_destination = "/clinic";
+
+    function newID(patient_id,national_id) {
+        document.location = "/people/remote_duplicates?patient_id=" + patient_id + "&identifier=" + national_id;
+    }
+
+    function remoteNewID(patient_id,national_id) {
+        document.location = "/people/remote_duplicates?remote_person_id=" + patient_id + "&identifier=" + national_id;
+    }
+
+    function postToSelect(national_id) {
+        document.location = "/people/search?identifier=" + national_id;
+    }
+
+</script>
+
+<style>
+
+    .color_white {
+        background-color:white;
+        cursor: pointer,
+    }
+
+    .color_darkslatedgray {
+        background-color:#d3d3d3;
+        cursor: pointer,
+    }
+
+    td {
+        border-style: solid;
+        border-width: 1px;
+        border-color: #d3d3d3;
+    }
+
+    table {
+        font-size: 1.05em;
+    }
+
+    div { -moz-user-select: none; }
+
+
+    a {
+        background-color: #669999;
+        border-bottom: 1px outset black;
+        border-radius: 7px 7px 7px 7px;
+        border-style: outset;
+        border-top: 1px outset black;
+        color: white;
+        display: block;
+        padding: 10px 10px 10px 10px;
+        text-align: center;
+        text-decoration: none;
+    }
+    .heading,.msg{
+        margin-left: 20px;
+        padding-left: 5px;
+    }
+    .col1, .col2{
+        padding: 10px;
+    }
+    .col1{
+        font-weight: bold;
+        color: #242E35;
+        width: 40%;
+    }
+    .col2{
+        padding-left: 30px;
+    }
+    .row td{
+        padding: 5px;
+        padding-top: 13px;
+        padding-bottom: 13px;
+        cursor: pointer,
+    }
+
+</style>
+<body>
+<div>
+
+  <!--
+
+  -->
+  <h3 class="msg">Select patient to continue ....</h3>
+  <table style="width: 100%; border-top: 1px solid lightgray">
+    <tr>
+        <td style="width: 57%;">
+          <div style="max-height: 600px; height: 600px; overflow: auto;width: 100%;">
+  <table style="width: 100%">
+    <tr select_with="lightblue" class="header" style="background: darkslategray;color: white;font-weight: bold">
+      <td width='170'>Name (Gender)</td>
+      <td width="50">Home TA</td>
+      <td width='50' style="text-align:center;">Home Village</td>
+      <td width='50' style="text-align:center;">Phone Number</td>
+    </tr>
+    <%color = 'white'
+      row_number = 0
+      ( @local_duplicates || {} ).each do | patient |
+        if row_number == 0
+          note = 'New'
+        else
+          note = 'Local'
+        end
+
+        row_number+=1
+        birthdate = patient['birthdate'].to_date.strftime("%d/%b/%Y")
+        gender = patient['gender'].match(/F/) ? "F" : "M"
+
+        npid = patient['patient']['identifiers']['Old Identification Number'] rescue patient['npid']
+        patient['birthdate'] = birthdate
+        patient['npid'] = npid
+        patient['gender'] = gender
+        middle_name = patient['given_name'] rescue ''
+        middle_name = '' if (middle_name.match(/^N\/A$|^undefined$|^null$/i) rescue true)
+        name =  ("#{patient['given_name']} + ' #{middle_name} ' + #{patient['family_name']}")
+        phone = patient['attributes']['cell_phone_number'] rescue nil
+
+    %>
+
+        <tr class='row' data = '<%= patient.to_json%>' onmousedown="view(this, true);">
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%= (patient['given_name'] + ' ' +  patient['family_name']) + " (#{gender}) (<span style='color: green'>#{note}</span>)" || '&nbsp;' %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%= patient['home_ta'] %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>" style="text-align:center;"><%= patient['home_village'] || '&nbsp;' %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>" style="text-align:center;"><%= phone || '&nbsp;' %> </td>
+        </tr>
+    <%end%>
+
+    <%
+
+       ( @remote_duplicates || {} ).each do | patient |
+
+
+     row_number+=1
+       npid = patient['npid']
+       birthdate = patient['birthdate'].to_date.strftime("%d/%b/%Y")
+       gender = patient['gender'].match(/F/) ? "F" : "M"
+
+       patient['birthdate'] = birthdate
+       patient['npid'] = npid
+       patient['gender'] = gender
+       middle_name = patient['names']['middle_name'] rescue ''
+       middle_name = '' if (middle_name.match(/^N\/A$|^undefined$|^null$/i) rescue true)
+
+       name =  ("#{patient['names']['given_name']} + ' #{middle_name} ' + #{patient['names']['family_name']}")
+       phone = patient['attributes']['cell_phone_number'] rescue nil
+    %>
+
+        <tr class='row' data = '<%= patient.to_json%>' onmousedown="view(this, false);">
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%= (patient['names']['given_name'] + ' ' + patient['names']['family_name']) + " (#{gender})"  || '&nbsp;' %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%=  patient['addresses']['home_ta'] || '&nbsp;' %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>" style="text-align:center;"><%= patient['addresses']['home_village'] || '&nbsp;' %></td>
+          <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>" style="text-align:center;"><%= phone || '&nbsp;' %> </td>
+        </tr>
+    <%end%>
+
+  </table>
+            </div>
+        </td>
+
+        <td>
+          <div style="max-height: 600px; height: 600px; overflow: auto; width: 100%;">
+            <table style="width: 100%;">
+               <%['patient_number', 'given_name', 'middle_name', 'family_name', 'gender', 'birthdate', 'home_district', 'home_ta',
+                  'home_village', 'current_district', 'current_village', 'landmark'].each do |key|%>
+                <tr>
+                  <td class="col1"><%= key.humanize%></td>
+                  <td id="<%=key%>" class="col2" >&nbsp;</td>
+                </tr>
+              <% end %>
+            </table>
+          </div>
+        </td>
+      </tr>
+  </table>
+</div>
+
+<div id="footer" style="position: absolute; bottom: 1px; right: 10px;width: 99.5%;left: 0.25%;background: #333333">
+  <button id="nextButton" class="button navButton green" onclick="__$('form').submit()"><span>Select</span></button>
+  <button id="cancelButton" class="button navButton red" onclick="window.location = '/'"><span>Cancel</span></button>
+</div>
+
+</body>
+<script>
+  function highlight(node){
+      var nodes = document.getElementsByClassName('color_white')
+      for(var i=0; i < nodes.length; i++){
+            nodes[i].style.background = "white";
+      }
+
+      var nodes = document.getElementsByClassName('color_darkslatedgray')
+      for(var i=0; i < nodes.length; i++){
+          nodes[i].style.background = "#d3d3d3";
+      }
+
+      var nodes  = node.getElementsByTagName('td');
+
+      for(var i=0; i < nodes.length; i++){
+          nodes[i].style.background = "lightblue";
+      }
+
+  }
+
+  function view(node, local) {
+      highlight(node);
+      var valNodes = document.getElementsByClassName('col2');
+      for (var i = 0; i < valNodes.length; i++) {
+          valNodes[i].innerHTML = '&nbsp;';
+      }
+      var data = JSON.parse(node.getAttribute('data'));
+      var gender = {'F': 'Female', 'M': 'Male'}
+      setTimeout(function () {
+          if (local == true) {
+              __$("patient_number").innerHTML = data['npid'];
+              __$("given_name").innerHTML = data['given_name'];
+              __$("middle_name").innerHTML = data['middle_name'];
+              __$("family_name").innerHTML = data['family_name'];
+              __$("gender").innerHTML = gender[data['gender']];
+              __$("birthdate").innerHTML = data['birthdate'];
+              __$("home_district").innerHTML = data['home_district'];
+              __$("home_ta").innerHTML = data['home_ta'];
+              __$("home_village").innerHTML = data['home_village'];
+              __$("current_district").innerHTML = data['current_district'];
+              __$("current_village").innerHTML = data['current_village'];
+              __$("landmark").innerHTML = data['current_residence'];
+              __$("nextButton").innerHTML = "<span>Create</span>"
+
+          } else if (local == false) {
+              __$("patient_number").innerHTML = data['npid'];
+              __$("given_name").innerHTML = data['names']['given_name'];
+              __$("middle_name").innerHTML = data['names']['middle_name'];
+              __$("family_name").innerHTML = data['names']['family_name'];
+              __$("gender").innerHTML = gender[data['gender']];
+              __$("birthdate").innerHTML = data['birthdate'];
+              if (data['addresses']) {
+                  __$("home_district").innerHTML = data['addresses']['home_district'];
+                  __$("home_ta").innerHTML = data['addresses']['home_ta'];
+                  __$("home_village").innerHTML = data['addresses']['home_village'];
+                  __$("current_district").innerHTML = data['addresses']['current_district'];
+                  __$("current_village").innerHTML = data['addresses']['current_village'];
+                  __$("landmark").innerHTML = data['addresses']['current_residence'];
+              }
+              __$("nextButton").innerHTML = "<span>Select</span>"
+          }
+
+          for (var i = 0; i < valNodes.length; i++) {
+              valNodes[i].innerHTML = valNodes[i].innerHTML.replace('undefined', '&nbsp;');
+          }
+      }, 150);
+
+      if (__$('form')) {
+          __$('form').parentNode.removeChild(__$('form'));
+      }
+
+      var form = document.createElement('form');
+      form.id = 'form';
+      var input = document.createElement('input');
+      input.setAttribute('name', 'data');
+      input.setAttribute('value', node.getAttribute('data'));
+      input.setAttribute('type', 'hidden');
+
+      form.appendChild(input);
+      document.body.appendChild(form);
+
+      if(local == true && data['npid']){
+          form.action = "/people/force_create_local";
+      }else {
+          form.action = "/people/force_create";
+      }
+  }
+</script>
