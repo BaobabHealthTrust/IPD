@@ -386,7 +386,7 @@ class PatientsController < GenericPatientsController
       redirect_to(:action => 'modify_demographics', :patient_id => person.patient.patient_id, :field => 'birthdate') and return
     end
     end
-   update_demo_graphics(params)
+   PatientService.update_demographics(params)
    redirect_to :action => 'edit_demographics', :patient_id => params['person_id'] and return
   end
   
@@ -434,6 +434,8 @@ class PatientsController < GenericPatientsController
           person.person_attributes.create("value" => attribute, "person_attribute_type_id" => attribute_type.person_attribute_type_id)
         end
       } if person_attribute_params
+  
+  raise params.inspect
 
   end
   

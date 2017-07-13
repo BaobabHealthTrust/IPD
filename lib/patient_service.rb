@@ -1925,11 +1925,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     } if person_attribute_params
 
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
-    create_from_dde2_server = CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
     if create_from_dde_server
-      patient_bean = get_patient(person)
-      DDEService.update_demographics(patient_bean)
-    elsif create_from_dde2_server
       patient_bean = get_patient(person)
       DDE2Service.update_demographics(patient_bean)
     end
