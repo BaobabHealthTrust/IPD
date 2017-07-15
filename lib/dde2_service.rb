@@ -123,6 +123,7 @@ module DDE2Service
         "birthdate"=> birthdate,
         "birthdate_estimated" => (params['person']['age_estimate'].blank? ? false : true),
         "identifiers"=> ids,
+        "attributes" => {},
         "current_residence"=> params['person']['addresses']['address1'],
         "current_village" => params['person']['addresses']['city_village'],
         "current_ta"=> (params['filter']['t_a']),
@@ -131,38 +132,30 @@ module DDE2Service
         "home_ta"=> params['person']['addresses']['county_district'],
         "home_district"=> params['person']['addresses']['address2']
     }
-
-
-    if params['person']['attributes'].present? && params['person']['attributes']["occupation"].present?
-      result.merge!({"attributes" => {"occupation" => params['person']['attributes']["occupation"] }})
-    end
-
-    if params['person']['attributes'].present? && params['person']['attributes']["cell_phone_number"].present?
-      result.merge!({"attributes" => {"cell_phone_number" => params['person']['attributes']["cell_phone_number"] }})
-    end
-
-    if params['person']['attributes'].present? && params['person']['attributes']["office_phone_number"].present?
-      result.merge!({"attributes" => {"office_phone_number" => params['person']['attributes']["office_phone_number"] }})
-    end
-
-    if params['person']['attributes'].present? && params['person']['attributes']["home_phone_number"].present?
-      result.merge!({"attributes" => {"home_phone_number" => params['person']['attributes']["home_phone_number"] }})
-    end
-
-    if params['person']['attributes'].present? && params['person']["citizenship"].present?
-      result.merge!({"attributes" => {"citizenship" => params['person']["citizenship"] }})
-    end
-
-    if params['person']['attributes'].present? && params['person']["country_of_residence"].present?
-      result.merge!({"attributes" => {"country_of_residence" => params['person']["country_of_residence"] }})
-    end
+   
     
-    if result['attributes'].present?
-      result['attributes'].each do |k, v|
-        if v.blank? || v.match(/^N\/A$|^null$|^undefined$|^nil$/i)
-          result['attributes'].delete(k)  unless [true, false].include?(v)
-        end
-      end
+    if params['person']["occupation"].present?
+      result["attributes"].merge!({"occupation" => params['person']["occupation"]})
+    end
+
+    if params['person']["cell_phone_number"].present?
+      result["attributes"].merge!({"cell_phone_number" => params['person']["cell_phone_number"]})
+    end
+
+    if params['person']["office_phone_number"].present?
+      result["attributes"].merge!({"office_phone_number" => params['person']["office_phone_number"]})
+    end
+
+    if params['person']["home_phone_number"].present?
+      result["attributes"].merge!({"home_phone_number" => params['person']["home_phone_number"]})
+    end
+
+    if params['person']["citizenship"].present?
+      result["attributes"].merge!({"citizenship" => params['person']["citizenship"]})
+    end
+
+    if params['person']["country_of_residence"].present?
+     result["attributes"].merge!({"country_of_residence" => params['person']["country_of_residence"]})
     end
     
     if result['identifiers'].present?
