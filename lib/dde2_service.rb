@@ -131,6 +131,31 @@ module DDE2Service
         "home_ta"=> params['person']['addresses']['county_district'],
         "home_district"=> params['person']['addresses']['address2']
     }
+
+
+    if params['person']['attributes'].present? && params['person']['attributes']["occupation"].present?
+      result.merge!({"attributes" => {"occupation" => params['person']['attributes']["occupation"] }})
+    end
+
+    if params['person']['attributes'].present? && params['person']['attributes']["cell_phone_number"].present?
+      result.merge!({"attributes" => {"cell_phone_number" => params['person']['attributes']["cell_phone_number"] }})
+    end
+
+    if params['person']['attributes'].present? && params['person']['attributes']["office_phone_number"].present?
+      result.merge!({"attributes" => {"office_phone_number" => params['person']['attributes']["office_phone_number"] }})
+    end
+
+    if params['person']['attributes'].present? && params['person']['attributes']["home_phone_number"].present?
+      result.merge!({"attributes" => {"home_phone_number" => params['person']['attributes']["home_phone_number"] }})
+    end
+
+    if params['person']['attributes'].present? && params['person']["citizenship"].present?
+      result.merge!({"attributes" => {"citizenship" => params['person']["citizenship"] }})
+    end
+
+    if params['person']['attributes'].present? && params['person']["country_of_residence"].present?
+      result.merge!({"attributes" => {"country_of_residence" => params['person']["country_of_residence"] }})
+    end
     
     if result['attributes'].present?
       result['attributes'].each do |k, v|
