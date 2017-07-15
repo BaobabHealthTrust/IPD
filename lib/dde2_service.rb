@@ -416,52 +416,82 @@ module DDE2Service
 
   def self.update_demographics(patient_bean)
 
+    birthdate = nil
+    birthdate_estimated = false
+    if patient_bean.birthdate_estimated.present? && patient_bean.birthdate_estimated == 1
+      if patient_bean.birth_date.split("/").second == "???"
+        birthdate = Date.new(patient_bean.birth_date.split("/").third.to_i,7,1).strftime("%Y-%m-%d")
+        birthdate_estimated = true
+      elsif patient_bean.birth_date.split("/").first == "??"
+        birthdate = Date.new(patient_bean.birth_date.split("/").third.to_i,
+                             patient_bean.birth_date.split("/").second.to_i,1).strftime("%Y-%m-%d")
+        birthdate_estimated = true               
+      else
+        birthdate = patient_bean.birth_date.to_date.strftime("%Y-%m-%d")
+        raise birth_date.inspect
+      end  
+    else   
+      birthdate = patient_bean.birth_date.to_date.strftime("%Y-%m-%d")
+    end
+
     result = {
         "npid" => patient_bean.national_id,
         "family_name"=> patient_bean.last_name,
         "given_name"=> patient_bean.first_name,
         "gender"=> patient_bean.sex,
-        "attributes"=> {
-            "occupation"=> (patient_bean.occupation rescue ""),
-            "cell_phone_number"=> (patient_bean.cell_phone_number rescue ""),
-            "citizenship" => (patient_bean.citizenship rescue ""),
-            "country_of_residence" => (patient_bean.country_of_residence rescue ""),
-        },
-        "birthdate"=> (patient_bean.birth_date.to_date.strftime("%Y-%m-%d") rescue patient_bean.birth_date),
-        "birthdate_estimated" => (patient_bean.birthdate_estimated == '0' ? false : true),
-        "current_residence"=> patient_bean.landmark,
-        "current_village"=> patient_bean.current_residence,
-        "current_district"=> patient_bean.current_district,
-        "home_village"=> patient_bean.home_village,
-        "home_ta"=> patient_bean.traditional_authority,
+        "birthdate"=> birthdate,
+        "birthdate_estimated" => birthdate_estimated,
         "home_district"=> (patient_bean.home_district || 'Other'),
         "token" => self.token
     }
+      
+   if patient_bean.landmark.present?
+     result.merge!({"current_residence" => patient_bean.landmark })
+   end
 
-    if !result['attributes']['country_of_residence'].blank? && !result['attributes']['country_of_residence'].match(/Malawi/i)
-      result['current_district'] = 'Other'
-      result['current_ta'] = 'Other'
-      result['current_village'] = 'Other'
-    end
+   if patient_bean.current_residence.present?
+     result.merge!({"current_village" => patient_bean.current_residence })
+   end
 
-    if !result['attributes']['citizenship'].blank? && !result['attributes']['citizenship'].match(/Malawi/i)
-      result['home_district'] = 'Other'
-      result['home_ta'] = 'Other'
-      result['home_village'] = 'Other'
-    end
+   if patient_bean.current_district.present?
+     result.merge!({"current_district" => patient_bean.current_district })
+   end
 
-    result['home_district'] = 'Other' if result['home_district'].blank?
-    result['attributes'].each do |k, v|
-      if v.blank? || v.to_s.match(/^N\/A$|^null$|^undefined$|^nil$/i)
-        result['attributes'].delete(k)
-      end
-    end
+   if patient_bean.home_village.present?
+     result.merge!({"home_village" => patient_bean.home_village })
+   end
 
-    result.each do |k, v|
-      if v.blank? || v.to_s.match(/^N\/A$|^null$|^undefined$|^nil$/i)
-        result.delete(k)
-      end
-    end
+   if patient_bean.traditional_authority.present?
+     result.merge!({"home_ta" => patient_bean.traditional_authority })
+   end
+
+   if patient_bean.home_district.present?
+     result.merge!({"home_district" => patient_bean.home_district })
+   end
+
+   if patient_bean.occupation.present?
+     result.merge!({"attributes" => {"occupation" => patient_bean.occupation }})
+   end
+
+   if patient_bean.cell_phone_number.present?
+     result.merge!({"attributes" => {"cell_phone_number" => patient_bean.cell_phone_number }})
+   end
+
+   if patient_bean.office_phone_number.present?
+     result.merge!({"attributes" => {"office_phone_number" => patient_bean.office_phone_number }})
+   end
+
+   if patient_bean.home_phone_number.present?
+     result.merge!({"attributes" => {"home_phone_number" => patient_bean.home_phone_number }})
+   end
+
+   if patient_bean.citizenship.present?
+     result.merge!({"attributes" => {"citizenship" => patient_bean.citizenship }})
+   end
+
+   if patient_bean.country_of_residence.present?
+     result.merge!({"attributes" => {"country_of_residence" => patient_bean.country_of_residence }})
+   end
 
     data = nil
     url = "#{self.dde2_url}/v1/update_patient"
