@@ -64,7 +64,8 @@ class PeopleController < GenericPeopleController
         if create_from_dde_server
           patient = found_person.patient
           old_npid = params[:identifier].gsub(/\-/, '').upcase.strip
-          new_npid = patient.national_id.gsub(/\-/, '').upcase.strip
+          patient_bean = PatientService.get_patient(found_person)
+          new_npid = patient_bean.national_id.gsub(/\-/, '').upcase.strip
 
           if old_npid != new_npid
             print_and_redirect("/patients/national_id_label?patient_id=#{patient.id}", next_task(patient)) and return

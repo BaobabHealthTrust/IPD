@@ -230,7 +230,7 @@ class GenericPeopleController < ApplicationController
     if current_program_location == "HIV program"
       hiv_session = true
     end
-
+    Person.session_datetime = session[:datetime].to_date rescue Date.today
     if create_from_dde_server
      formatted_demographics = DDE2Service.format_params(params, Person.session_datetime)
      if DDE2Service.is_valid?(formatted_demographics)
