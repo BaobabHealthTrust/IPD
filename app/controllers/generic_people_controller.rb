@@ -398,7 +398,6 @@ class GenericPeopleController < ApplicationController
 
   def region
     region_conditions = ["name LIKE (?)", "#{params[:value]}%"]
-
     regions = Region.find(:all,:conditions => region_conditions, :order => 'region_id')
     regions = regions.map do |r|
       if r.name != "Foreign"
