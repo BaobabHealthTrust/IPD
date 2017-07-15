@@ -476,6 +476,7 @@ module DDE2Service
         "birthdate"=> birthdate,
         "birthdate_estimated" => birthdate_estimated,
         "home_district"=> (patient_bean.home_district || 'Other'),
+        "attributes" => {},
         "token" => self.token
     }
       
@@ -504,29 +505,29 @@ module DDE2Service
    end
 
    if patient_bean.occupation.present?
-     result.merge!({"attributes" => {"occupation" => patient_bean.occupation }})
+     result["attributes"].merge!({"occupation" => patient_bean.occupation})
    end
 
    if patient_bean.cell_phone_number.present?
-     result.merge!({"attributes" => {"cell_phone_number" => patient_bean.cell_phone_number }})
+     result["attributes"].merge!({"cell_phone_number" => patient_bean.cell_phone_number})
    end
 
    if patient_bean.office_phone_number.present?
-     result.merge!({"attributes" => {"office_phone_number" => patient_bean.office_phone_number }})
+     result["attributes"].merge!({"office_phone_number" => patient_bean.office_phone_number})
    end
 
    if patient_bean.home_phone_number.present?
-     result.merge!({"attributes" => {"home_phone_number" => patient_bean.home_phone_number }})
+    result["attributes"].merge!({"home_phone_number" => patient_bean.home_phone_number})
    end
 
    if patient_bean.citizenship.present?
-     result.merge!({"attributes" => {"citizenship" => patient_bean.citizenship }})
+     result["attributes"].merge!({"citizenship" => patient_bean.citizenship})
    end
 
    if patient_bean.country_of_residence.present?
-     result.merge!({"attributes" => {"country_of_residence" => patient_bean.country_of_residence }})
+     result["attributes"].merge! ({"country_of_residence" => patient_bean.country_of_residence})
    end
-
+   
     data = nil
     url = "#{self.dde2_url}/v1/update_patient"
 
