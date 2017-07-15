@@ -1884,11 +1884,19 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
   def self.update_demographics(params)
     person = Person.find(params['person_id'])
+    ta = nil
+    if params["filter"]["t_a"].present?
+      ta =  {"county_district" => params["filter"]["t_a"] }
+    end  
+    
     if params.has_key?('person')
       params = params['person']
     end
 
     address_params = params["addresses"]
+    if ta.present?
+      address_params.merge! (ta)
+    end  
     names_params = params["names"]
     patient_params = params["patient"]
     person_attribute_params = params["attributes"]

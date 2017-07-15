@@ -386,6 +386,7 @@ class PatientsController < GenericPatientsController
       redirect_to(:action => 'modify_demographics', :patient_id => person.patient.patient_id, :field => 'birthdate') and return
     end
     end
+ 
    PatientService.update_demographics(params)
    redirect_to :action => 'edit_demographics', :patient_id => params['person_id'] and return
   end
