@@ -1077,6 +1077,7 @@ EOF
     patient.home_district = person.addresses.first.address2
     patient.traditional_authority = person.addresses.first.county_district
     patient.current_residence = person.addresses.first.city_village
+    patient.current_ta = (person.addresses.first.township_division rescue "")
     patient.landmark = person.addresses.first.address1
     patient.home_village = person.addresses.first.neighborhood_cell
     patient.mothers_surname = person.names.first.family_name2
@@ -1887,7 +1888,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     ta = nil
     
     if params["filter"].present? && params["filter"]["t_a"].present?
-      ta =  {"county_district" => params["filter"]["t_a"] }
+      ta =  {"township_division" => params["filter"]["t_a"] }
     end  
     
     if params.has_key?('person')
