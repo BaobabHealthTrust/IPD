@@ -1885,7 +1885,8 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
   def self.update_demographics(params)
     person = Person.find(params['person_id'])
     ta = nil
-    if params["filter"]["t_a"].present?
+    
+    if params["filter"].present? && params["filter"]["t_a"].present?
       ta =  {"county_district" => params["filter"]["t_a"] }
     end  
     
