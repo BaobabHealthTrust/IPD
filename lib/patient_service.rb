@@ -1225,7 +1225,7 @@ EOF
 		patient_params = params["patient"]
 		params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/) }
 		birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
-		person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate|occupation|cell_phone_number|identifiers/) }
+		person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate|occupation|cell_phone_number|identifiers|attributes/) }
 
 		if person_params["gender"].to_s == "Female"
       person_params["gender"] = 'F'
@@ -1233,8 +1233,6 @@ EOF
       person_params["gender"] = 'M'
 		end
     
-    raise person_params.inspect
-
 		person = Person.create(person_params)
 
 		unless birthday_params.empty?
