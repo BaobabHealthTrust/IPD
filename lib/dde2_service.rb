@@ -361,6 +361,33 @@ module DDE2Service
     data
   end
 
+  def self.update_national_id(patient_bean, new_id)
+        npid_type = PatientIdentifierType.find_by_name('National id').id
+        npid = PatientIdentifier.find_by_identifier_and_identifier_type_and_patient_id(patient_bean.national_id,
+                npid_type, patient_bean.patient_id)
+
+        PatientIdentifier.create(
+            :patient_id => npid.patient_id,
+            :creator => User.current.id,
+            :identifier => npid.identifier,
+            :identifier_type => PatientIdentifierType.find_by_name('Old Identification Number').id
+        )
+
+        PatientIdentifier.create(
+            :patient_id => npid.patient_id,
+            :creator => User.current.id,
+            :identifier =>  new_id,
+            :identifier_type => npid_type
+        )
+  
+        npid.update_attributes(
+            :voided => true,
+            :voided_by => User.current.id,
+            :void_reason => 'Reassigned NPID',
+            :date_voided => Time.now
+        )
+  end  
+
   def self.push_to_dde2(patient_bean)
 
     from_dde2 = self.search_by_identifier(patient_bean.national_id)

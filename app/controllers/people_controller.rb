@@ -44,6 +44,12 @@ class PeopleController < GenericPeopleController
           elsif (p.blank? || p.count == 0) && local_results.count == 1
             patient_bean = PatientService.get_patient(local_results.first)
             DDE2Service.push_to_dde2(patient_bean)
+          elsif p.count == 1 and local_results.count == 1
+            patient_bean = PatientService.get_patient(local_results.first)
+            new_id = p.first["npid"] rescue nil
+            if new_id.present? && new_id.length == 6 && new_id != patient_bean.national_id
+              DDE2Service.update_national_id(patient_bean, new_id)
+            end    
           end
 				end
 
