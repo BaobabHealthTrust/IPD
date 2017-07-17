@@ -1232,6 +1232,8 @@ EOF
 		elsif person_params["gender"].to_s == "Male"
       person_params["gender"] = 'M'
 		end
+    
+    raise person_params.inspect
 
 		person = Person.create(person_params)
 
@@ -1897,7 +1899,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
 
     address_params = params["addresses"]
     if ta.present?
-      address_params.merge! (ta)
+      address_params.merge!(ta)
     end  
     names_params = params["names"]
     patient_params = params["patient"]
