@@ -1221,7 +1221,6 @@ EOF
 	def self.create_from_form(params)
     return nil if params.blank?
     address_params = params["addresses"]
-    raise address_params.inspect
 		names_params = params["names"]
 		patient_params = params["patient"]
 		params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number|agrees_to_be_visited_for_TB_therapy|agrees_phone_text_for_TB_therapy/) }
