@@ -1235,9 +1235,9 @@ EOF
     
 		person = Person.create(person_params)
     
-    if params["filter"]["ta"].present?
-      address_params.merge! ({"township_division" => params["filter"]["ta"]})
-    end 
+	if (params["filter"] && params["filter"]["ta"].present?)
+      		address_params.merge! ({"township_division" => params["filter"]["ta"]})
+    	end 
     
     if params["filter_district"].present?
        address_params.merge! ({"state_province" => params["filter_district"]})
