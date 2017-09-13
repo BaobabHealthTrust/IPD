@@ -357,6 +357,47 @@ module DDE2Service
     return people
   end
 
+  def self.update_local_from_dde2(data, person)
+		name = person.names.last
+		address = person.addresses.last
+		
+		name.update_attributes(
+			:given_name => data['names']['given_name'],
+			:middle_name => data['names']['middle_name'],
+			:family_name => data['names']['family_name']
+		)
+		
+		person.update_attributes(
+			:gender => data['gender'],
+			:birthdate => data['birthdate'],
+			:birthdate_estimated => data['birthdate_estimated']
+		)
+
+		address.update_attributes(
+			{"address1"=> (data['addresses']["current_residence"] rescue ""),
+       'township_division' => (data['addresses']['current_ta'] rescue ""),
+       "address2"=> (data['addresses']["home_district"] rescue ""),
+       "city_village"=> (data['addresses']["current_village"] rescue ""),
+       "state_province"=> (data['addresses']["current_district"] rescue ""),
+       "neighborhood_cell"=> (data['addresses']["home_village"] rescue ""),
+       "county_district"=> (data['addresses']["home_ta"] rescue "")}
+		) 
+		
+		(data['attributes'] || {}).each {|k, v|
+			next if v.blank? 
+			type = PersonAttributeType.find_by_name(k.humanize).id rescue nil 
+			next if type.blank?
+			attribute = PersonAttribute.find_by_person_id_and_person_attribute_type_id(person.id, type)
+			attribute = PersonAttribute.new if attribute.blank? 
+
+			attribute.person_attribute_type_id = type
+			attribute.person_id = person.id
+			attribute.value = v
+			attribute.save
+		}
+		true
+	end 
+
   def self.update_local_demographics(data)
     data
   end
