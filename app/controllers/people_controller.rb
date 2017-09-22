@@ -161,7 +161,7 @@ class PeopleController < GenericPeopleController
 
     @return_path = response[:return_path] rescue nil
     @local_duplicates = ([params[:local_data]] rescue []).compact
-    @remote_duplicates = response['data'] rescue []
+    @remote_duplicates = response['data'] rescue response
 
     (@local_duplicates || []).each do |r|
       r['return_path'] = response['return_path']
